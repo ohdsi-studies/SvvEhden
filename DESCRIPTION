@@ -4,13 +4,13 @@ Title: SVVEHDEN
 Version: 0.0.1
 Date: 2021-11-01
 Authors@R: c(
-	person("Oskar", "Gauffin", email = "oskar.gauffin@who-umc.org", role = c("aut", "cre")),
-	person("Sara", "Vidlin", email = "sara.vidlin@who-umc.org", role = c("aut")),
+	person("Oskar", "Gauffin", email = "oskar.gauffin@who-umc.org", role = c("aut")),
+	person("Sara", "Vidlin", email = "sara.vidlin@who-umc.org", role = c("aut", "cre")),
 	person("Judith", "Brand", email = "judith.brand@who-umc.org", role = c("aut")),
 	person("Observational Health Data Science and Informatics", role = c("cph"))
 	)
-Maintainer: Oskar Gauffin <oskar.gauffin@who-umc.org>
-Description: Aggregation of data for the SVVEHDEN Study-A-Thon
+Maintainer: Sara Vidlin Gauffin <sara.vidlin@who-umc.org>
+Description: Aggregation of data for the SVVEHDEN Study-A-Thon.
 URL: todo
 BugReports: todo
 Depends:
