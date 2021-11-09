@@ -1,0 +1,24 @@
+Package: SVVEHDEN
+Type: Package
+Title: SVVEHDEN
+Version: 0.0.1
+Date: 2021-11-01
+Authors@R: c(
+	person("Oskar", "Gauffin", email = "oskar.gauffin@who-umc.org", role = c("aut", "cre")),
+	person("Sara", "Vidlin", email = "sara.vidlin@who-umc.org", role = c("aut")),
+	person("Judith", "Brand", email = "judith.brand@who-umc.org", role = c("aut")),
+	person("Observational Health Data Science and Informatics", role = c("cph"))
+	)
+Maintainer: Oskar Gauffin <oskar.gauffin@who-umc.org>
+Description: Aggregation of data for the SVVEHDEN Study-A-Thon
+URL: todo
+BugReports: todo
+Depends:
+	DatabaseConnector (>= 4.0.2),
+Imports:
+	SqlRender,
+	ParallelLogger,
+	ggplot2,
+	gridExtra
+License: Apache License 2.0
+RoxygenNote: 7.1.2
