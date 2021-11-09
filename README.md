@@ -26,8 +26,6 @@ How to run
 ==========
 1. Follow [these instructions](https://ohdsi.github.io/Hades/rSetup.html) for setting up your R environment, including RTools and Java. 
 
-TODO: run script to set custom era length
-
 2. Open your study package in RStudio. Use the following code to install all the dependencies:
 
 	```r
@@ -36,13 +34,7 @@ TODO: run script to set custom era length
 
 3. In RStudio, select 'Build' then 'Install and Restart' to build the package.
 
-3. Once installed, you can execute the study by modifying and using the code below. For your convenience, this code is also provided under `extras/CodeToRun.R`:
-
-	```r
-	library(SVVEHDEN)
-	
-	# TODO
-	```
+3. Once installed, you can execute the study by modifying and using the code provided under `extras/CodeToRun.R`.
 
 4. Upload the file ```export/Results_<DatabaseId>.zip``` in the output folder to the study coordinator:
 
