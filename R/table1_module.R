@@ -120,19 +120,27 @@ table1_module <- function(i, cohort_list, saddle){
   # Look at outcomes
   ##########################################
   
-  ## Compare two cohorts drug+event (1) and drug (2)
-  if(verbose) { print("cohort 1 vs 2 table") }
-  #standardized_mean_comparison_table  <- computeStandardizedDifference(cohort1a, cohort2)
-  table_1_output <- FeatureExtraction::createTable1(covariateData1 = custom_aggregateCovariates(cohort1), 
-                                 covariateData2 = custom_aggregateCovariates(cohort2),
-                                 specifications = FeatureExtraction::getDefaultTable1Specifications(),
-                                 output = "two columns",
-                                 showCounts = FALSE,
-                                 showPercent = TRUE,
-                                 percentDigits = 1,
-                                 valueDigits = 1,
-                                 stdDiffDigits = 2)
-  # table_1_output <-  table1_two_cohorts # print(table1_two_cohorts, row.names = FALSE, right = FALSE)
+  table_1_output = data.frame()
+  table_2_output = data.frame()
+  table_3_output = data.frame()
+  
+  tryCatch({
+    ## Compare two cohorts drug+event (1) and drug (2)
+    if(verbose) { print("cohort 1 vs 2 table") }
+    #standardized_mean_comparison_table  <- computeStandardizedDifference(cohort1a, cohort2)
+    table_1_output <- FeatureExtraction::createTable1(covariateData1 = custom_aggregateCovariates(cohort1), 
+                                   covariateData2 = custom_aggregateCovariates(cohort2),
+                                   specifications = FeatureExtraction::getDefaultTable1Specifications(),
+                                   output = "two columns",
+                                   showCounts = FALSE,
+                                   showPercent = TRUE,
+                                   percentDigits = 1,
+                                   valueDigits = 1,
+                                   stdDiffDigits = 2)
+    # table_1_output <-  table1_two_cohorts # print(table1_two_cohorts, row.names = FALSE, right = FALSE)
+  }, error = function(e) {
+  error_printer(e, i, saddle$output_path)
+  })
   
   ## Compare two cohorts drug+event (1) and event (3)
   #if(verbose) { print("cohort 1 vs 3 table") }
@@ -147,30 +155,39 @@ table1_module <- function(i, cohort_list, saddle){
   #                               valueDigits = 1,
   #                               stdDiffDigits = 2)
   # table_2_output <- table2_two_cohorts #print(table2_two_cohorts, row.names = FALSE, right = FALSE))
+
+  tryCatch({  
+    if(verbose) { print("cohort 3 vs 4 table") }
+    #standardized_mean_comparison_table  <- computeStandardizedDifference(cohort1a, cohort2)
+    table_2_output <- FeatureExtraction::createTable1(covariateData1 = custom_aggregateCovariates(cohort3), 
+                                                      covariateData2 = custom_aggregateCovariates(cohort4),
+                                                      specifications = FeatureExtraction::getDefaultTable1Specifications(),
+                                                      output = "two columns",
+                                                      showCounts = FALSE,
+                                                      showPercent = TRUE,
+                                                      percentDigits = 1,
+                                                      valueDigits = 1,
+                                                      stdDiffDigits = 2)
+  }, error = function(e) {
+    error_printer(e, i, saddle$output_path)
+  })
   
-  if(verbose) { print("cohort 3 vs 4 table") }
-  #standardized_mean_comparison_table  <- computeStandardizedDifference(cohort1a, cohort2)
-  table_2_output <- FeatureExtraction::createTable1(covariateData1 = custom_aggregateCovariates(cohort3), 
-                                                    covariateData2 = custom_aggregateCovariates(cohort4),
-                                                    specifications = FeatureExtraction::getDefaultTable1Specifications(),
-                                                    output = "two columns",
-                                                    showCounts = FALSE,
-                                                    showPercent = TRUE,
-                                                    percentDigits = 1,
-                                                    valueDigits = 1,
-                                                    stdDiffDigits = 2)
+  tryCatch({  
+    if(verbose) { print("cohort 2 vs 4 table") }
+    #standardized_mean_comparison_table  <- computeStandardizedDifference(cohort1a, cohort2)
+    table_3_output <- FeatureExtraction::createTable1(covariateData1 = custom_aggregateCovariates(cohort2), 
+                                                      covariateData2 = custom_aggregateCovariates(cohort4),
+                                                      specifications = FeatureExtraction::getDefaultTable1Specifications(),
+                                                      output = "two columns",
+                                                      showCounts = FALSE,
+                                                      showPercent = TRUE,
+                                                      percentDigits = 1,
+                                                      valueDigits = 1,
+                                                      stdDiffDigits = 2)
+  }, error = function(e) {
+    error_printer(e, i, saddle$output_path)
+  })  
   
-  if(verbose) { print("cohort 2 vs 4 table") }
-  #standardized_mean_comparison_table  <- computeStandardizedDifference(cohort1a, cohort2)
-  table_3_output <- FeatureExtraction::createTable1(covariateData1 = custom_aggregateCovariates(cohort2), 
-                                                    covariateData2 = custom_aggregateCovariates(cohort4),
-                                                    specifications = FeatureExtraction::getDefaultTable1Specifications(),
-                                                    output = "two columns",
-                                                    showCounts = FALSE,
-                                                    showPercent = TRUE,
-                                                    percentDigits = 1,
-                                                    valueDigits = 1,
-                                                    stdDiffDigits = 2)
   
   # if(verbose) { print("Summarizing kaplan meier plot") }
   # kaplan_meier_output <- plotKaplanMeier(studyPopulation, includeZero = FALSE)
