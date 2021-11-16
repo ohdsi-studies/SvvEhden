@@ -32,11 +32,11 @@ How to run
 	renv::restore()
 	```
 
-3. In RStudio, select 'Build' then 'Install and Restart' to build the package.
+~~3. In RStudio, select 'Build' then 'Install and Restart' to build the package.~~
 
 3. Once installed, you can execute the study by modifying and using the code provided under `extras/CodeToRun.R`.
 
-4. Upload the file ```<outputFolderPath>/Results_<DatabaseId>_<Date>.zip``` in the output folder to the study coordinator:
+~~4. Upload the file ```<outputFolderPath>/Results_<DatabaseId>_<Date>.zip``` in the output folder to the study coordinator:
 
 	```r
 	uploadResults(outputFolder, privateKeyFileName = "<file>", userName = "<name>")
@@ -47,7 +47,7 @@ How to run
 5. To view the results, use the Shiny app:
 
 	```r
-	CohortDiagnostics::launchDiagnosticsExplorer()
+	CohortDiagnostics::launchDiagnosticsExplorer()~~
 	```
 
 License
