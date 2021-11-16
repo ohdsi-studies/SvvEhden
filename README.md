@@ -34,20 +34,20 @@ How to run
 
 ~~3. In RStudio, select 'Build' then 'Install and Restart' to build the package.~~
 
-3. Once installed, you can execute the study by modifying and using the code provided under `extras/CodeToRun.R`.
+4. Once installed, you can execute the study by modifying and using the code provided under `extras/CodeToRun.R`.
 
-~~4. Upload the file ```<outputFolderPath>/Results_<DatabaseId>_<Date>.zip``` in the output folder to the study coordinator:~~
+~~5. Upload the file ```<outputFolderPath>/Results_<DatabaseId>_<Date>.zip``` in the output folder to the study coordinator:~~
 
 	```r
-	~~uploadResults(outputFolder, privateKeyFileName = "<file>", userName = "<name>")~~
+	uploadResults(outputFolder, privateKeyFileName = "<file>", userName = "<name>")
 	```
 	
 	~~Where ```<file>``` and ```<name>``` are the credentials provided to you personally by the study coordinator.~~
 		
-~~5. To view the results, use the Shiny app:~~
+~~6. To view the results, use the Shiny app:~~
 
 	```r
-	~~CohortDiagnostics::launchDiagnosticsExplorer()~~
+	CohortDiagnostics::launchDiagnosticsExplorer()
 	```
 
 License
