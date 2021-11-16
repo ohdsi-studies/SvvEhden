@@ -39,11 +39,11 @@ cohort_module <- function(i,
   dec_input <- saddle$dec_df[i,]
   all_drugs <- saddle$all_drugs
   connectionDetails <- saddle$connectionDetails
-  db_name <- saddle$db_name
-  schema_name <- saddle$schema_name
+  cdmDatabaseSchema <- saddle$databaseSchema
   resultsDatabaseSchema <- saddle$resultsDatabaseSchema 
   resultsTableName <- saddle$resultsTableName
   verbose <- saddle$overall_verbose
+  schema = strsplit(cdmDatabaseSchema, split = ".", fixed = TRUE)[[1]][2]
   
   # # For debugging:
   # dec_input <- dec_df[1,]
@@ -57,13 +57,13 @@ cohort_module <- function(i,
   
   tic("Cohort_module")
   conn <- suppressMessages(invisible(DatabaseConnector::connect(connectionDetails)))
-  cdmDatabaseSchema = paste0(db_name,".",schema_name)  # Where the OMOP-data is stored, note the database-name
   tempTableName = resultsTableName
   
   # Unpack the input
   c(drug_name, event_name, drug_id, event_id) %<-% dec_input[1:4]
-  drug_id = gsub(pattern = '|', replacement = ',', x=drug_id, fixed = TRUE) # split with commas if several
-  event_id = gsub(pattern = '|', replacement = ',', x=event_id, fixed = TRUE) # split with commas if several
+  
+  drug_id_string_commaseparated = gsub(pattern = '|', replacement = ',', x=drug_id, fixed = TRUE) # split with commas if several
+  event_id_string_commaseparated = gsub(pattern = '|', replacement = ',', x=event_id, fixed = TRUE) # split with commas if several
   
   #Create the cohorts in a table in the database
   sql <- readSql("..\\inst\\sql\\generic_cohort_definition_script.sql")
@@ -72,9 +72,9 @@ cohort_module <- function(i,
                            cdmDatabaseSchema = cdmDatabaseSchema,
                            resultsDatabaseSchema = resultsDatabaseSchema,
                            tempTableName = tempTableName, 
-                           exposure_drug_ids = drug_id,
+                           exposure_drug_ids = drug_id_string_commaseparated,
                            comparator_drug_ids = all_drugs,
-                           event_ids = event_id,
+                           event_ids = event_id_string_commaseparated,
                            maximum_cohort_size = maximum_cohort_size)
   
   # writeLines(sql)
@@ -94,10 +94,15 @@ cohort_module <- function(i,
   # Documentation says that the cohort-defining features can't be covariates 
   # https://ohdsi.github.io/FeatureExtraction/reference/createCovariateSettings.html
   # TODO: make sure we include what we need here
-  covSettings <- suppressMessages(custom_createCovariateSettings(exclude_these = c(str_split(event_id, fixed(",")), str_split(drug_id, fixed(","))))) #for cohort1-3: exclude event and drug from covariates
+  
+  # Must be numberic, not strings!
+  event_id_int_frame = sapply(str_split(event_id, fixed("|")), as.numeric)
+  drug_id_int_frame = sapply(str_split(drug_id, fixed("|")), as.numeric)
+  
+  covSettings <- suppressMessages(custom_createCovariateSettings(exclude_these = c(event_id_int_frame, drug_id_int_frame))) #for cohort1-3: exclude event and drug from covariates
   attributes(covSettings)$fun = "custom_getDbDefaultCovariateData"
   
-  covSettings4 <- suppressMessages(custom_createCovariateSettings(exclude_these = c(str_split(event_id, fixed(",")), all_drugs))) #for cohort4: exclude all drug_ids from covariates
+  covSettings4 <- suppressMessages(custom_createCovariateSettings(exclude_these = c(event_id_int_frame, all_drugs))) #for cohort4: exclude all drug_ids from covariates
   attributes(covSettings4)$fun = "custom_getDbDefaultCovariateData"
   
   
@@ -128,9 +133,9 @@ cohort_module <- function(i,
   ########################################################################
   #cohort 1: drug + event
   drugEventString = paste0(drug_id, "-" ,event_id)
-  filename = paste0("cohort_data/",schema_name,"_cohortMethodData-",drugEventString,".Rdata")
-  filename2 = paste0("cohort_data/", schema_name, "_cohort11-", drugEventString, ".Rdata")
-  filename3 = paste0("cohort_data/",schema_name,"_studyPopulation-",drugEventString,".Rdata")
+  filename = paste0("cohort_data/",schema,"_cohortMethodData-",drugEventString,".Rdata")
+  filename2 = paste0("cohort_data/", schema, "_cohort11-", drugEventString, ".Rdata")
+  filename3 = paste0("cohort_data/",schema,"_studyPopulation-",drugEventString,".Rdata")
   
   tic()
   if (!file.exists(filename) | !file.exists(filename2) | !file.exists(filename3) | force_create_new){
@@ -161,7 +166,7 @@ cohort_module <- function(i,
       verbose=FALSE))
 
     #TODO: make sure this is the correct settings for us
-    studyPopulation <- suppressMessages(createStudyPopulation(cohortMethodData = cohortMethodData,
+    studyPopulation <- suppressMessages(CohortMethod::createStudyPopulation(cohortMethodData = cohortMethodData,
                                                               outcomeId = 31,
                                                               firstExposureOnly = FALSE,
                                                               restrictToCommonPeriod = FALSE,
@@ -177,7 +182,7 @@ cohort_module <- function(i,
                                                               censorAtNewRiskWindow = FALSE))
 
     #TODO: make sure this corresponds to the exact same data as in the above cohortMethodData
-    cohort11 <- suppressMessages(getDbCovariateData(
+    cohort11 <- suppressMessages(FeatureExtraction::getDbCovariateData(
       connectionDetails = connectionDetails,
       cdmDatabaseSchema = cdmDatabaseSchema,
       cohortDatabaseSchema = resultsDatabaseSchema,
@@ -186,27 +191,27 @@ cohort_module <- function(i,
       covariateSettings = covSettings,
       aggregated = FALSE))
 
-    suppressMessages(saveCohortMethodData(cohortMethodData, file = filename))
-    suppressMessages(saveCovariateData(cohort11, file = filename2))
-    suppressMessages(saveRDS(studyPopulation, file = filename3))
+    if(!force_create_new) { suppressMessages(CohortMethod::saveCohortMethodData(cohortMethodData, file = filename)) }
+    if(!force_create_new) { suppressMessages(FeatureExtraction::saveCovariateData(cohort11, file = filename2)) }
+    if(!force_create_new) { suppressMessages(saveRDS(studyPopulation, file = filename3)) }
   }  
-  cohortMethodData <- suppressMessages(loadCohortMethodData(file = filename))
-  cohort11 <- suppressMessages(loadCovariateData(file = filename2))
-  studyPopulation <- suppressMessages(readRDS(file = filename3))
+  if(!force_create_new) { cohortMethodData <- suppressMessages(CohortMethod::loadCohortMethodData(file = filename)) }
+  if(!force_create_new) { cohort11 <- suppressMessages(FeatureExtraction::loadCovariateData(file = filename2)) }
+  if(!force_create_new) { studyPopulation <- suppressMessages(readRDS(file = filename3)) }
   
   
   ########################################################################
   # cohort 21: drug
   
   tic()
-  filename = paste0("cohort_data/",schema_name,"_cohort21-",drug_id,".Rdata")
+  filename = paste0("cohort_data/",schema,"_cohort21-",drug_id,".Rdata")
   if (!file.exists(filename) | force_create_new){
     # compute cohort and save to file
     if(verbose) {print(paste0("Retrieving covariates for cohort 21 from scratch, saving to : ", filename)) }
     
     #TODO: make sure this is the correct settings for us
     #TODO: implement only including one random occurrence of each person
-    cohort21 <- suppressMessages(getDbCovariateData(connectionDetails = connectionDetails,
+    cohort21 <- suppressMessages(FeatureExtraction::getDbCovariateData(connectionDetails = connectionDetails,
                                                     cdmDatabaseSchema = cdmDatabaseSchema,
                                                     cohortDatabaseSchema = resultsDatabaseSchema,
                                                     cohortTable = tempTableName,
@@ -214,20 +219,20 @@ cohort_module <- function(i,
                                                     covariateSettings = covSettings,
                                                     aggregated = FALSE))
     
-    suppressMessages(saveCovariateData(cohort21, file = filename))
+    suppressMessages(FeatureExtraction::saveCovariateData(cohort21, file = filename))
   }  
-  cohort21 <- loadCovariateData(file = filename)
+  cohort21 <- FeatureExtraction::loadCovariateData(file = filename)
   
   ########################################################################
   # cohort 31: event
-  filename = paste0("cohort_data/",schema_name,"_cohort31-",event_id,".Rdata")
+  filename = paste0("cohort_data/",schema,"_cohort31-",event_id,".Rdata")
   if (!file.exists(filename) | force_create_new){
     # compute cohort and save to file
     if(verbose) { print(paste0("Retrieving covariates for cohort 3 from scratch, saving to : ", filename)) }
     
     #TODO: make sure this is the correct settings for us
     #TODO: implement only including one random occurence of each person
-    cohort31 <- suppressMessages(getDbCovariateData(connectionDetails = connectionDetails,
+    cohort31 <- suppressMessages(FeatureExtraction::getDbCovariateData(connectionDetails = connectionDetails,
                                                     cdmDatabaseSchema = cdmDatabaseSchema,
                                                     cohortDatabaseSchema = resultsDatabaseSchema,
                                                     cohortTable = tempTableName,
@@ -235,21 +240,21 @@ cohort_module <- function(i,
                                                     covariateSettings = covSettings,
                                                     aggregated = FALSE))
     
-    suppressMessages(saveCovariateData(cohort31, file = filename))
+    if(!force_create_new) { suppressMessages(FeatureExtraction::saveCovariateData(cohort31, file = filename)) }
   }  
-  cohort31 <- loadCovariateData(file = filename)
+    if(!force_create_new) { cohort31 <- FeatureExtraction::loadCovariateData(file = filename) }
   
   ########################################################################
   #cohort 41: any drug
   cohort41 = NULL
-  filename = paste0("cohort_data/",schema_name,"_cohort41-anydrug.Rdata")
+  filename = paste0("cohort_data/",schema,"_cohort41-anydrug.Rdata")
   if (!file.exists(filename) | force_create_new){
     # compute cohort and save to file
     if(verbose) { print(paste0("Retrieving covariates for cohort 41 from scratch, saving to : ", filename)) }
     
     #TODO: make sure this is the correct settings for us
     #TODO: implement only including one random occurence of each person
-    cohort41 <- suppressMessages(getDbCovariateData(connectionDetails = connectionDetails,
+    cohort41 <- suppressMessages(FeatureExtraction::getDbCovariateData(connectionDetails = connectionDetails,
                                                     cdmDatabaseSchema = cdmDatabaseSchema,
                                                     cohortDatabaseSchema = resultsDatabaseSchema,
                                                     cohortTable = tempTableName,
@@ -257,9 +262,9 @@ cohort_module <- function(i,
                                                     covariateSettings = covSettings4,
                                                     aggregated = FALSE))
     
-    suppressMessages(saveCovariateData(cohort41, file = filename))
+    if(!force_create_new) { suppressMessages(FeatureExtraction::saveCovariateData(cohort41, file = filename)) }
   }
-  cohort41 <- suppressMessages(loadCovariateData(file = filename))
+    if(!force_create_new) { cohort41 <- suppressMessages(FeatureExtraction::loadCovariateData(file = filename)) }
   
   toc()
   

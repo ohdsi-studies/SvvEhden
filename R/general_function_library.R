@@ -6,37 +6,40 @@
 # It contains basic functions that the workhorse needs to run the other scripts. 
 # The modules (demographics, comedications, comorbidities, chronograph) are sourced separately when needed. 
 
-library_packages <- 
-  function (package_vec = NULL) 
-  {
-    install_if_missing <- function(package_vec = c("package_A", 
-                                                   "package_B")) {
-      for (i in 1:length(package_vec)) {
-        if (!package_vec[i] %in% installed.packages()[, 1]) {
-          suppressMessages(invisible(install.packages(package_vec[i], 
-                                                      repos = "http://cran.us.r-project.org")))
-        }
-      }
+install_if_missing <- function(package_vec = c("package_A", 
+                                               "package_B")) {
+  for (i in 1:length(package_vec)) {
+    if (!package_vec[i] %in% installed.packages()[, 1]) {
+      suppressMessages(invisible(install.packages(package_vec[i], 
+                                                  repos = "http://cran.us.r-project.org")))
     }
-    package_vec <- c("plyr", "dplyr", "magrittr", "data.table", "stringr", "lubridate", "here", "ggplot2", 
-                     "DT", "forcats", "gridExtra", "kableExtra", "knitr", "RColorBrewer","ggnewscale", "egg",
-                     "plotly", "xlsx", "reshape2", "zeallot", "FeatureExtraction", "DatabaseConnector",
-                     "SqlRender", "CohortMethod", "tidyr", "tictoc")
-    
-    install_if_missing(package_vec)
-    invisible(suppressMessages(lapply(package_vec, library, character.only = T)))
   }
+}
+
+library_packages <- function (package_vec = NULL){
+  # Install some packages from OHDSIs github
+  if(any(! c("drat", "FeatureExtraction", "CohortMethod") %in% installed.packages()[,1])){
+    drat::addRepo("OHDSI")
+    install.packages("FeatureExtraction")
+    install.packages("CohortMethod")
+  }
+  
+  package_vec <- c("plyr", "dplyr", "magrittr", "data.table", "stringr", "lubridate", "here", "ggplot2", 
+                   "DT", "forcats", "gridExtra", "kableExtra", "knitr", "RColorBrewer","ggnewscale", "egg",
+                   "plotly", "xlsx", "reshape2", "zeallot", "DatabaseConnector",
+                   "SqlRender", "tidyr", "tictoc")
+  
+  install_if_missing(package_vec)
+  invisible(suppressMessages(lapply(package_vec, library, character.only = T)))
+}
 
 library_packages(package_vec)
 
-get_all_drugs <- function(conn, db_name = "OmopCdm", schema_name="mini"){
+get_all_drugs <- function(conn, databaseSchema){
   
   # Will find these parameters from the workhorse scope
-  # db_name = db_name
-  # schema_name = schema_name 
-  
-  sql_query <- "SELECT DISTINCT drug_concept_id FROM [@db_name].[@schema_name].[drug_era]"
-  drug_ids <- querySql(conn, SqlRender::render(sql_query, db_name=db_name, schema_name=schema_name)) %>% pull(DRUG_CONCEPT_ID)
+  sql_query <- "SELECT DISTINCT drug_concept_id FROM @databaseSchema.[drug_era]"
+  drug_ids <- querySql(conn, SqlRender::render(sql_query, databaseSchema=databaseSchema)) %>% pull(DRUG_CONCEPT_ID)
   return(drug_ids)
 }
 
@@ -320,147 +323,147 @@ custom_getDbCohortMethodData <- function (connectionDetails, cdmDatabaseSchema, 
 
 custom_createCovariateSettings <- function(exclude_these){
   
-  output <- createCovariateSettings(
-
-  # Demographics
-  useDemographicsGender = TRUE,
-  useDemographicsAge = TRUE,
-  useDemographicsAgeGroup = FALSE,
-  useDemographicsRace = FALSE,
-  useDemographicsEthnicity = FALSE,
-  useDemographicsIndexYear = FALSE,
-  useDemographicsIndexMonth = FALSE,
-  useDemographicsPriorObservationTime = FALSE,
-  useDemographicsPostObservationTime = FALSE,
-  useDemographicsTimeInCohort = FALSE,
-  useDemographicsIndexYearMonth = FALSE,
-  
-  # Condition occurrence 
-  useConditionOccurrenceAnyTimePrior = FALSE,
-  useConditionOccurrenceLongTerm = TRUE, #### 
-  useConditionOccurrenceMediumTerm = FALSE,
-  useConditionOccurrenceShortTerm = FALSE,
-  useConditionOccurrencePrimaryInpatientAnyTimePrior = FALSE,
-  useConditionOccurrencePrimaryInpatientLongTerm = FALSE,
-  useConditionOccurrencePrimaryInpatientMediumTerm = FALSE,
-  useConditionOccurrencePrimaryInpatientShortTerm = FALSE,
-  
-  # Condition era
-  useConditionEraAnyTimePrior = FALSE,
-  useConditionEraLongTerm = FALSE,
-  useConditionEraMediumTerm = FALSE,
-  useConditionEraShortTerm = FALSE,
-  useConditionEraOverlapping = FALSE,
-  useConditionEraStartLongTerm = FALSE,
-  useConditionEraStartMediumTerm = FALSE,
-  useConditionEraStartShortTerm = FALSE,
-  
-  # Condition group
-  useConditionGroupEraAnyTimePrior = FALSE,
-  useConditionGroupEraLongTerm = TRUE, ####,    
-  useConditionGroupEraMediumTerm = FALSE, 
-  useConditionGroupEraShortTerm = FALSE, 
-  useConditionGroupEraOverlapping = FALSE,
-  useConditionGroupEraStartLongTerm = FALSE,
-  useConditionGroupEraStartMediumTerm = FALSE,
-  useConditionGroupEraStartShortTerm = FALSE,
-  
-  # DrugExposure
-  useDrugExposureAnyTimePrior = FALSE,
-  useDrugExposureLongTerm = FALSE,
-  useDrugExposureMediumTerm = FALSE,
-  useDrugExposureShortTerm = FALSE,
-  useDrugEraAnyTimePrior = FALSE,
-  useDrugEraLongTerm = FALSE,
-  useDrugEraMediumTerm = FALSE,
-  useDrugEraShortTerm = FALSE,
-  useDrugEraOverlapping = FALSE,
-  useDrugEraStartLongTerm = FALSE,
-  useDrugEraStartMediumTerm = FALSE,
-  useDrugEraStartShortTerm = FALSE,
-  
-  # Groups of drugs
-  useDrugGroupEraAnyTimePrior = FALSE,
-  useDrugGroupEraLongTerm = TRUE, ####,
-  useDrugGroupEraMediumTerm = FALSE, 
-  useDrugGroupEraShortTerm = FALSE, 
-  useDrugGroupEraOverlapping = FALSE,
-  useDrugGroupEraStartLongTerm = FALSE,
-  useDrugGroupEraStartMediumTerm = FALSE,
-  useDrugGroupEraStartShortTerm = FALSE,
-  
-  # Procedures
-  useProcedureOccurrenceAnyTimePrior = FALSE,
-  useProcedureOccurrenceLongTerm = FALSE,
-  useProcedureOccurrenceMediumTerm = FALSE,
-  useProcedureOccurrenceShortTerm = FALSE,
-  
-  # Devices
-  useDeviceExposureAnyTimePrior = FALSE,
-  useDeviceExposureLongTerm = FALSE,
-  useDeviceExposureMediumTerm = FALSE,
-  useDeviceExposureShortTerm = FALSE,
-  
-  # Measurements
-  useMeasurementAnyTimePrior = FALSE,
-  useMeasurementLongTerm = FALSE,
-  useMeasurementMediumTerm = FALSE,
-  useMeasurementShortTerm = FALSE,
-  useMeasurementValueAnyTimePrior = FALSE,
-  useMeasurementValueLongTerm = FALSE,
-  useMeasurementValueMediumTerm = FALSE,
-  useMeasurementValueShortTerm = FALSE,
-  useMeasurementRangeGroupAnyTimePrior = FALSE,
-  useMeasurementRangeGroupLongTerm = FALSE,
-  useMeasurementRangeGroupMediumTerm = FALSE,
-  useMeasurementRangeGroupShortTerm = FALSE,
-  
-  # Observation
-  useObservationAnyTimePrior = FALSE,
-  useObservationLongTerm = FALSE,
-  useObservationMediumTerm = FALSE,
-  useObservationShortTerm = FALSE,
-  
-  # Indexes
-  useCharlsonIndex = FALSE,
-  useDcsi = FALSE,
-  useChads2 = FALSE,
-  useChads2Vasc = FALSE,
-  useHfrs = FALSE,
-  
-  # Counts
-  useDistinctConditionCountLongTerm = FALSE,
-  useDistinctConditionCountMediumTerm = FALSE,
-  useDistinctConditionCountShortTerm = FALSE,
-  useDistinctIngredientCountLongTerm = FALSE,
-  useDistinctIngredientCountMediumTerm = FALSE,
-  useDistinctIngredientCountShortTerm = FALSE,
-  useDistinctProcedureCountLongTerm = FALSE,
-  useDistinctProcedureCountMediumTerm = FALSE,
-  useDistinctProcedureCountShortTerm = FALSE,
-  useDistinctMeasurementCountLongTerm = FALSE,
-  useDistinctMeasurementCountMediumTerm = FALSE,
-  useDistinctMeasurementCountShortTerm = FALSE,
-  useDistinctObservationCountLongTerm = FALSE,
-  useDistinctObservationCountMediumTerm = FALSE,
-  useDistinctObservationCountShortTerm = FALSE,
-  useVisitCountLongTerm = FALSE,
-  useVisitCountMediumTerm = FALSE,
-  useVisitCountShortTerm = FALSE,
-  useVisitConceptCountLongTerm = FALSE,
-  useVisitConceptCountMediumTerm = FALSE,
-  useVisitConceptCountShortTerm = FALSE,
-  
-  # Time limits
-  longTermStartDays = -round(180),
-  mediumTermStartDays = -180,
-  shortTermStartDays = -3*30,
-  endDays = 0,
-  includedCovariateConceptIds = c(),
-  addDescendantsToInclude = TRUE,
-  includedCovariateIds = c(),
-  excludedCovariateConceptIds = exclude_these, 
-  addDescendantsToExclude = TRUE)
+  output <- FeatureExtraction::createCovariateSettings(
+    
+    # Demographics
+    useDemographicsGender = TRUE,
+    useDemographicsAge = TRUE,
+    useDemographicsAgeGroup = TRUE,
+    useDemographicsRace = FALSE,
+    useDemographicsEthnicity = FALSE,
+    useDemographicsIndexYear = FALSE,
+    useDemographicsIndexMonth = FALSE,
+    useDemographicsPriorObservationTime = FALSE,
+    useDemographicsPostObservationTime = FALSE,
+    useDemographicsTimeInCohort = FALSE,
+    useDemographicsIndexYearMonth = FALSE,
+    
+    # Condition occurrence 
+    useConditionOccurrenceAnyTimePrior = FALSE,
+    useConditionOccurrenceLongTerm = TRUE, #### 
+    useConditionOccurrenceMediumTerm = FALSE,
+    useConditionOccurrenceShortTerm = FALSE,
+    useConditionOccurrencePrimaryInpatientAnyTimePrior = FALSE,
+    useConditionOccurrencePrimaryInpatientLongTerm = FALSE,
+    useConditionOccurrencePrimaryInpatientMediumTerm = FALSE,
+    useConditionOccurrencePrimaryInpatientShortTerm = FALSE,
+    
+    # Condition era
+    useConditionEraAnyTimePrior = FALSE,
+    useConditionEraLongTerm = FALSE,
+    useConditionEraMediumTerm = FALSE,
+    useConditionEraShortTerm = FALSE,
+    useConditionEraOverlapping = FALSE,
+    useConditionEraStartLongTerm = FALSE,
+    useConditionEraStartMediumTerm = FALSE,
+    useConditionEraStartShortTerm = FALSE,
+    
+    # Condition group
+    useConditionGroupEraAnyTimePrior = FALSE,
+    useConditionGroupEraLongTerm = TRUE, ####,    
+    useConditionGroupEraMediumTerm = FALSE, 
+    useConditionGroupEraShortTerm = FALSE, 
+    useConditionGroupEraOverlapping = FALSE,
+    useConditionGroupEraStartLongTerm = FALSE,
+    useConditionGroupEraStartMediumTerm = FALSE,
+    useConditionGroupEraStartShortTerm = FALSE,
+    
+    # DrugExposure
+    useDrugExposureAnyTimePrior = FALSE,
+    useDrugExposureLongTerm = FALSE,
+    useDrugExposureMediumTerm = FALSE,
+    useDrugExposureShortTerm = FALSE,
+    useDrugEraAnyTimePrior = FALSE,
+    useDrugEraLongTerm = FALSE,
+    useDrugEraMediumTerm = FALSE,
+    useDrugEraShortTerm = FALSE,
+    useDrugEraOverlapping = FALSE,
+    useDrugEraStartLongTerm = FALSE,
+    useDrugEraStartMediumTerm = FALSE,
+    useDrugEraStartShortTerm = FALSE,
+    
+    # Groups of drugs
+    useDrugGroupEraAnyTimePrior = FALSE,
+    useDrugGroupEraLongTerm = TRUE, ####,
+    useDrugGroupEraMediumTerm = FALSE, 
+    useDrugGroupEraShortTerm = FALSE, 
+    useDrugGroupEraOverlapping = FALSE,
+    useDrugGroupEraStartLongTerm = FALSE,
+    useDrugGroupEraStartMediumTerm = FALSE,
+    useDrugGroupEraStartShortTerm = FALSE,
+    
+    # Procedures
+    useProcedureOccurrenceAnyTimePrior = FALSE,
+    useProcedureOccurrenceLongTerm = FALSE,
+    useProcedureOccurrenceMediumTerm = FALSE,
+    useProcedureOccurrenceShortTerm = FALSE,
+    
+    # Devices
+    useDeviceExposureAnyTimePrior = FALSE,
+    useDeviceExposureLongTerm = FALSE,
+    useDeviceExposureMediumTerm = FALSE,
+    useDeviceExposureShortTerm = FALSE,
+    
+    # Measurements
+    useMeasurementAnyTimePrior = FALSE,
+    useMeasurementLongTerm = FALSE,
+    useMeasurementMediumTerm = FALSE,
+    useMeasurementShortTerm = FALSE,
+    useMeasurementValueAnyTimePrior = FALSE,
+    useMeasurementValueLongTerm = FALSE,
+    useMeasurementValueMediumTerm = FALSE,
+    useMeasurementValueShortTerm = FALSE,
+    useMeasurementRangeGroupAnyTimePrior = FALSE,
+    useMeasurementRangeGroupLongTerm = FALSE,
+    useMeasurementRangeGroupMediumTerm = FALSE,
+    useMeasurementRangeGroupShortTerm = FALSE,
+    
+    # Observation
+    useObservationAnyTimePrior = FALSE,
+    useObservationLongTerm = FALSE,
+    useObservationMediumTerm = FALSE,
+    useObservationShortTerm = FALSE,
+    
+    # Indexes
+    useCharlsonIndex = FALSE,
+    useDcsi = FALSE,
+    useChads2 = FALSE,
+    useChads2Vasc = FALSE,
+    useHfrs = FALSE,
+    
+    # Counts
+    useDistinctConditionCountLongTerm = FALSE,
+    useDistinctConditionCountMediumTerm = FALSE,
+    useDistinctConditionCountShortTerm = FALSE,
+    useDistinctIngredientCountLongTerm = FALSE,
+    useDistinctIngredientCountMediumTerm = FALSE,
+    useDistinctIngredientCountShortTerm = FALSE,
+    useDistinctProcedureCountLongTerm = FALSE,
+    useDistinctProcedureCountMediumTerm = FALSE,
+    useDistinctProcedureCountShortTerm = FALSE,
+    useDistinctMeasurementCountLongTerm = FALSE,
+    useDistinctMeasurementCountMediumTerm = FALSE,
+    useDistinctMeasurementCountShortTerm = FALSE,
+    useDistinctObservationCountLongTerm = FALSE,
+    useDistinctObservationCountMediumTerm = FALSE,
+    useDistinctObservationCountShortTerm = FALSE,
+    useVisitCountLongTerm = FALSE,
+    useVisitCountMediumTerm = FALSE,
+    useVisitCountShortTerm = FALSE,
+    useVisitConceptCountLongTerm = FALSE,
+    useVisitConceptCountMediumTerm = FALSE,
+    useVisitConceptCountShortTerm = FALSE,
+    
+    # Time limits
+    longTermStartDays = -round(180),
+    mediumTermStartDays = -180,
+    shortTermStartDays = -3*30,
+    endDays = 0,
+    includedCovariateConceptIds = c(),
+    addDescendantsToInclude = TRUE,
+    includedCovariateIds = c(),
+    excludedCovariateConceptIds = exclude_these, 
+    addDescendantsToExclude = TRUE)
   return(output)
 }
 
@@ -479,7 +482,7 @@ shorten_to_file_path <- function(str = "NONAME") {
 interactive_barplot <- function(internal_cohort_list, name_list, covariate_list){
   
   #internal_cohort_list = c(cohort1a, cohort2, cohort3)
-  #name_list = c("1: DEC cohort", "2: drug cohort", "3: event cohort")
+  #name_list = c("1: DEC cohort", "2: drug cohort", "3: event cohort", "4: All drugs cohort")
   #covariate_list = c("gender = FEMALE", "gender = MALE")
   
   summarized_df = data.frame()
@@ -511,7 +514,7 @@ interactive_barplot <- function(internal_cohort_list, name_list, covariate_list)
   html_plot <- plotly::ggplotly(g1, tooltip="text") %>%  style(hoverlabel = list(bgcolor = "white"))
   html_plot[["x"]][["data"]] <- rev(html_plot[["x"]][["data"]])
   
-  #TODO: reverse order! BUT HOW TO?
+  #TODO: reverse order! BUT HOW TO? Ordered in alphabetical order, can this be changed?
   
   return (html_plot)
 }
@@ -556,7 +559,7 @@ saddle_the_workhorse <- function(connectionDetails = NULL,
     output_path = sprintf(path_string, username, foldername_for_output )
   } 
   if(endsWith(output_path, "\\") || endsWith(output_path, "/")) {
-    output_path = substr(output_path,1,nchar(output_path)-1)
+    output_path = substr(output_path, 1, nchar(output_path)-1)
   }
   if (!file.exists(output_path)) { dir.create(output_path, recursive = TRUE) }
   output_path = paste0(output_path, "\\")
@@ -572,28 +575,28 @@ saddle_the_workhorse <- function(connectionDetails = NULL,
                                                  server = "UMCDB06")
   }
   con <- suppressMessages(connect(connectionDetails))
-  resultsDatabaseSchema = cdmDatabaseSchema
+
+  databaseSchema = cdmDatabaseSchema
   if(!exists("cdmDatabaseSchema") || is.null(cdmDatabaseSchema)) {
-    db_name = "OmopCdm"
-    schema_name = "synpuf5pct_20180710" # "mini"
-  } else {
-    db_name = strsplit(resultsDatabaseSchema, split = ".", fixed = TRUE)[[1]][1]
-    schema_name = strsplit(resultsDatabaseSchema, split = ".", fixed = TRUE)[[1]][2]
+    databaseSchema = "OmopCdm.synpuf5pct_20180710" # "mini"
   }
+  
+  resultsDatabaseSchema = cohortDatabaseSchema
   if(!exists("cohortDatabaseSchema") || is.null(cohortDatabaseSchema)) {
-    resultsDatabaseSchema = paste0(db_name,".",schema_name) # Where you want the results to end up
-  } else {
-    resultsDatabaseSchema = cohortDatabaseSchema
+    resultsDatabaseSchema = databaseSchema # Where you want the results to end up
   }
+
   resultsTableName = cohortTable
-  if(!exists("cohortTable") || is.null(cohortTable)) { resultsTableName = paste0("cohorts_",Sys.getenv("USERNAME"),"") }
+  if(!exists("cohortTable") || is.null(cohortTable)) { 
+    resultsTableName = paste0("cohorts_",Sys.getenv("USERNAME"),"") 
+  }
   
   # Read in the DEC-csv
-  if(schema_name == "mini") {
+  if(databaseSchema == "OmopCdm.mini") {
     dec_df <- read.csv("..\\inst\\input\\fake_DEC_list_mini.csv", sep=";")[,-1]
   } else {
-    dec_df <- read.csv("..\\inst\\input\\fake_DEC_list.csv", sep=";")[,-1]
-    #dec_df <- read.csv("..\\inst\\input\\minisprint_DEC_list_v2.csv", sep=";")[,-1]
+    #dec_df <- read.csv("..\\inst\\input\\fake_DEC_list.csv", sep=";")[,-1]
+    dec_df <- read.csv("..\\inst\\input\\minisprint_DEC_list_v2.csv", sep=";")[,-1]
   }
   
   
@@ -602,23 +605,23 @@ saddle_the_workhorse <- function(connectionDetails = NULL,
                                         paste0(as.character(x), collapse = " & ")
                                       })
   # get drugs from db
-  all_drugs <- get_all_drugs(con)
+  all_drugs <- get_all_drugs(con, databaseSchema)
   
-  list("output_path"=output_path, "dec_df"=dec_df, "all_drugs"=all_drugs, "db_name" = db_name, 
-       "schema_name"  = schema_name, "resultsDatabaseSchema"=resultsDatabaseSchema, 
+  list("output_path"=output_path, "dec_df"=dec_df, "all_drugs"=all_drugs, 
+       "databaseSchema" = databaseSchema, "resultsDatabaseSchema"= resultsDatabaseSchema, 
        "resultsTableName"=resultsTableName, "overall_verbose"=overall_verbose,
        "connectionDetails" = connectionDetails)
 }  
 
 custom_aggregateCovariates <- function(covariateData, verbose=FALSE) 
 {
-  if (!isCovariateData(covariateData)) 
+  if (!FeatureExtraction::isCovariateData(covariateData)) 
     stop("Data not of class CovariateData")
   if (!Andromeda::isValidAndromeda(covariateData)) 
     stop("CovariateData object is closed")
-  if (isAggregatedCovariateData(covariateData)) 
+  if (FeatureExtraction::isAggregatedCovariateData(covariateData)) 
     stop("Data appears to already be aggregated")
-  if (isTemporalCovariateData(covariateData)) 
+  if (FeatureExtraction::isTemporalCovariateData(covariateData)) 
     stop("Aggregation for temporal covariates is not yet implemented")
   start <- Sys.time()
   result <- Andromeda::andromeda(covariateRef = covariateData$covariateRef, 
@@ -848,28 +851,18 @@ from_covariateId_to_conceptId <- function(input_covariateId = 30361210, cohort) 
 
 
 
-
-
-
-
-
-
-
-
-
-
 getDbCovariateData_debug <- function(connectionDetails = NULL,
-                               connection = NULL,
-                               oracleTempSchema = NULL,
-                               cdmDatabaseSchema,
-                               cdmVersion = "5",
-                               cohortTable = "cohort",
-                               cohortDatabaseSchema = cdmDatabaseSchema,
-                               cohortTableIsTemp = FALSE,
-                               cohortId = -1,
-                               rowIdField = "subject_id",
-                               covariateSettings,
-                               aggregated = FALSE) {
+                                     connection = NULL,
+                                     oracleTempSchema = NULL,
+                                     cdmDatabaseSchema,
+                                     cdmVersion = "5",
+                                     cohortTable = "cohort",
+                                     cohortDatabaseSchema = cdmDatabaseSchema,
+                                     cohortTableIsTemp = FALSE,
+                                     cohortId = -1,
+                                     rowIdField = "subject_id",
+                                     covariateSettings,
+                                     aggregated = FALSE) {
   if (is.null(connectionDetails) && is.null(connection)) {
     stop("Need to provide either connectionDetails or connection")
   }
@@ -965,3 +958,4 @@ getDbCovariateData_debug <- function(connectionDetails = NULL,
   }
   return(covariateData)
 }
+

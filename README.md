@@ -36,18 +36,18 @@ How to run
 
 3. Once installed, you can execute the study by modifying and using the code provided under `extras/CodeToRun.R`.
 
-4. Upload the file ```export/Results_<DatabaseId>.zip``` in the output folder to the study coordinator:
+4. Upload the file ```<outputFolderPath>/Results_<DatabaseId>_<Date>.zip``` in the output folder to the study coordinator:
 
 	```r
 	uploadResults(outputFolder, privateKeyFileName = "<file>", userName = "<name>")
 	```
 	
-	Where ```<file>``` and ```<name<``` are the credentials provided to you personally by the study coordinator.
+	Where ```<file>``` and ```<name>``` are the credentials provided to you personally by the study coordinator.
 		
 5. To view the results, use the Shiny app:
 
 	```r
-	launchDiagnosticsExplorer()
+	CohortDiagnostics::launchDiagnosticsExplorer()
 	```
 
 License

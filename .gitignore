@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 *.tmp
+R/errorReportSql.txt
+inst/sql/last_create_cohort_definition_script.sql

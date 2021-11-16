@@ -372,3 +372,10 @@ plotChronograph <- function(data, exposureId, outcomeId, title = NULL, fileName 
     ggplot2::ggsave(fileName, plot, width = 7, height = 5, dpi = 400)
   return(plot)
 }
+
+ic <- function(obs, exp, shape.add = 0.5, rate.add = 0.5, percentile = 0.025) {
+  ic <- log2((obs + shape.add)/(exp + rate.add))
+  ic_low <- log2(qgamma(p = percentile, shape = (obs + shape.add), rate = (exp + rate.add)))
+  ic_high <- log2(qgamma(p = (1 - percentile), shape = (obs + shape.add), rate = (exp + rate.add)))
+  return(list(ic = ic, ic_low = ic_low, ic_high = ic_high))
+}

@@ -1,4 +1,19 @@
-library(SVVEHDEN)
+# TODO: MOVE CHRONOGRAPH CODE OR PACKAGE IN ORDER TO USE!?
+# Fix era setup
+# Use Eunomia as a debug to spot sql server-dependencies
+# Generic SQL Script to be completed (Judith)
+
+# Make sure the working directory is the root of the SVVEHDEN OHDSI study package
+tryCatch({
+  setwd("./R")
+}, error = function(e) {
+  setwd("../R")
+})
+source("general_function_library.R")   
+
+ParallelLogger::clearLoggers()
+ParallelLogger::addDefaultErrorReportLogger(fileName = file.path(getwd(), "errorReportR.txt"),
+                                            name = "DEFAULT_ERRORREPORT_LOGGER")
 
 ### Optional: specify where the temporary files (used by the Andromeda package) will be created:
 andromedaTempFolder = NULL
@@ -8,17 +23,20 @@ options(andromedaTempFolder = andromedaTempFolder)
 outputFolderPath <- "C:/SVVEHDEN_ouput"
 
 ### Details for connecting to the server:
-connectionDetails <-
-  DatabaseConnector::createConnectionDetails(
-    dbms = "pdw",
-    server = Sys.getenv("PDW_SERVER"),
-    user = NULL,
-    password = NULL,
-    port = Sys.getenv("PDW_PORT")
-  )
+# connectionDetails <-
+#   DatabaseConnector::createConnectionDetails(
+#     dbms = "pdw",
+#     server = Sys.getenv("PDW_SERVER"),
+#     user = NULL,
+#     password = NULL,
+#     port = Sys.getenv("PDW_PORT")
+#   )
+
+connectionDetails <- Eunomia::getEunomiaConnectionDetails()
+DatabaseConnector::connect(connectionDetails, dbms="sqlite")
 
 ### The name of the database schema where the CDM data can be found:
-cdmDatabaseSchema <- "CDM_IBM_MDCD_V1153.dbo"
+cdmDatabaseSchema <- "main"
 
 ### The name of the database schema and table where the study-specific cohorts will be instantiated:
 cohortDatabaseSchema <- cdmDatabaseSchema
@@ -29,38 +47,28 @@ sqlRenderTempEmulationSchema = NULL
 options(sqlRenderTempEmulationSchema = sqlRenderTempEmulationSchema)
 
 ######### INTERNAL DEBUG #######################
-# Test if this works: yes
-connectionDetails <- NULL
-cdmDatabaseSchema = NULL
-cohortDatabaseSchema = NULL
-cohortTable = NULL
-outputFolderPath = NULL
+#connectionDetails <- createConnectionDetails(dbms = "sql server", server = "UMCDB06")
+#cdmDatabaseSchema = "OmopCdm.synpuf5pct_20180710"
+#cohortDatabaseSchema = cdmDatabaseSchema
+#cohortTable = paste0("cohorts_",Sys.getenv("USERNAME"),"")
+#outputFolderPath = paste0("C:\\Users\\",Sys.getenv("USERNAME"),"\\WHO Collaborating Centre for International Drug Monitoring\\EHDEN - SWEDHEN-SPRINT\\output_",Sys.getenv("USERNAME"),"\\")
 ################################################
-
-######### INTERNAL DEBUG #######################
-# Test if this works: yes
-connectionDetails <- createConnectionDetails(dbms = "sql server",
-                                             server = "UMCDB06")
-cdmDatabaseSchema = "OmopCdm.synpuf5pct_20180710"
-cohortDatabaseSchema = cdmDatabaseSchema
-cohortTable = paste0("cohorts_",Sys.getenv("USERNAME"),"")
-outputFolderPath = paste0("C:\\Users\\",Sys.getenv("USERNAME"),"\\WHO Collaborating Centre for International Drug Monitoring\\EHDEN - SWEDHEN-SPRINT\\output_",Sys.getenv("USERNAME"),"\\")
+### Specify if you want to limit the number of combinations (normally used during debug or if you want to try out the full script without running all combinations)
+maxNumberOfCombinations = 5
 ################################################
 
 ### Execute
-SVVEHDEN::execute(
+source("execute.R")   
+execute(
   connectionDetails = connectionDetails,
   cdmDatabaseSchema = cdmDatabaseSchema,
   cohortDatabaseSchema = cohortDatabaseSchema,
   cohortTable = cohortTable,
-  tempEmulationSchema = tempEmulationSchema,
   outputFolderPath = outputFolderPath,
-  verbose = FALSE
-)
+  maxNumberOfCombinations = maxNumberOfCombinations,
+  verbose = FALSE)
 
 ### Upload the results to the OHDSI SFTP server:
 privateKeyFileName <- ""
 userName <- ""
 #SVVEHDEN::uploadResults(outputFolder, privateKeyFileName, userName) #TODO
-
-

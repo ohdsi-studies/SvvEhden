@@ -3,8 +3,6 @@
 # descriptive tables (demographics, comeds, conditions)
 #   i: The index variable in the for-loop.
 #   cohort_list:  contains studyPopulation, cohortMethodData, cohort1, cohort2, cohort3, cohort4
-#   db_name:     string with name of database
-#   schema_name: string with schema_name in the Omop database
 # 
 #   output:  list("basic_demographics_table" = basic_demographics_table
 #             "top_drugs_table" = top_drugs_table
@@ -40,10 +38,10 @@ table1_module <- function(i, cohort_list, saddle){
     print("Summarizing demographics table") 
   }
   
-  internal_cohort_list = c(cohort1, cohort2, cohort3)
-  name_list = c("1: DEC cohort", "2: drug cohort", "3: event cohort")
+  internal_cohort_list = c(cohort4, cohort3, cohort2, cohort1)
+  name_list = c("4: All drugs cohort",  "3: Event cohort", "2: Drug cohort", "1: DEC cohort")
   gender_cohort_plot = interactive_barplot(internal_cohort_list, name_list, c("gender = FEMALE", "gender = MALE"))
-  age_cohort_plot = interactive_barplot(internal_cohort_list, name_list, c("gender = FEMALE", "gender = MALE"))
+  #age_cohort_plot = interactive_barplot(internal_cohort_list, name_list, c("(0,20]", "(20,30]"))#, "(30,40]", "(40,50]", "(50,60]", "(60,70]", "(70,80]", "(80,90]", "(90,110]"))
     
   gender_table <- covariates_for_cohort_i %>% filter(name %in% c("gender = FEMALE", "gender = MALE")) %>% count(name) %>% mutate(Percentage=round(100*n/sum(n)))
   colnames(gender_table)=c("Category","n","Percentage")
@@ -125,9 +123,9 @@ table1_module <- function(i, cohort_list, saddle){
   ## Compare two cohorts drug+event (1) and drug (2)
   if(verbose) { print("cohort 1 vs 2 table") }
   #standardized_mean_comparison_table  <- computeStandardizedDifference(cohort1a, cohort2)
-  table_1_output <- createTable1(covariateData1 = custom_aggregateCovariates(cohort1), 
+  table_1_output <- FeatureExtraction::createTable1(covariateData1 = custom_aggregateCovariates(cohort1), 
                                  covariateData2 = custom_aggregateCovariates(cohort2),
-                                 specifications = getDefaultTable1Specifications(),
+                                 specifications = FeatureExtraction::getDefaultTable1Specifications(),
                                  output = "two columns",
                                  showCounts = FALSE,
                                  showPercent = TRUE,
@@ -137,18 +135,42 @@ table1_module <- function(i, cohort_list, saddle){
   # table_1_output <-  table1_two_cohorts # print(table1_two_cohorts, row.names = FALSE, right = FALSE)
   
   ## Compare two cohorts drug+event (1) and event (3)
-  if(verbose) { print("cohort 1 vs 3 table") }
+  #if(verbose) { print("cohort 1 vs 3 table") }
   #standardized_mean_comparison_table  <- computeStandardizedDifference(cohort1b, cohort3)
-  table_2_output <- createTable1(covariateData1 = custom_aggregateCovariates(cohort1), 
-                                 covariateData2 = custom_aggregateCovariates(cohort3),
-                                 specifications = getDefaultTable1Specifications(),
-                                 output = "two columns",
-                                 showCounts = FALSE,
-                                 showPercent = TRUE,
-                                 percentDigits = 1,
-                                 valueDigits = 1,
-                                 stdDiffDigits = 2)
+  #table_2_output <- FeatureExtraction::createTable1(covariateData1 = custom_aggregateCovariates(cohort1), 
+  #                               covariateData2 = custom_aggregateCovariates(cohort3),
+  #                               specifications = FeatureExtraction::getDefaultTable1Specifications(),
+  #                               output = "two columns",
+  #                               showCounts = FALSE,
+  #                               showPercent = TRUE,
+  #                               percentDigits = 1,
+  #                               valueDigits = 1,
+  #                               stdDiffDigits = 2)
   # table_2_output <- table2_two_cohorts #print(table2_two_cohorts, row.names = FALSE, right = FALSE))
+  
+  if(verbose) { print("cohort 3 vs 4 table") }
+  #standardized_mean_comparison_table  <- computeStandardizedDifference(cohort1a, cohort2)
+  table_2_output <- FeatureExtraction::createTable1(covariateData1 = custom_aggregateCovariates(cohort3), 
+                                                    covariateData2 = custom_aggregateCovariates(cohort4),
+                                                    specifications = FeatureExtraction::getDefaultTable1Specifications(),
+                                                    output = "two columns",
+                                                    showCounts = FALSE,
+                                                    showPercent = TRUE,
+                                                    percentDigits = 1,
+                                                    valueDigits = 1,
+                                                    stdDiffDigits = 2)
+  
+  if(verbose) { print("cohort 2 vs 4 table") }
+  #standardized_mean_comparison_table  <- computeStandardizedDifference(cohort1a, cohort2)
+  table_3_output <- FeatureExtraction::createTable1(covariateData1 = custom_aggregateCovariates(cohort2), 
+                                                    covariateData2 = custom_aggregateCovariates(cohort4),
+                                                    specifications = FeatureExtraction::getDefaultTable1Specifications(),
+                                                    output = "two columns",
+                                                    showCounts = FALSE,
+                                                    showPercent = TRUE,
+                                                    percentDigits = 1,
+                                                    valueDigits = 1,
+                                                    stdDiffDigits = 2)
   
   # if(verbose) { print("Summarizing kaplan meier plot") }
   # kaplan_meier_output <- plotKaplanMeier(studyPopulation, includeZero = FALSE)
@@ -177,8 +199,9 @@ table1_module <- function(i, cohort_list, saddle){
                              # "time_to_event" = time_to_event_output,
                              "table_1_output" = table_1_output,
                              "table_2_output" = table_2_output,
-                             "gender_cohort_plot" = gender_cohort_plot,
-                             "age_cohort_plot" = age_cohort_plot
+                             "table_3_output" = table_2_output,
+                             "gender_cohort_plot" = gender_cohort_plot
+                             #"age_cohort_plot" = age_cohort_plot
                             ) 
   
   # toc()
