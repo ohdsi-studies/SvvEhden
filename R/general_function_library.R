@@ -481,7 +481,7 @@ shorten_to_file_path <- function(str = "NONAME") {
 
 interactive_barplot <- function(internal_cohort_list, name_list, covariate_list){
   
-  #internal_cohort_list = c(cohort1a, cohort2, cohort3)
+  #internal_cohort_list = c(cohort1a, cohort2, cohort3, cohort4)
   #name_list = c("1: DEC cohort", "2: drug cohort", "3: event cohort", "4: All drugs cohort")
   #covariate_list = c("gender = FEMALE", "gender = MALE")
   
@@ -497,9 +497,10 @@ interactive_barplot <- function(internal_cohort_list, name_list, covariate_list)
     
     cohort_i_df <- covariates_for_cohort_i %>% filter(name %in% covariate_list) %>% count(name) %>% mutate(Percentage=round(100*n/sum(n)))
     colnames(cohort_i_df)=c("Category","n","Percentage")
-    cohort_i_df$Cohort = name_list[i][[1]]
-    
-    summarized_df <- rbind(summarized_df, cohort_i_df)
+    if( length(cohort_i_df$Category) > 0 ) { #ignore if cohort contains 0 rows
+      cohort_i_df$Cohort = name_list[i][[1]]
+      summarized_df <- rbind(summarized_df, cohort_i_df)
+    }
   }
   
   # Add hover-text
