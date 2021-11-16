@@ -42,7 +42,7 @@ How to run
 	uploadResults(outputFolder, privateKeyFileName = "<file>", userName = "<name>")
 	```
 	
-	~~Where ```<file>``` and ```<name>``` are the credentials provided to you personally by the study coordinator.~~
+	Where ```<file>``` and ```<name>``` are the credentials provided to you personally by the study coordinator.
 		
 ~~6. To view the results, use the Shiny app:~~
 
