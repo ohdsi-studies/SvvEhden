@@ -72,10 +72,8 @@ execute <- function(connectionDetails,
                                  overall_verbose = verbose)
   
   for(i in 1:min(maxNumberOfCombinations, nrow(saddle$dec_df))
-  ){
-    # i = 1
+  ){  # i = 1
     
-#    result = tryCatch({
       tic("Total time for this DEC")
       
       cohort_list <- cohort_module(i, 
@@ -83,20 +81,24 @@ execute <- function(connectionDetails,
                                    force_create_new = TRUE,
                                    only_create_cohorts = FALSE,
                                    saddle)
-      # Build descriptive tables
-      table1_list <- table1_module(i, cohort_list, saddle)
       
-      # Get chronograph
-      chronograph_plot <- chronograph_module(i, saddle)
+      result = tryCatch({            
       
-      # Print to html
-      print_to_html_module(i, table1_list, chronograph_plot, saddle)
+        # Build descriptive tables
+        table1_list <- table1_module(i, cohort_list, saddle)
+              
+        # Get chronograph
+        chronograph_plot <- chronograph_module(i, saddle)
+        
+        # Print to html
+        print_to_html_module(i, table1_list, chronograph_plot, saddle)
+        
+    }, error = function(e) {
+      error_printer(e, i, saddle$output_path)
+      
+    })
+      
       toc()
-      
-#    }, error = function(e) {
-#      error_printer(e, i, saddle$output_path)
-#      
-#    })
   }
   
   # Add all to zip file -------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-# TODO: MOVE CHRONOGRAPH CODE OR PACKAGE IN ORDER TO USE!?
+# TODO: 
 # Fix era setup
 # Use Eunomia as a debug to spot sql server-dependencies
 # Generic SQL Script to be completed (Judith)

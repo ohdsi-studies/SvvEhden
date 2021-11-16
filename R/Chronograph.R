@@ -193,7 +193,7 @@ getChronographData <- function(connectionDetails,
                                            outcome_ids = outcomeIds,
                                            has_pairs = hasPairs)
   
-  writeLines(sql)
+  #writeLines(sql)
   
   ParallelLogger::logInfo("Creating counts on server")
   DatabaseConnector::executeSql(conn, sql)
