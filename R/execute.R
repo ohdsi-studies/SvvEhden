@@ -2,10 +2,10 @@
 # The execute-function is the workhorse/main method of this repo.
 
 #' Execute
-#' 
+#'
 #' @details
 #' This function collects the aggregated data for the SvvEHDEN-studyathon planned for Dec 2021.
-#' 
+#'
 #' @param connectionDetails                   An object of type \code{connectionDetails} as created
 #'                                            using the
 #'                                            \code{\link[DatabaseConnector]{createConnectionDetails}}
@@ -42,24 +42,15 @@
 
 execute <- function(connectionDetails,
                     cdmDatabaseSchema,
-                    cohortDatabaseSchema = cdmDatabaseSchema,      
+                    cohortDatabaseSchema = cdmDatabaseSchema,
                     vocabularyDatabaseSchema = cdmDatabaseSchema,   #Do we use this?
-                    cohortTable = NULL, 
-                    tempEmulationSchema = cohortDatabaseSchema,     #Do we use this?    
+                    cohortTable = NULL,
+                    tempEmulationSchema = cohortDatabaseSchema,     #Do we use this?
                     verifyDependencies = FALSE,                     #Do we use this?
                     outputFolderPath,
-                    databaseName = strsplit(cdmDatabaseSchema, split = ".", fixed = TRUE)[[1]][1], 
+                    databaseName = strsplit(cdmDatabaseSchema, split = ".", fixed = TRUE)[[1]][1],
                     maxNumberOfCombinations = 100000,
                     verbose = FALSE) {
-  
-  
-  # # For debugging
-  # connectionDetails = connectionDetails
-  # cdmDatabaseSchema = cdmDatabaseSchema
-  # cohortDatabaseSchema = cohortDatabaseSchema
-  # cohortTable = cohortTable
-  # outputFolderPath = outputFolderPath
-  # verbose = FALSE
   
   ## This is the workhorse-script that outputs html-files for each DEC
   
@@ -69,37 +60,40 @@ execute <- function(connectionDetails,
                                  cohortDatabaseSchema = cohortDatabaseSchema,
                                  cohortTable = cohortTable,
                                  outputFolderPath = outputFolderPath,
+                                 persistence_window = 390,
                                  overall_verbose = verbose)
+  
+  createEras(saddle)
   
   for(i in 1:min(maxNumberOfCombinations, nrow(saddle$dec_df))
   ){  # i = 1
     
+    result = tryCatch({
       tic("Total time for this DEC")
+      
+      cohort_list <- cohort_module(i, 
+                                   maximum_cohort_size=1000,
+                                   force_create_new = TRUE,
+                                   only_create_cohorts = FALSE,
+                                   saddle)
+      
+      if(length(cohort_list) == 0){next}
+    
+      # Build descriptive tables
+      table1_list <- table1_module(i, cohort_list, saddle)
+            
+      # Get chronograph
+      chronograph_plot <- chronograph_module(i, saddle)
 
-      result = tryCatch({          
-        cohort_list <- cohort_module(i, 
-                                     maximum_cohort_size=1000,
-                                     force_create_new = TRUE,
-                                     only_create_cohorts = FALSE,
-                                     saddle)
-        
-        # Build descriptive tables
-        table1_list <- table1_module(i, cohort_list, saddle)
-              
-        # Get chronograph
-        chronograph_plot <- chronograph_module(i, saddle)
-        
-        # Print to html
-        print_to_html_module(i, table1_list, chronograph_plot, saddle)
+      # Print to html
+      print_to_html_module(i, table1_list, chronograph_plot, saddle)
         
     }, error = function(e) {
       error_printer(e, i, saddle$output_path)
-      
     })
-      
       toc()
   }
-  
+
   # Add all to zip file -------------------------------------------------------------------------------
   ParallelLogger::logInfo("Adding results to zip file")
   zipName <-
@@ -109,7 +103,7 @@ execute <- function(connectionDetails,
   oldWd <- setwd(outputFolderPath)
   on.exit(setwd(oldWd), add = TRUE)
   DatabaseConnector::createZipFile(zipFile = zipName, files = files)
-  ParallelLogger::logInfo("Results are ready for sharing at: ", zipName)  
+  ParallelLogger::logInfo("Results are ready for sharing at: ", zipName)
 }
 
 

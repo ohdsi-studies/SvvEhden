@@ -29,10 +29,10 @@
 
 cohort_module <- function(i,
                           maximum_cohort_size = 100,
-                          force_create_new = TRUE, 
+                          force_create_new = TRUE,
                           only_create_cohorts = FALSE,
                           saddle){
-  
+
   cat("\n Now Running DEC nr", i, ",", saddle$dec_df$drug_and_event_name[i], "\r\n")
   
   # Unpack the things needed from the saddle-list
@@ -43,12 +43,13 @@ cohort_module <- function(i,
   resultsDatabaseSchema <- saddle$resultsDatabaseSchema 
   resultsTableName <- saddle$resultsTableName
   verbose <- saddle$overall_verbose
-  schema = strsplit(cdmDatabaseSchema, split = ".", fixed = TRUE)[[1]][2]
+
+  schema_used_for_filenames_only = strsplit(cdmDatabaseSchema, split = ".", fixed = TRUE)[[1]][2]
+
+  c(drug_name, event_name, drug_id, event_id) %<-% dec_input[1:4]
   
   # # For debugging:
-  # dec_input <- dec_df[1,]
-  # db_name = "OmopCdm"
-  # schema_name = "synpuf5pct_20180710"
+  # dec_input <- saddle$dec_df[1,]
   # force_create_new = FALSE
   # verbose=saddle$overall_verbose
   # only_create_cohorts=FALSE
@@ -59,28 +60,32 @@ cohort_module <- function(i,
   conn <- suppressMessages(invisible(DatabaseConnector::connect(connectionDetails)))
   tempTableName = resultsTableName
   
-  # Unpack the input
-  c(drug_name, event_name, drug_id, event_id) %<-% dec_input[1:4]
-  
   drug_id_string_commaseparated = gsub(pattern = '|', replacement = ',', x=drug_id, fixed = TRUE) # split with commas if several
   event_id_string_commaseparated = gsub(pattern = '|', replacement = ',', x=event_id, fixed = TRUE) # split with commas if several
   
   #Create the cohorts in a table in the database
   sql <- readSql("..\\inst\\sql\\generic_cohort_definition_script.sql")
-  
+
+  sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)  
   sql <- SqlRender::render(sql, 
                            cdmDatabaseSchema = cdmDatabaseSchema,
                            resultsDatabaseSchema = resultsDatabaseSchema,
+                           conditionEraTableName = saddle$conditionEraTableName,
+                           drugEraTableName = saddle$drugEraTableName,
                            tempTableName = tempTableName, 
                            exposure_drug_ids = drug_id_string_commaseparated,
                            comparator_drug_ids = all_drugs,
                            event_ids = event_id_string_commaseparated,
                            maximum_cohort_size = maximum_cohort_size)
-  
+
   # writeLines(sql)
   suppressMessages(executeSql(conn, sql, progressBar = FALSE))
   
-  # querySql(conn, "SELECT * FROM OmopCdm.synpuf5pct_20180710.cohorts_OskarG WHERE COHORT_DEFINITION_ID=11")
+  
+  # Get the patient counts per cohort
+  sql <- paste0("SELECT COHORT_DEFINITION_ID, COUNT(*) FROM ", cdmDatabaseSchema, ".", tempTableName, " GROUP BY COHORT_DEFINITION_ID;")
+  sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)  
+  cohort_counts <- querySql(conn, sql)
   
   #debug part: if you want to run it manually
   fileConn<-file("..\\inst\\sql\\last_create_cohort_definition_script.sql")
@@ -133,9 +138,9 @@ cohort_module <- function(i,
   ########################################################################
   #cohort 1: drug + event
   drugEventString = paste0(drug_id, "-" ,event_id)
-  filename = paste0("cohort_data/",schema,"_cohortMethodData-",drugEventString,".Rdata")
-  filename2 = paste0("cohort_data/", schema, "_cohort11-", drugEventString, ".Rdata")
-  filename3 = paste0("cohort_data/",schema,"_studyPopulation-",drugEventString,".Rdata")
+  filename = paste0("cohort_data/",schema_used_for_filenames_only,"_cohortMethodData-",drugEventString,".Rdata")
+  filename2 = paste0("cohort_data/", schema_used_for_filenames_only, "_cohort11-", drugEventString, ".Rdata")
+  filename3 = paste0("cohort_data/",schema_used_for_filenames_only,"_studyPopulation-",drugEventString,".Rdata")
   
   tic()
   if (!file.exists(filename) | !file.exists(filename2) | !file.exists(filename3) | force_create_new){
@@ -204,7 +209,7 @@ cohort_module <- function(i,
   # cohort 21: drug
   
   tic()
-  filename = paste0("cohort_data/",schema,"_cohort21-",drug_id,".Rdata")
+  filename = paste0("cohort_data/",schema_used_for_filenames_only,"_cohort21-",drug_id,".Rdata")
   if (!file.exists(filename) | force_create_new){
     # compute cohort and save to file
     if(verbose) {print(paste0("Retrieving covariates for cohort 21 from scratch, saving to : ", filename)) }
@@ -225,7 +230,7 @@ cohort_module <- function(i,
   
   ########################################################################
   # cohort 31: event
-  filename = paste0("cohort_data/",schema,"_cohort31-",event_id,".Rdata")
+  filename = paste0("cohort_data/",schema_used_for_filenames_only,"_cohort31-",event_id,".Rdata")
   if (!file.exists(filename) | force_create_new){
     # compute cohort and save to file
     if(verbose) { print(paste0("Retrieving covariates for cohort 3 from scratch, saving to : ", filename)) }
@@ -247,7 +252,7 @@ cohort_module <- function(i,
   ########################################################################
   #cohort 41: any drug
   cohort41 = NULL
-  filename = paste0("cohort_data/",schema,"_cohort41-anydrug.Rdata")
+  filename = paste0("cohort_data/",schema_used_for_filenames_only,"_cohort41-anydrug.Rdata")
   if (!file.exists(filename) | force_create_new){
     # compute cohort and save to file
     if(verbose) { print(paste0("Retrieving covariates for cohort 41 from scratch, saving to : ", filename)) }
@@ -270,7 +275,12 @@ cohort_module <- function(i,
   
   if(verbose) { print("All cohort covariates created or loaded.") }
   
+  if(all(cohort_counts$`COUNT(*)` >= 5) & all( c(11, 21, 22, 31, 32, 40, 41, 42, 2, 3, 4) %in% cohort_counts$COHORT_DEFINITION_ID)){
   return(list(studyPopulation, cohortMethodData, cohort11, cohort21, cohort31, cohort41))
+  } else {
+    print("At least one cohort has a size of less than 5, moving forward to next DEC.")
+  return(NULL)
+  }
 }
 
 

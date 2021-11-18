@@ -56,6 +56,8 @@ For convenience, the cohorts are enumerated as follows (cohort IDs):
 {DEFAULT @comparator_drug_ids = ''} -- the concept ids for comparator drugs (typically all drugs in the database)
 {DEFAULT @event_ids = ''} -- concept ids for the outcome/event ID
 {DEFAULT @resultsDatabaseSchema = ''} -- the schema that will hold all cohorts
+{DEFAULT @conditionEraTableName = ''} -- the table name holding the condition_era
+{DEFAULT @drugEraTableName = ''} -- the table name holding the drug_era
 {DEFAULT @tempTableName = ''} -- the table name where the final cohort tables will reside
 {DEFAULT @cdmDatabaseSchema = ''} -- the schema where the OMOP data is located
 {DEFAULT @maximum_cohort_size = ''} -- a limitation on the cohort size
@@ -107,7 +109,7 @@ SELECT 2 AS cohort_definition_id,
        y.observation_period_start_date,
        y.observation_period_end_date,
        z.death_date
-FROM @cdmDatabaseSchema.drug_era x
+FROM @cdmDatabaseSchema.@drugEraTableName x
 LEFT JOIN @cdmDatabaseSchema.death z						--add death_date to table (used for checking data only)
 	  ON x.person_id = z.person_id
 INNER JOIN @cdmDatabaseSchema.observation_period y	        --add observation_period_start_date and observation_period_end_date to table (needed for setting risk time)
@@ -232,7 +234,7 @@ FROM ( SELECT *,
 					 y.observation_period_end_date, 
 					 z.death_date,
                      Row_number() OVER(PARTITION BY x.person_id, drug_concept_id ORDER BY newid()) AS one_row_per_person_and_drug_row_number -- Scramble the order
-              FROM  @cdmDatabaseSchema.drug_era x
+              FROM  @cdmDatabaseSchema.@drugEraTableName x
 	          LEFT JOIN @cdmDatabaseSchema.death z						--add death_date to table (used for checking data only)
 	                       ON x.person_id = z.person_id
 	          INNER JOIN @cdmDatabaseSchema.observation_period y			--add observation_period_start_date and observation_period_end_date to table (needed for setting risk time)
@@ -385,7 +387,7 @@ SELECT 3 AS cohort_definition_id,
 FROM ( SELECT DISTINCT condition_era_start_date AS cohort_start_date,			-- distinct to select only 1 record per day (multiple diagnoses on the same day most likely refer to the same occurrence than seperate occurrences)
                        condition_era_end_date AS cohort_end_date,                         -- set cohort start date as condition era start date (used in analysis) and cohort end date as condition era start date (not used in analysis)
                        person_id AS subject_id
-       FROM @cdmDatabaseSchema.condition_era
+       FROM @cdmDatabaseSchema.@conditionEraTableName
        WHERE condition_concept_id IN ( SELECT descendant_concept_id
 							  		   FROM @cdmDatabaseSchema.concept_ancestor
 									   WHERE ancestor_concept_id IN (@event_ids) ) 
@@ -489,8 +491,6 @@ FROM ( SELECT t3.cohort_definition_id AS t3cohort_definition_id,
        WHERE t3.cohort_definition_id = 3
 	  ) t;
 
----------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------
 
 -- Initiate the table that will hold the final sampled cohorts
 IF OBJECT_ID('@resultsDatabaseSchema.@tempTableName', 'U') IS NOT NULL 
@@ -499,7 +499,7 @@ CREATE TABLE @resultsDatabaseSchema.@tempTableName (
   cohort_definition_id INT,
   cohort_start_date DATE,
   cohort_end_date DATE,
-  subject_id BIGINT)
+  subject_id BIGINT);
 
 -- Apply any other sampling on the original-table to create the final one
 INSERT INTO @resultsDatabaseSchema.@tempTableName(
@@ -509,10 +509,9 @@ INSERT INTO @resultsDatabaseSchema.@tempTableName(
     subject_id
   )
 SELECT cohort_definition_id, cohort_start_date, cohort_end_date, subject_id
-FROM ( SELECT cohort_definition_id, cohort_start_date, cohort_end_date, subject_id, maximum_cohort_size_row_number
-	   FROM (SELECT *, Row_number() OVER(PARTITION BY cohort_definition_id ORDER BY newid()) AS maximum_cohort_size_row_number
-             FROM @resultsDatabaseSchema.@tempTableName_original) T1
-       WHERE cohort_definition_id in (22, 32, 42) OR maximum_cohort_size_row_number <= @maximum_cohort_size -- restrict to cohort sample size for descriptive-tables cohorts
-	   ) T2
-WHERE cohort_definition_id IN (11, 21, 22, 31, 32, 41, 42)
+FROM (SELECT cohort_definition_id, cohort_start_date, cohort_end_date, subject_id, ROW_NUMBER() OVER (PARTITION BY cohort_definition_id ORDER BY subject_id) cohort_row_number
+      FROM @resultsDatabaseSchema.@tempTableName_original) T1
+      WHERE cohort_definition_id in (22, 32, 42) OR cohort_row_number <= @maximum_cohort_size 
+       -- restrict to cohort sample size for descriptive-tables cohorts, as the covariates-collection is expensive.
+	  
 

@@ -7,7 +7,7 @@
 #   saddle$overall_verbose: print informative messages? 
 ########################################################################
 
-chronograph_module <- function(i, saddle){
+chronograph_module <- function(i, saddle, cohort_list){
   
   # tic("Chronograph module")
   

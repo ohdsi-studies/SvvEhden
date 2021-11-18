@@ -23,15 +23,16 @@ OHDSI-SQL File Instructions
 /* SCRIPT PARAMETERS */
 
     
-    {DEFAULT @TARGET_CDMV5 = '[CDM]' } -- The target CDMv5 database name
+--    {DEFAULT @TARGET_CDMV5 = '[CDM]' } -- The target CDMv5 database name
     {DEFAULT @TARGET_CDMV5_SCHEMA = '[CDM].[CDMSCHEMA]' } -- the target CDMv5 database plus schema
+	{DEFAULT @CONDITION_ERA_TABLE_NAME = 'condition_era' } 
+	{DEFAULT @DRUG_ERA_TABLE_NAME = 'drug_era' } 
 	{DEFAULT @PERSISTENCE_WINDOW_IN_DAYS = '30' } 
 
-USE @TARGET_CDMV5;
+--USE @TARGET_CDMV5;
 
-
-DROP TABLE IF EXISTS  @TARGET_CDMV5_SCHEMA.condition_era_pw390
-DROP TABLE IF EXISTS  @TARGET_CDMV5_SCHEMA.drug_era_pw390
+DROP TABLE IF EXISTS  @TARGET_CDMV5_SCHEMA.@CONDITION_ERA_TABLE_NAME
+DROP TABLE IF EXISTS  @TARGET_CDMV5_SCHEMA.@DRUG_ERA_TABLE_NAME
 
 
 /****
@@ -148,15 +149,15 @@ GROUP BY c.PERSON_ID
     ,c.CONDITION_START_DATE;
 
 /* / */
-SELECT * INTO @TARGET_CDMV5_SCHEMA.condition_era_pw@PERSISTENCE_WINDOW_IN_DAYS FROM
+SELECT * INTO @TARGET_CDMV5_SCHEMA.@CONDITION_ERA_TABLE_NAME FROM
 (SELECT row_number() OVER (
         ORDER BY person_id
         ) AS condition_era_id
     ,person_id
-    ,CONDITION_CONCEPT_ID
-    ,min(CONDITION_START_DATE) AS CONDITION_ERA_START_DATE
-    ,ERA_END_DATE AS CONDITION_ERA_END_DATE
-    ,COUNT(*) AS CONDITION_OCCURRENCE_COUNT
+    ,CONDITION_CONCEPT_ID as condition_concept_id
+    ,min(CONDITION_START_DATE) AS condition_era_start_date
+    ,ERA_END_DATE AS condition_era_end_date
+    ,COUNT(*) AS condition_occurence_count
 FROM #cteConditionEnds
 GROUP BY person_id
     ,CONDITION_CONCEPT_ID
@@ -164,7 +165,7 @@ GROUP BY person_id
 
 ---------------------------------------------------
 
-USE @TARGET_CDMV5;
+--USE @TARGET_CDMV5;
 
 
 
@@ -287,15 +288,15 @@ GROUP BY d.PERSON_ID
 
 /* / */
 
-SELECT * INTO @TARGET_CDMV5_SCHEMA.drug_era_pw@PERSISTENCE_WINDOW_IN_DAYS FROM 
+SELECT * INTO @TARGET_CDMV5_SCHEMA.@DRUG_ERA_TABLE_NAME FROM 
 (SELECT row_number() OVER (
         ORDER BY person_id
         ) AS drug_era_id
     ,person_id
-    ,INGREDIENT_CONCEPT_ID
+    ,INGREDIENT_CONCEPT_ID as drug_concept_id
     ,min(DRUG_EXPOSURE_START_DATE) AS drug_era_start_date
-    ,ERA_END_DATE
-    ,COUNT(*) AS DRUG_EXPOSURE_COUNT
+    ,ERA_END_DATE as drug_era_end_date
+    ,COUNT(*) AS drug_exposure_count
     ,@PERSISTENCE_WINDOW_IN_DAYS AS gap_days
 FROM #cteDrugExpEnds
 GROUP BY person_id

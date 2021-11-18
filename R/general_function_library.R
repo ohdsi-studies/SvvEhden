@@ -537,27 +537,34 @@ error_printer <- function(e, i, output_path){
 # Script taken and modified from:
 # https://ohdsi.github.io/CommonDataModel/sqlScripts.html#drug_eras
 
-createEras <- function(persistence_window = 390, databaseSchema, dbms){
+createEras <- function(saddle){
   
-  # # For debugging
-  # dbms = "sql server"
-  # server = "UMCDB06"
-  # databaseSchema 
+  conn <- suppressMessages(invisible(DatabaseConnector::connect(saddle$connectionDetails)))
   
-  connectionDetails <- createConnectionDetails(dbms = dbms, server = server)
-  conn <- suppressMessages(invisible(DatabaseConnector::connect(connectionDetails)))
+  # Check whether the database has a drug and condition-era-table with persistence window 390 days already.
+  sql <- readSql("..\\inst\\sql\\checkIfEraExist.sql")
+  sql <- SqlRender::translate(sql, saddle$connectionDetails$dbms)
+  sql <- SqlRender::render(sql, "TARGET_CDMV5_SCHEMA" = saddle$databaseSchema, 
+                                "CONDITION_ERA_TABLE_NAME" = saddle$conditionEraTableName, 
+                                "DRUG_ERA_TABLE_NAME" = saddle$drugEraTableName)
+  result <- querySql(conn, sql)
   
-  # Check if the database has a drug and condition-era-table with persistence window 390 days.
-  # sql <- 
-  
-  
-  sql <- readSql("createEraScript.sql")
-  sql <- SqlRender::translate(sql, dbms)
-  sql <- SqlRender::render(sql, "TARGET_CDMV5"=db_name, "TARGET_CDMV5_SCHEMA" = paste0(db_name, ".", schema_name), "PERSISTENCE_WINDOW_IN_DAYS" = 390)
-  executeSql(conn, sql)
-  
+  if(result != 1) {
+    #If not, create the eras
+    sql <- readSql("..\\inst\\sql\\createEraScript.sql")
+    sql <- SqlRender::translate(sql, saddle$connectionDetails$dbms)
+    sql <- SqlRender::render(sql, "TARGET_CDMV5_SCHEMA" = saddle$databaseSchema, 
+                                  "CONDITION_ERA_TABLE_NAME" = saddle$conditionEraTableName, 
+                                  "DRUG_ERA_TABLE_NAME" = saddle$drugEraTableName,
+                                  "PERSISTENCE_WINDOW_IN_DAYS" = saddle$persistence_window)
+    
+    fileConn<-file("..\\inst\\sql\\last_createEraScript.sql")
+    write(sql, fileConn)
+    close(fileConn)
+    
+    executeSql(conn, sql)
+  }
 }
-
 
 
 saddle_the_workhorse <- function(connectionDetails = NULL,
@@ -565,6 +572,7 @@ saddle_the_workhorse <- function(connectionDetails = NULL,
                                  cohortDatabaseSchema = NULL,
                                  cohortTable = NULL,
                                  outputFolderPath = NULL,
+                                 persistence_window = 390,
                                  overall_verbose = NULL){
   
   # This function initiates, sources and does everything needed to run the workhorse for-loop
@@ -633,13 +641,18 @@ saddle_the_workhorse <- function(connectionDetails = NULL,
                                       function(x){
                                         paste0(as.character(x), collapse = " & ")
                                       })
+  
+  drugEraTableName = paste0("drug_era_pw", persistence_window)
+  conditionEraTableName = paste0("condition_era_pw", persistence_window) 
+  
   # get drugs from db
   all_drugs <- get_all_drugs(con, databaseSchema)
   
   list("output_path"=output_path, "dec_df"=dec_df, "all_drugs"=all_drugs, 
        "databaseSchema" = databaseSchema, "resultsDatabaseSchema"= resultsDatabaseSchema, 
        "resultsTableName"=resultsTableName, "overall_verbose"=overall_verbose,
-       "connectionDetails" = connectionDetails)
+       "connectionDetails" = connectionDetails, "persistence_window" = persistence_window,
+       "conditionEraTableName" = conditionEraTableName, "drugEraTableName" = drugEraTableName)
 }  
 
 custom_aggregateCovariates <- function(covariateData, verbose=FALSE) 

@@ -1,7 +1,3 @@
-# TODO: 
-# Fix era setup
-# Use Eunomia as a debug to spot sql server-dependencies
-# Generic SQL Script to be completed (Judith)
 
 # Make sure the working directory is the root of the SVVEHDEN OHDSI study package
 tryCatch({
@@ -9,56 +5,79 @@ tryCatch({
 }, error = function(e) {
   setwd("../R")
 })
+
 source("general_function_library.R")   
 
 ParallelLogger::clearLoggers()
 ParallelLogger::addDefaultErrorReportLogger(fileName = file.path(getwd(), "errorReportR.txt"),
                                             name = "DEFAULT_ERRORREPORT_LOGGER")
 
+
+
+
+######### UMC DEBUGGING: SET PARAMETERS FOR RUNNING THE SCRIPT #######################
+# 
+# # Make it easy to switch between the two to check if solutions work on both
+# which_database <- c("sqlite", "sql server")[2] 
+# 
+# if(which_database == "sqlite"){
+# connectionDetails <- Eunomia::getEunomiaConnectionDetails()
+# DatabaseConnector::connect(connectionDetails, dbms="sqlite")
+# cdmDatabaseSchema <- "main" # If sql server, this should be "databasename [.] schema" instead.
+# } else if (which_database == "sql server"){
+# connectionDetails <- createConnectionDetails(dbms = "sql server", server = "UMCDB06")
+# DatabaseConnector::connect(connectionDetails)
+# cdmDatabaseSchema = "OmopCdm.synpuf5pct_20180710"  
+# } else {stop("Non-valid sql dialect, try again")}
+# 
+# outputFolderPath = paste0("C:\\Users\\",
+#                           Sys.getenv("USERNAME"), "\\WHO Collaborating Centre for International Drug Monitoring\\EHDEN - SWEDHEN-SPRINT\\output_",
+#                           Sys.getenv("USERNAME"),"\\")
+# 
+# cohortDatabaseSchema <- cdmDatabaseSchema
+# cohortTable = paste0("cohorts_",Sys.getenv("USERNAME"),"")
+
+
+
+
+############## OPTIONS ##############################
+
 ### Optional: specify where the temporary files (used by the Andromeda package) will be created:
 andromedaTempFolder = NULL
 options(andromedaTempFolder = andromedaTempFolder)
-
-### The folder where the study intermediate and result files will be written:
-outputFolderPath <- "C:/SVVEHDEN_ouput"
-
-### Details for connecting to the server:
-# connectionDetails <-
-#   DatabaseConnector::createConnectionDetails(
-#     dbms = "pdw",
-#     server = Sys.getenv("PDW_SERVER"),
-#     user = NULL,
-#     password = NULL,
-#     port = Sys.getenv("PDW_PORT")
-#   )
-
-### The name of the database schema where the CDM data can be found:
-# connectionDetails <- Eunomia::getEunomiaConnectionDetails()
-# DatabaseConnector::connect(connectionDetails, dbms="sqlite")
-cdmDatabaseSchema <- "main"
-
-### The name of the database schema and table where the study-specific cohorts will be instantiated:
-cohortDatabaseSchema <- cdmDatabaseSchema
-cohortTable <- "cohorts_SVVEHDEN"
 
 ### For some database platforms (e.g. Oracle): define a schema that can be used to emulate temp tables:
 sqlRenderTempEmulationSchema = NULL
 options(sqlRenderTempEmulationSchema = sqlRenderTempEmulationSchema)
 
-######### INTERNAL DEBUG #######################
-connectionDetails <- createConnectionDetails(dbms = "sql server", server = "UMCDB06")
-cdmDatabaseSchema = "OmopCdm.synpuf5pct_20180710"
-cohortDatabaseSchema = cdmDatabaseSchema
-cohortTable = paste0("cohorts_",Sys.getenv("USERNAME"),"")
-outputFolderPath = paste0("C:\\Users\\",Sys.getenv("USERNAME"),"\\WHO Collaborating Centre for International Drug Monitoring\\EHDEN - SWEDHEN-SPRINT\\output_",Sys.getenv("USERNAME"),"\\")
-################################################
+############## PARAMETERS ##############################
+
+### The cdm schema 
+cdmDatabaseSchema = "OmopCdm.synpuf5pct"    # if dbms = "sql server", please provide "databasename [.] schemaname"
+
+### The name of the database schema and table where the study-specific cohorts will be instantiated:
+cohortDatabaseSchema = cdmDatabaseSchema    # if dbms = "sql server", please provide "databasename [.] schemaname"
+cohortTable <- "cohorts_SVVEHDEN"
+
+### The folder where the study intermediate and result files will be written:
+outputFolderPath <- "C:/SVVEHDEN_ouput"
+
+### Provide details for connecting to the server:
+connectionDetails <-
+ DatabaseConnector::createConnectionDetails(
+   dbms = "pdw",
+   server = Sys.getenv("PDW_SERVER"),
+   user = NULL,
+   password = NULL,
+   port = Sys.getenv("PDW_PORT")
+ )
+
 ### Specify if you want to limit the number of combinations (normally used during debug or if you want to try out the full script without running all combinations)
 maxNumberOfCombinations = 5
-################################################
+verbose = FALSE
 
 ### Execute
-source("execute.R")   
-
+source("execute.R")
 execute(
   connectionDetails = connectionDetails,
   cdmDatabaseSchema = cdmDatabaseSchema,
@@ -66,7 +85,7 @@ execute(
   cohortTable = cohortTable,
   outputFolderPath = outputFolderPath,
   maxNumberOfCombinations = maxNumberOfCombinations,
-  verbose = FALSE)
+  verbose = verbose)
 
 ### Upload the results to the OHDSI SFTP server:
 privateKeyFileName <- ""

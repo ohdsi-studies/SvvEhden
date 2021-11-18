@@ -14,7 +14,7 @@
 #             "table_2_output" = table_2_output
 #             "gender_cohort_plot" = gender_cohort_plot
 #             "age_cohort_plot" = age_cohort_plot
- 
+
 ########################################################################
 table1_module <- function(i, cohort_list, saddle){
   
@@ -64,7 +64,7 @@ table1_module <- function(i, cohort_list, saddle){
   if(verbose) { 
     print("Summarizing demographics table") 
   }
-  
+
   internal_cohort_list = c(cohort1, cohort2, cohort3, cohort4)
   name_list = c("1: DEC cohort", "2: Drug cohort", "3: Event cohort", "4: All drugs cohort")
   gender_cohort_plot = interactive_barplot(internal_cohort_list, name_list, c("gender = FEMALE", "gender = MALE"))
@@ -162,7 +162,7 @@ table1_module <- function(i, cohort_list, saddle){
                                  valueDigits = 1,
                                  stdDiffDigits = 2)
   # table_1_output <-  table1_two_cohorts # print(table1_two_cohorts, row.names = FALSE, right = FALSE)
-  
+
   ## Compare two cohorts drug+event (1) and event (3)
   #if(verbose) { print("cohort 1 vs 3 table") }
   #standardized_mean_comparison_table  <- computeStandardizedDifference(cohort1b, cohort3)
@@ -177,7 +177,6 @@ table1_module <- function(i, cohort_list, saddle){
   #                               stdDiffDigits = 2)
   # table_2_output <- table2_two_cohorts #print(table2_two_cohorts, row.names = FALSE, right = FALSE))
 
- 
   if(verbose) { print("cohort 3 vs 4 table") }
   #standardized_mean_comparison_table  <- computeStandardizedDifference(cohort1a, cohort2)
   table_2_output <- FeatureExtraction::createTable1(covariateData1 = custom_aggregateCovariates(cohort3), 
@@ -227,13 +226,12 @@ table1_module <- function(i, cohort_list, saddle){
                              # "km_graph" = kaplan_meier_output, 
                              # "cox_summary" = raw_cox_output, 
                              # "time_to_event" = time_to_event_output,
-                             "table_1_output" = table_1_output,
-                             "table_2_output" = table_2_output,
-                             "table_3_output" = table_2_output,
-                             "gender_cohort_plot" = gender_cohort_plot
+                             ,"table_1_output" = table_1_output
+                             ,"table_2_output" = table_2_output
+                             ,"table_3_output" = table_2_output
+                             # ,"gender_cohort_plot" = gender_cohort_plot
                              #"age_cohort_plot" = age_cohort_plot
-                            ) 
-  
+                             ) 
   # toc()
   
   return(table1_output_list)
