@@ -32,10 +32,9 @@ outputFolderPath <- "C:/SVVEHDEN_ouput"
 #     port = Sys.getenv("PDW_PORT")
 #   )
 
-connectionDetails <- Eunomia::getEunomiaConnectionDetails()
-DatabaseConnector::connect(connectionDetails, dbms="sqlite")
-
 ### The name of the database schema where the CDM data can be found:
+# connectionDetails <- Eunomia::getEunomiaConnectionDetails()
+# DatabaseConnector::connect(connectionDetails, dbms="sqlite")
 cdmDatabaseSchema <- "main"
 
 ### The name of the database schema and table where the study-specific cohorts will be instantiated:
@@ -47,11 +46,11 @@ sqlRenderTempEmulationSchema = NULL
 options(sqlRenderTempEmulationSchema = sqlRenderTempEmulationSchema)
 
 ######### INTERNAL DEBUG #######################
-#connectionDetails <- createConnectionDetails(dbms = "sql server", server = "UMCDB06")
-#cdmDatabaseSchema = "OmopCdm.synpuf5pct_20180710"
-#cohortDatabaseSchema = cdmDatabaseSchema
-#cohortTable = paste0("cohorts_",Sys.getenv("USERNAME"),"")
-#outputFolderPath = paste0("C:\\Users\\",Sys.getenv("USERNAME"),"\\WHO Collaborating Centre for International Drug Monitoring\\EHDEN - SWEDHEN-SPRINT\\output_",Sys.getenv("USERNAME"),"\\")
+connectionDetails <- createConnectionDetails(dbms = "sql server", server = "UMCDB06")
+cdmDatabaseSchema = "OmopCdm.synpuf5pct_20180710"
+cohortDatabaseSchema = cdmDatabaseSchema
+cohortTable = paste0("cohorts_",Sys.getenv("USERNAME"),"")
+outputFolderPath = paste0("C:\\Users\\",Sys.getenv("USERNAME"),"\\WHO Collaborating Centre for International Drug Monitoring\\EHDEN - SWEDHEN-SPRINT\\output_",Sys.getenv("USERNAME"),"\\")
 ################################################
 ### Specify if you want to limit the number of combinations (normally used during debug or if you want to try out the full script without running all combinations)
 maxNumberOfCombinations = 5
@@ -59,6 +58,7 @@ maxNumberOfCombinations = 5
 
 ### Execute
 source("execute.R")   
+
 execute(
   connectionDetails = connectionDetails,
   cdmDatabaseSchema = cdmDatabaseSchema,

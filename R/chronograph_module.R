@@ -31,12 +31,12 @@ chronograph_module <- function(i, saddle){
                                   exposureTable = cohort_table_name,
                                   outcomeTable = cohort_table_name)
   
-    if(verbose) { print("Create chronograph plot") }
-    plot <- plotChronograph(data = test_data,
-                            exposureId = 22,
-                            outcomeId = 32)
-    
-    if(verbose) { print("Chronograph created") }
+  if(verbose) { print("Create chronograph plot") }
+  plot <- plotChronograph(data = test_data,
+                          exposureId = 22,
+                          outcomeId = 32)
+  
+  if(verbose) { print("Chronograph created") }
   
   # toc()
   return(plot)

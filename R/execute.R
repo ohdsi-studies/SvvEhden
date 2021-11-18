@@ -48,7 +48,7 @@ execute <- function(connectionDetails,
                     tempEmulationSchema = cohortDatabaseSchema,     #Do we use this?    
                     verifyDependencies = FALSE,                     #Do we use this?
                     outputFolderPath,
-                    databaseName = strsplit(resultsDatabaseSchema, split = ".", fixed = TRUE)[[1]][1], 
+                    databaseName = strsplit(cdmDatabaseSchema, split = ".", fixed = TRUE)[[1]][1], 
                     maxNumberOfCombinations = 100000,
                     verbose = FALSE) {
   
@@ -75,15 +75,14 @@ execute <- function(connectionDetails,
   ){  # i = 1
     
       tic("Total time for this DEC")
-      
-      cohort_list <- cohort_module(i, 
-                                   maximum_cohort_size=500,
-                                   force_create_new = TRUE,
-                                   only_create_cohorts = FALSE,
-                                   saddle)
-      
-      result = tryCatch({            
-      
+
+      result = tryCatch({          
+        cohort_list <- cohort_module(i, 
+                                     maximum_cohort_size=1000,
+                                     force_create_new = TRUE,
+                                     only_create_cohorts = FALSE,
+                                     saddle)
+        
         # Build descriptive tables
         table1_list <- table1_module(i, cohort_list, saddle)
               
@@ -106,11 +105,11 @@ execute <- function(connectionDetails,
   zipName <-
     file.path(outputFolderPath, paste0("Results_", databaseName, "_", Sys.Date(), ".zip"))
   files <- list.files(outputFolderPath, pattern = ".*\\.html$")
+  files[[length(files)+1]] <- list.files(outputFolderPath, pattern = ".*\\.txt$") # append error file
   oldWd <- setwd(outputFolderPath)
   on.exit(setwd(oldWd), add = TRUE)
   DatabaseConnector::createZipFile(zipFile = zipName, files = files)
   ParallelLogger::logInfo("Results are ready for sharing at: ", zipName)  
-  
 }
 
 

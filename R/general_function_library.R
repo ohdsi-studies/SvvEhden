@@ -532,6 +532,34 @@ error_printer <- function(e, i, output_path){
   
 }
 
+# R script to set up new eras (drug_ and condition_era_pw390)
+
+# Script taken and modified from:
+# https://ohdsi.github.io/CommonDataModel/sqlScripts.html#drug_eras
+
+createEras <- function(persistence_window = 390, databaseSchema, dbms){
+  
+  # # For debugging
+  # dbms = "sql server"
+  # server = "UMCDB06"
+  # databaseSchema 
+  
+  connectionDetails <- createConnectionDetails(dbms = dbms, server = server)
+  conn <- suppressMessages(invisible(DatabaseConnector::connect(connectionDetails)))
+  
+  # Check if the database has a drug and condition-era-table with persistence window 390 days.
+  # sql <- 
+  
+  
+  sql <- readSql("createEraScript.sql")
+  sql <- SqlRender::translate(sql, dbms)
+  sql <- SqlRender::render(sql, "TARGET_CDMV5"=db_name, "TARGET_CDMV5_SCHEMA" = paste0(db_name, ".", schema_name), "PERSISTENCE_WINDOW_IN_DAYS" = 390)
+  executeSql(conn, sql)
+  
+}
+
+
+
 saddle_the_workhorse <- function(connectionDetails = NULL,
                                  cdmDatabaseSchema = NULL,
                                  cohortDatabaseSchema = NULL,
@@ -596,8 +624,8 @@ saddle_the_workhorse <- function(connectionDetails = NULL,
   if(databaseSchema == "OmopCdm.mini") {
     dec_df <- read.csv("..\\inst\\input\\fake_DEC_list_mini.csv", sep=";")[,-1]
   } else {
-    #dec_df <- read.csv("..\\inst\\input\\fake_DEC_list.csv", sep=";")[,-1]
-    dec_df <- read.csv("..\\inst\\input\\minisprint_DEC_list_v2.csv", sep=";")[,-1]
+    dec_df <- read.csv("..\\inst\\input\\fake_DEC_list.csv", sep=";")[,-1] # This one is for our synpuf-data
+    # dec_df <- read.csv("..\\inst\\input\\minisprint_DEC_list_v2.csv", sep=";")[,-1]
   }
   
   
@@ -847,116 +875,3 @@ from_covariateId_to_conceptId <- function(input_covariateId = 30361210, cohort) 
   cohort$covariateRef %>% filter(covariateId == input_covariateID) %>% pull(conceptId)
   
 }
-
-
-
-
-
-getDbCovariateData_debug <- function(connectionDetails = NULL,
-                                     connection = NULL,
-                                     oracleTempSchema = NULL,
-                                     cdmDatabaseSchema,
-                                     cdmVersion = "5",
-                                     cohortTable = "cohort",
-                                     cohortDatabaseSchema = cdmDatabaseSchema,
-                                     cohortTableIsTemp = FALSE,
-                                     cohortId = -1,
-                                     rowIdField = "subject_id",
-                                     covariateSettings,
-                                     aggregated = FALSE) {
-  if (is.null(connectionDetails) && is.null(connection)) {
-    stop("Need to provide either connectionDetails or connection")
-  }
-  if (!is.null(connectionDetails) && !is.null(connection)) {
-    stop("Need to provide either connectionDetails or connection, not both")
-  }
-  if (cdmVersion == "4") {
-    stop("CDM version 4 is not supported any more")
-  }
-  if (!is.null(connectionDetails)) {
-    connection <- DatabaseConnector::connect(connectionDetails)
-    on.exit(DatabaseConnector::disconnect(connection))
-  }
-  if (cohortTableIsTemp) {
-    if (substr(cohortTable, 1, 1) == "#") {
-      cohortDatabaseSchemaTable <- cohortTable
-    } else {
-      cohortDatabaseSchemaTable <- paste0("#", cohortTable)
-    }
-  } else {
-    cohortDatabaseSchemaTable <- paste(cohortDatabaseSchema, cohortTable, sep = ".")
-  }
-  sql <- "SELECT cohort_definition_id, COUNT_BIG(*) AS population_size FROM @cohort_database_schema_table {@cohort_id != -1} ? {WHERE cohort_definition_id IN (@cohort_id)} GROUP BY cohort_definition_id;"
-  sql <- SqlRender::render(sql = sql,
-                           cohort_database_schema_table = cohortDatabaseSchemaTable,
-                           cohort_id = cohortId)
-  sql <- SqlRender::translate(sql = sql,
-                              targetDialect = attr(connection, "dbms"),
-                              oracleTempSchema = oracleTempSchema)
-  temp <- DatabaseConnector::querySql(connection, sql, snakeCaseToCamelCase = TRUE)
-  if (aggregated) {
-    populationSize <- temp$populationSize
-    names(populationSize) <- temp$cohortDefinitionId
-  } else {
-    populationSize <- sum(temp$populationSize)
-  }
-  if (sum(populationSize) == 0) {
-    covariateData <- createEmptyCovariateData(cohortId, aggregated, covariateSettings$temporal)
-    warning("Population is empty. No covariates were constructed")
-  } else {
-    if (class(covariateSettings) == "covariateSettings") {
-      covariateSettings <- list(covariateSettings)
-    }
-    if (is.list(covariateSettings)) {
-      covariateData <- NULL
-      hasData <- function(data) {
-        return(!is.null(data) && (data %>% count() %>% pull()) > 0)
-      }
-      for (i in 1:length(covariateSettings)) {
-        fun <- attr(covariateSettings[[i]], "fun")
-        args <- list(connection = connection,
-                     oracleTempSchema = oracleTempSchema,
-                     cdmDatabaseSchema = cdmDatabaseSchema,
-                     cohortTable = cohortDatabaseSchemaTable,
-                     cohortId = cohortId,
-                     cdmVersion = cdmVersion,
-                     rowIdField = rowIdField,
-                     covariateSettings = covariateSettings[[i]],
-                     aggregated = aggregated)
-        tempCovariateData <- do.call(eval(parse(text = fun)), args)
-        if (is.null(covariateData)) {
-          covariateData <- tempCovariateData
-        } else {
-          if (hasData(covariateData$covariates)) {
-            if (hasData(tempCovariateData$covariates)) {
-              Andromeda::appendToTable(covariateData$covariates, tempCovariateData$covariates)
-            } 
-          } else if (hasData(tempCovariateData$covariates)) {
-            covariateData$covariates <- tempCovariateData$covariates
-          }
-          if (hasData(covariateData$covariatesContinuous)) {
-            if (hasData(tempCovariateData$covariatesContinuous)) {
-              Andromeda::appendToTable(covariateData$covariatesContinuous, tempCovariateData$covariatesContinuous)
-            } else if (hasData(tempCovariateData$covariatesContinuous)) {
-              covariateData$covariatesContinuous <- tempCovariateData$covariatesContinuous
-            }
-          } 
-          Andromeda::appendToTable(covariateData$covariateRef, tempCovariateData$covariateRef)
-          Andromeda::appendToTable(covariateData$analysisRef, tempCovariateData$analysisRef)
-          for (name in names(attr(tempCovariateData, "metaData"))) {
-            if (is.null(attr(covariateData, "metaData")[name])) {
-              attr(covariateData, "metaData")[[name]] <- attr(tempCovariateData, "metaData")[[name]]
-            } else {
-              attr(covariateData, "metaData")[[name]] <- list(attr(covariateData, "metaData")[[name]],
-                                                              attr(tempCovariateData, "metaData")[[name]])
-            }
-          }
-        }
-      }
-    }
-    attr(covariateData, "metaData")$populationSize <- populationSize
-    attr(covariateData, "metaData")$cohortId <- cohortId
-  }
-  return(covariateData)
-}
-
