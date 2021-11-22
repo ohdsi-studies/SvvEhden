@@ -43,10 +43,9 @@ cohort_module <- function(i,
   resultsDatabaseSchema <- saddle$resultsDatabaseSchema 
   resultsTableName <- saddle$resultsTableName
   verbose <- saddle$overall_verbose
-
+  zeallot::`%<-%`(c(drug_name, event_name, drug_id, event_id), dec_input[1:4])
   schema_used_for_filenames_only = strsplit(cdmDatabaseSchema, split = ".", fixed = TRUE)[[1]][2]
 
-  c(drug_name, event_name, drug_id, event_id) %<-% dec_input[1:4]
   
   # # For debugging:
   # dec_input <- saddle$dec_df[1,]
@@ -55,8 +54,9 @@ cohort_module <- function(i,
   # only_create_cohorts=FALSE
   # maximum_cohort_size = 50
   # force_create_new = TRUE
-  
-  tic("Cohort_module")
+  # zeallot::`%<-%`(c(drug_name, event_name, drug_id, event_id), dec_input[1:4])
+
+  tictoc::tic("Cohort_module")
   conn <- suppressMessages(invisible(DatabaseConnector::connect(connectionDetails)))
   tempTableName = resultsTableName
   
@@ -64,7 +64,7 @@ cohort_module <- function(i,
   event_id_string_commaseparated = gsub(pattern = '|', replacement = ',', x=event_id, fixed = TRUE) # split with commas if several
   
   #Create the cohorts in a table in the database
-  sql <- readSql("..\\inst\\sql\\generic_cohort_definition_script.sql")
+  sql <- SqlRender::readSql("..\\inst\\sql\\generic_cohort_definition_script.sql")
 
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)  
   sql <- SqlRender::render(sql, 
@@ -83,9 +83,10 @@ cohort_module <- function(i,
   
   
   # Get the patient counts per cohort
-  sql <- paste0("SELECT COHORT_DEFINITION_ID, COUNT(*) FROM ", cdmDatabaseSchema, ".", tempTableName, " GROUP BY COHORT_DEFINITION_ID;")
+  sql <- paste0("SELECT COHORT_DEFINITION_ID, N=COUNT(*) FROM ", cdmDatabaseSchema, ".", tempTableName, " GROUP BY COHORT_DEFINITION_ID;")
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)  
-  cohort_counts <- querySql(conn, sql)
+  cohort_counts <- querySql(conn, sql) %>% dplyr::arrange(COHORT_DEFINITION_ID)
+
   
   #debug part: if you want to run it manually
   fileConn<-file("..\\inst\\sql\\last_create_cohort_definition_script.sql")
@@ -101,8 +102,8 @@ cohort_module <- function(i,
   # TODO: make sure we include what we need here
   
   # Must be numberic, not strings!
-  event_id_int_frame = sapply(str_split(event_id, fixed("|")), as.numeric)
-  drug_id_int_frame = sapply(str_split(drug_id, fixed("|")), as.numeric)
+  event_id_int_frame = sapply(stringr::str_split(event_id, stringr::fixed("|")), as.numeric)
+  drug_id_int_frame = sapply(stringr::str_split(drug_id, stringr::fixed("|")), as.numeric)
   
   covSettings <- suppressMessages(custom_createCovariateSettings(exclude_these = c(event_id_int_frame, drug_id_int_frame))) #for cohort1-3: exclude event and drug from covariates
   attributes(covSettings)$fun = "custom_getDbDefaultCovariateData"
@@ -142,7 +143,7 @@ cohort_module <- function(i,
   filename2 = paste0("cohort_data/", schema_used_for_filenames_only, "_cohort11-", drugEventString, ".Rdata")
   filename3 = paste0("cohort_data/",schema_used_for_filenames_only,"_studyPopulation-",drugEventString,".Rdata")
   
-  tic()
+  tictoc::tic()
   if (!file.exists(filename) | !file.exists(filename2) | !file.exists(filename3) | force_create_new){
     # compute cohort and save to file
     if(verbose) { print(paste0("Retrieving covariates for cohort 11 from scratch, saving to : ", filename)) }
@@ -208,7 +209,7 @@ cohort_module <- function(i,
   ########################################################################
   # cohort 21: drug
   
-  tic()
+  tictoc::tic()
   filename = paste0("cohort_data/",schema_used_for_filenames_only,"_cohort21-",drug_id,".Rdata")
   if (!file.exists(filename) | force_create_new){
     # compute cohort and save to file
@@ -271,11 +272,11 @@ cohort_module <- function(i,
   }
     if(!force_create_new) { cohort41 <- suppressMessages(FeatureExtraction::loadCovariateData(file = filename)) }
   
-  toc()
+  tictoc::toc()
   
   if(verbose) { print("All cohort covariates created or loaded.") }
   
-  if(all(cohort_counts$`COUNT(*)` >= 5) & all( c(11, 21, 22, 31, 32, 40, 41, 42, 2, 3, 4) %in% cohort_counts$COHORT_DEFINITION_ID)){
+  if(all(cohort_counts$`COUNT(*)` >= 5) & all( c(2, 3, 4, 11, 21, 22, 31, 32, 41, 42) %in% cohort_counts$COHORT_DEFINITION_ID)){
   return(list(studyPopulation, cohortMethodData, cohort11, cohort21, cohort31, cohort41))
   } else {
     print("At least one cohort has a size of less than 5, moving forward to next DEC.")

@@ -1,0 +1,64 @@
+Thread: Main
+Message:  object 'cnd' not found
+Level:  FATAL
+Time:  2021-11-22 08:53:38
+
+Stack trace:
+21: logFatal(gsub("\n", " ", geterrmessage()))
+20: (function () 
+{
+    logFatal(gsub("\n", " ", geterrmessage()))
+    if (!is.null(previousErrorHandler)) {
+        eval(previousErrorHandler)
+    }
+})()
+19: .POSIXct(.Internal(Sys.time()))
+18: Sys.time()
+17: doTryCatch(return(expr), name, parentenv, handler)
+16: tryCatchOne(expr, names, parentenv, handlers[[1]])
+15: tryCatchList(expr, classes, parentenv, handlers)
+14: tryCatch({
+    startQuery <- Sys.time()
+    lowLevelExecuteSql(connection, sqlStatement)
+    if (profile) {
+        delta <- Sys.time() - startQuery
+        inform(pas
+13: general_function_library.R#772: DatabaseConnector::executeSql(connection, sql, profile = profile, progressBar = FALSE)
+12: (function (connection, oracleTempSchema = NULL, cdmDatabaseSchema, cohortTable = "#cohort_person", cohortId = -1, cdmVersion = "5", rowIdField = "subject_id", covariat
+11: do.call(eval(parse(text = fun)), args)
+10: general_function_library.R#282: FeatureExtraction::getDbCovariateData(connection = connection, oracleTempSchema = tempEmulationSchema, cdmDatabaseSchema = cdmDatabaseS
+9: cohort_module.R#154: custom_getDbCohortMethodData(connectionDetails = connectionDetails, cdmDatabaseSchema = cdmDatabaseSchema, targetId = 21, comparatorId = 41, outco
+8: withCallingHandlers(expr, message = function(c) if (inherits(c, classes)) tryInvokeRestart("muffleMessage"))
+7: cohort_module.R#154: suppressMessages(custom_getDbCohortMethodData(connectionDetails = connectionDetails, cdmDatabaseSchema = cdmDatabaseSchema, targetId = 21, compara
+6: execute.R#82: cohort_module(i, maximum_cohort_size = 1000, force_create_new = TRUE, only_create_cohorts = FALSE, saddle)
+5: doTryCatch(return(expr), name, parentenv, handler)
+4: tryCatchOne(expr, names, parentenv, handlers[[1]])
+3: tryCatchList(expr, classes, parentenv, handlers)
+2: execute.R#79: tryCatch({
+    tictoc::tic("Total time for this DEC")
+    cohort_list <- cohort_module(i, maximum_cohort_size = 1000, force_create_new = TRUE, only_creat
+1: execute(connectionDetails = connectionDetails, cdmDatabaseSchema = cdmDatabaseSchema, cohortDatabaseSchema = cohortDatabaseSchema, cohortTable = cohortTable, outputFol
+
+R version:
+R version 4.0.5 (2021-03-31)
+
+Platform:
+x86_64-w64-mingw32
+
+Attached base packages:
+- stats
+- graphics
+- grDevices
+- utils
+- datasets
+- methods
+- base
+
+Other attached packages:
+- SVVEHDEN (0.0.1)
+- dplyr (1.0.5)
+- plyr (1.8.6)
+- magrittr (2.0.1)
+- DatabaseConnector (4.0.2)
+
+

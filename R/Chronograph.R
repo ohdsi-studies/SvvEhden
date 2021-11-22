@@ -175,7 +175,7 @@ getChronographData <- function(connectionDetails,
   }
   
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "CreateChronographData.sql",
-                                           packageName = "IcTemporalPatternDiscovery",
+                                           packageName = "SVVEHDEN",
                                            dbms = connectionDetails$dbms,
                                            oracleTempSchema = oracleTempSchema,
                                            cdm_database_schema = cdmDatabaseSchema,
@@ -206,7 +206,7 @@ getChronographData <- function(connectionDetails,
   exposure <- DatabaseConnector::querySql(conn, sql)
   colnames(exposure) <- SqlRender::snakeCaseToCamelCase(colnames(exposure))
   
-  sql <- "SELECT period_id, all_observed_count FROM #all"
+  sql <- "SELECT period_id, all_observed_count FROM #all_table"
   sql <- SqlRender::translate(sql,
                               targetDialect = connectionDetails$dbms,
                               oracleTempSchema = oracleTempSchema)
@@ -228,7 +228,7 @@ getChronographData <- function(connectionDetails,
   colnames(outcome) <- SqlRender::snakeCaseToCamelCase(colnames(outcome))
   
   sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "DropChronographTables.sql",
-                                           packageName = "IcTemporalPatternDiscovery",
+                                           packageName = "SVVEHDEN",
                                            dbms = connectionDetails$dbms,
                                            oracleTempSchema = oracleTempSchema,
                                            has_pairs = hasPairs)

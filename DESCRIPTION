@@ -14,9 +14,12 @@ Description: Aggregation of data for the SVVEHDEN Study-A-Thon.
 URL: todo
 BugReports: todo
 Depends:
-	DatabaseConnector (>= 4.0.2),
+	DatabaseConnector (>= 4.0.2), magrittr, plyr, dplyr
 Imports:
-	SqlRender,
+	data.table, stringr, lubridate, here, ggplot2, 
+                   DT, forcats, gridExtra, kableExtra, knitr, RColorBrewer, ggnewscale, egg,
+                   plotly, xlsx, reshape2, zeallot, DatabaseConnector,
+                   SqlRender, tidyr, tictoc, SqlRender,
 	ParallelLogger,
 	ggplot2,
 	gridExtra

@@ -33,13 +33,13 @@ library_packages <- function (package_vec = NULL){
   invisible(suppressMessages(lapply(package_vec, library, character.only = T)))
 }
 
-library_packages(package_vec)
+# library_packages(package_vec)
 
 get_all_drugs <- function(conn, databaseSchema){
   
   # Will find these parameters from the workhorse scope
   sql_query <- "SELECT DISTINCT drug_concept_id FROM @databaseSchema.[drug_era]"
-  drug_ids <- querySql(conn, SqlRender::render(sql_query, databaseSchema=databaseSchema)) %>% pull(DRUG_CONCEPT_ID)
+  drug_ids <- querySql(conn, SqlRender::render(sql_query, databaseSchema=databaseSchema)) %>% dplyr::pull(DRUG_CONCEPT_ID)
   return(drug_ids)
 }
 
@@ -277,8 +277,8 @@ custom_getDbCohortMethodData <- function (connectionDetails, cdmDatabaseSchema, 
   } else {
     cohortTable <- "#cohort_person"
   }
-  print(tempEmulationSchema)
-  print(cdmDatabaseSchema)
+  # print(tempEmulationSchema)
+  # print(cdmDatabaseSchema)
   covariateData <- FeatureExtraction::getDbCovariateData(connection = connection, #getDbCovariateData_debug(connection = connection,
                                                          oracleTempSchema = tempEmulationSchema, 
                                                          cdmDatabaseSchema = cdmDatabaseSchema, 
@@ -468,7 +468,7 @@ custom_createCovariateSettings <- function(exclude_these){
 }
 
 shorten_to_file_path <- function(str = "NONAME") {
-  new_str = str_replace_all(str, "[^a-zA-Z\\d\\s]", "")
+  new_str = stringr::str_replace_all(str, "[^a-zA-Z\\d\\s]", "")
   if (nchar(new_str) > 15) { 
     new_str = substr(new_str,0,15) 
   } 
@@ -507,12 +507,12 @@ interactive_barplot <- function(internal_cohort_list, name_list, covariate_list)
   summarized_df$text <- paste0("n = ", summarized_df$n)
   
   # Prepare plot
-  g1 <- ggplot(summarized_df, aes(Category, Percentage, text=text)) +   
-    geom_bar(aes(fill = Cohort), position = position_dodge(width = 0.9), stat="identity") + xlab("") + ylab("Percentage within each cohort") + coord_flip() 
+  g1 <- ggplot2::ggplot(summarized_df, ggplot2::aes(Category, Percentage, text=text)) +   
+    ggplot2::geom_bar(ggplot2::aes(fill = Cohort), position = ggplot2::position_dodge(width = 0.9), stat="identity") + ggplot2::xlab("") + ggplot2::ylab("Percentage within each cohort") + ggplot2::coord_flip() 
   
   # Finalize and print
-  g1 <- g1 + guides(fill=guide_legend(reverse=T,  title=""))
-  html_plot <- plotly::ggplotly(g1, tooltip="text") %>%  style(hoverlabel = list(bgcolor = "white"))
+  g1 <- g1 + ggplot2::guides(fill=ggplot2::guide_legend(reverse=T,  title=""))
+  html_plot <- plotly::ggplotly(g1, tooltip="text") %>%  plotly::style(hoverlabel = list(bgcolor = "white"))
   html_plot[["x"]][["data"]] <- rev(html_plot[["x"]][["data"]])
   
   #TODO: reverse order! BUT HOW TO? Ordered in alphabetical order, can this be changed?
@@ -542,7 +542,7 @@ createEras <- function(saddle){
   conn <- suppressMessages(invisible(DatabaseConnector::connect(saddle$connectionDetails)))
   
   # Check whether the database has a drug and condition-era-table with persistence window 390 days already.
-  sql <- readSql("..\\inst\\sql\\checkIfEraExist.sql")
+  sql <- SqlRender::readSql("..\\inst\\sql\\checkIfEraExist.sql")
   sql <- SqlRender::translate(sql, saddle$connectionDetails$dbms)
   sql <- SqlRender::render(sql, "TARGET_CDMV5_SCHEMA" = saddle$databaseSchema, 
                                 "CONDITION_ERA_TABLE_NAME" = saddle$conditionEraTableName, 
@@ -551,7 +551,7 @@ createEras <- function(saddle){
   
   if(result != 1) {
     #If not, create the eras
-    sql <- readSql("..\\inst\\sql\\createEraScript.sql")
+    sql <- SqlRender::readSql("..\\inst\\sql\\createEraScript.sql")
     sql <- SqlRender::translate(sql, saddle$connectionDetails$dbms)
     sql <- SqlRender::render(sql, "TARGET_CDMV5_SCHEMA" = saddle$databaseSchema, 
                                   "CONDITION_ERA_TABLE_NAME" = saddle$conditionEraTableName, 
@@ -631,11 +631,14 @@ saddle_the_workhorse <- function(connectionDetails = NULL,
   # Read in the DEC-csv
   if(databaseSchema == "OmopCdm.mini") {
     dec_df <- read.csv("..\\inst\\input\\fake_DEC_list_mini.csv", sep=";")[,-1]
-  } else {
+  } else if(connectionDetails$dbms == "sqlite" & which_database == "sqlite"){
+    dec_df <- read.csv("..\\inst\\input\\eunomia_dec_df.csv")
+    dec_df <- dplyr::bind_cols("drug_name" = "fakedrug", "event_name" = "fakeevent", dec_df)
+    colnames(dec_df)[3:4] = paste0(colnames(dec_df)[3:4], "_id")
+    } else {
     dec_df <- read.csv("..\\inst\\input\\fake_DEC_list.csv", sep=";")[,-1] # This one is for our synpuf-data
     # dec_df <- read.csv("..\\inst\\input\\minisprint_DEC_list_v2.csv", sep=";")[,-1]
   }
-  
   
   dec_df$drug_and_event_name <- apply(dec_df[,1:2], 1, 
                                       function(x){
@@ -701,7 +704,7 @@ custom_aggregateCovariates <- function(covariateData, verbose=FALSE)
     inner_join(covariateData$covariateRef, by = "analysisId") %>% 
     inner_join(covariateData$covariates, by = "covariateId") %>% 
     Andromeda::groupApply("covariateId", computeStats) %>% 
-    bind_rows()
+    dplyr::bind_rows()
   computeStats <- function(data) {
     probs <- c(0, 0.1, 0.25, 0.5, 0.75, 0.9, 1)
     quants <- quantile(data$covariateValue, probs = probs, 
@@ -717,8 +720,8 @@ custom_aggregateCovariates <- function(covariateData, verbose=FALSE)
     inner_join(covariateData$covariateRef, by = "analysisId") %>% 
     inner_join(covariateData$covariates, by = "covariateId") %>% 
     Andromeda::groupApply("covariateId", computeStats) %>% 
-    bind_rows()
-  covariatesContinuous <- bind_rows(covariatesContinuous1, 
+    dplyr::bind_rows()
+  covariatesContinuous <- dplyr::bind_rows(covariatesContinuous1, 
                                     covariatesContinuous2)
   if (nrow(covariatesContinuous) > 0) {
     result$covariatesContinuous <- covariatesContinuous
@@ -888,3 +891,6 @@ from_covariateId_to_conceptId <- function(input_covariateId = 30361210, cohort) 
   cohort$covariateRef %>% filter(covariateId == input_covariateID) %>% pull(conceptId)
   
 }
+
+
+

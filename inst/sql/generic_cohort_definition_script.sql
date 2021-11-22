@@ -14,26 +14,25 @@
 ##################################################################################
 Chronograph analyses:
 IC = log2 ((N_observed + 0.5)/(N_expected + 0.5))
-where N_expected = (Ntarget_drug * N_event) / Ntotal
+where N_expected = (Ntarget_drug * N_event) / Ntotal and Ntotal and Nevent are derived from the comparator drug cohort
 
-N_expected: expected number of subjects with the target drug-event combination (i.e. derived from 22, 32 and 42) 
-N_observed: actual number of subjects with the target drug-event combination (i.e. intersection of 22 and 32)
-N_target_drug: number of subjects with the target drug (i.e. target drug cohort (22))
-N_event: total number of subjects with the event in target and comparator drug cohort combined (32)
-N_total: total number of subjects in target and comparator drug cohort combined (i.e. total drug cohort, (42))
+N_expected: expected number of subjects with the target drug-event combination 
+N_observed: actual number of subjects with the target drug-event combination (intersection of 22 and 32)
+N_target_drug: number of subjects with the target drug (22)
+N_event: total number of subjects with the event in the comparator drug cohort (intersection of 42 and 32)
+N_total: total number of subjects in the target drug cohort (42)
 ##################################################################################
 For convenience, the cohorts are enumerated as follows (cohort IDs):  
-11(0):  Target drug cohort with event in 30-day post-index risk window (descriptive analyses)
-21(0):  Target drug cohort (descriptive analyses)
-22(0):  Target drug cohort (chronograph analyses)
-31(0):  Comparator drug cohort with event in 30-day post-index risk window (descriptive analyses)
-32(0):  Total drug (target and comparator) cohort with event(s) in 3-yrs pre and/or post-index risk window (chronograph analyses) (i.e. derived from 42 and 3)
-40(0)*: Comparator drug cohort (chronograph analyses)
-41(0):  Comparator drug cohort (descriptive analyses)
-42(0):  Total drug (target and comparator) cohort (chronograph analyses) (i.e. derived from 22 and 40)
-2*:     Study pool of eligible target drug eras used for defining first and randomly sampled target drug era cohorts  
-3*:     Study pool of eligible condition eras
-4*:     Study pool of eligible comparator drug eras used for defining first and randomly sampled comparator drug era cohorts 
+11:  Target drug cohort with event in 30-day post-index risk window (descriptive analyses)
+21:  Target drug cohort (descriptive analyses)
+22:  Target drug cohort (chronograph analyses)
+31:  Comparator drug cohort with event in 30-day post-index risk window (descriptive analyses)
+32:  Any event cohort (chronograph analyses) 
+41:  Comparator drug cohort (descriptive analyses)
+42:  Comparator drug cohort (chronograph analyses)
+2*:  Study pool of eligible target drug eras used for defining first and randomly sampled target drug eras  
+3*:  Study pool of eligible condition eras
+4*:  Study pool of eligible comparator drug eras used for defining first and randomly sampled comparator drug eras
 ############################################
 -- Cohorts 11, 21, 31 and 41 serve as input for descriptive tables (risk window: max. 30-day post index date)
 -- Cohorts 22, 32 and 42 serve as input for chronograph analyses (risk window: max. 3-yrs pre and max 3-yrs post index date)
@@ -42,10 +41,8 @@ For convenience, the cohorts are enumerated as follows (cohort IDs):
 -- Each subject contributes max 1 event to descriptive analyses 
 -- Each subject can contribute more than 1 event to chronograph analyses 
 -- By default, all cohort IDs refer to drug exposure defined based on first-time use (i.e. first drug era)
--- NOTE: Cohort IDs with "0" extension refer to drug exposure defined based on a randomly sampled drug era - TO BE ADDED IF NEEDED
--- NOTE: Study pool of eligible drug eras (2* and 4*) serve as input for defining first and randomly sampled (target/comparator) drug eras 
+-- NOTE: Study pool of eligible drug eras (2* and 4*) serve as input for defining first drug era and possibly randomly sampled drug eras (if needed in future analyses)
 -- NOTE: Study pool of eligible condition eras (3*) for extraction of event occurences for descriptive analyses (i.e. first post-index event) and chronograph analyses (any event within pre- and postindex risk window)  
--- NOTE: Cohort 40 is currently not used as input for chronograph analyses, but will serve as input in matched cohort design
 -- NOTE: set SEED to make sampling reproducible (RAND(SEED) FUNCTION)
 ############################################
 */
@@ -56,8 +53,6 @@ For convenience, the cohorts are enumerated as follows (cohort IDs):
 {DEFAULT @comparator_drug_ids = ''} -- the concept ids for comparator drugs (typically all drugs in the database)
 {DEFAULT @event_ids = ''} -- concept ids for the outcome/event ID
 {DEFAULT @resultsDatabaseSchema = ''} -- the schema that will hold all cohorts
-{DEFAULT @conditionEraTableName = ''} -- the table name holding the condition_era
-{DEFAULT @drugEraTableName = ''} -- the table name holding the drug_era
 {DEFAULT @tempTableName = ''} -- the table name where the final cohort tables will reside
 {DEFAULT @cdmDatabaseSchema = ''} -- the schema where the OMOP data is located
 {DEFAULT @maximum_cohort_size = ''} -- a limitation on the cohort size
@@ -109,10 +104,10 @@ SELECT 2 AS cohort_definition_id,
        y.observation_period_start_date,
        y.observation_period_end_date,
        z.death_date
-FROM @cdmDatabaseSchema.@drugEraTableName x
+FROM @cdmDatabaseSchema.drug_era x
 LEFT JOIN @cdmDatabaseSchema.death z						--add death_date to table (used for checking data only)
 	  ON x.person_id = z.person_id
-INNER JOIN @cdmDatabaseSchema.observation_period y	        --add observation_period_start_date and observation_period_end_date to table (needed for setting risk time)
+INNER JOIN @cdmDatabaseSchema.observation_period y	        --add observation_period_start_date and observation_period_end_date to table 
       ON x.person_id = y.person_id
 	   AND y.observation_period_start_date < x.drug_era_start_date
 	   AND y.observation_period_end_date > x.drug_era_start_date
@@ -125,7 +120,8 @@ WHERE (DATEDIFF(MONTH, y.observation_period_start_date, x.drug_era_start_date) >
 -- Cohort constructed using COHORT 2 (pool of eligible target drug eras) as study base 
 -- Risk time starts at drug_era_start_date (i.e. index date)
 -- Risk time ends at drug_era_start_date+30 days or last date of observation (includes death) whichever occurs first 
--- Note: no need to define censoring based on drug_era_end_date as max time at risk is 30 days
+-- NOTE: no need to define censoring based on drug_era_end_date as max time at risk is 30 days
+-- NOTE: cohort_start_date and cohort_end_date do not meet OHDSI standards?
 INSERT INTO @resultsDatabaseSchema.@tempTableName_original (
   cohort_definition_id,
   cohort_start_date,
@@ -205,7 +201,7 @@ WHERE t.order_number = 1;
 /* COHORT 4*. POPULATE TABLE WITH COHORT OF ELIGIBLE COMPARATOR DRUG ERAS (STUDY POOL)*/
 -- Study pool for constructing comparator drug cohorts based on first era (41, 42) or randomly sampled era (410, 420)
 -- Randomly samples 1 comparator drug per subject
--- NOTE: to be added: code for extracting distinct drug eras based on predefined drug era gap, 13 months (required for randomly sampled drug era cohorts)
+-- NOTE:  drug era persistence gap defined as 13 months (required for randomly sampling drug eras)
 INSERT INTO @resultsDatabaseSchema.@tempTableName_original (
   cohort_definition_id,
   subject_id,
@@ -234,7 +230,7 @@ FROM ( SELECT *,
 					 y.observation_period_end_date, 
 					 z.death_date,
                      Row_number() OVER(PARTITION BY x.person_id, drug_concept_id ORDER BY newid()) AS one_row_per_person_and_drug_row_number -- Scramble the order
-              FROM  @cdmDatabaseSchema.@drugEraTableName x
+              FROM  @cdmDatabaseSchema.drug_era x
 	          LEFT JOIN @cdmDatabaseSchema.death z						--add death_date to table (used for checking data only)
 	                       ON x.person_id = z.person_id
 	          INNER JOIN @cdmDatabaseSchema.observation_period y			--add observation_period_start_date and observation_period_end_date to table (needed for setting risk time)
@@ -256,7 +252,7 @@ WHERE one_row_per_person_row_number = 1;
 -- Cohort constructed using COHORT 4 (pool of eligible comparator drug eras) as study base 
 -- Risk time starts at drug_era_start_date (i.e. index date)
 -- Risk time ends at drug_era_start_date+30 days or last date of observation (includes death) whichever occurs first 
--- Note: no need to define censoring based on drug_era_end_date as max time at risk is 30 days
+-- NOTE: cohort_start_date and cohort_end_date do not meet OHDSI standards?
 INSERT INTO @resultsDatabaseSchema.@tempTableName_original (
   cohort_definition_id,
   cohort_start_date,
@@ -296,10 +292,7 @@ WHERE t.order_number = 1;
 ---------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------
 
-/* COHORT 40. POPULATE TABLE WITH COMPAROTOR DRUG COHORT BASED ON FIRST TIME USE (FOR CHRONOGRAPH ANALYSES) */
--- Risk time starts at drug_era_start_date-3 yrs or earliest date of observation whichever occurs last
--- Risk time ends at drug_era_start_date+3 yrs, drug era end date or last date of observation (includes death) whichever occurs first 
--- Note: need to set persistence gap for drug eras (default is ?)
+/* COHORT 42. POPULATE TABLE WITH COMPAROTOR DRUG COHORT BASED ON FIRST TIME USE (FOR CHRONOGRAPH ANALYSES) */
 INSERT INTO @resultsDatabaseSchema.@tempTableName_original (
   cohort_definition_id,
   cohort_start_date,
@@ -312,7 +305,7 @@ INSERT INTO @resultsDatabaseSchema.@tempTableName_original (
   observation_period_end_date,
   death_date,
   order_number)
-SELECT 40 AS cohort_definition_id, 
+SELECT 42 AS cohort_definition_id, 
        t.drug_era_start_date AS cohort_start_date,
 	   t.drug_era_end_date AS cohort_end_date,
 	   t.subject_id,
@@ -340,40 +333,8 @@ WHERE t.order_number = 1;
 ---------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------
 
-/* COHORT 42. POPULATE TABLE WITH TOTAL DRUG (TARGET AND COMPARATOR) COHORT BASED ON FIRST TIME USE (FOR CHRONOGRAPH ANALYSES) */
-/* Defined as all subjects in cohort 22 and cohort 40 */
-INSERT INTO @resultsDatabaseSchema.@tempTableName_original (
-  cohort_definition_id,
-  cohort_start_date,
-  cohort_end_date,
-  subject_id,
-  drug_concept_id,
-  drug_era_start_date,
-  drug_era_end_date,
-  observation_period_start_date,
-  observation_period_end_date,
-  death_date,
-  order_number)
-SELECT 42 AS cohort_definition_id,
-       cohort_start_date,
-       cohort_end_date,
-       subject_id,
-       drug_concept_id,
-       drug_era_start_date,
-       drug_era_end_date,
-       observation_period_start_date,
-       observation_period_end_date,
-       death_date,
-       order_number
-FROM @resultsDatabaseSchema.@tempTableName_original 
-WHERE cohort_definition_id IN (22,40);
-
----------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------
-
 /* COHORT 3*. POPULATE TABLE WITH COHORT OF ELIGIBLE CONDITION ERAS (STUDY POOL)*/
 -- Study pool for extracing conditions for merging with target, comparator, total (target and comparator) drug cohorts 
--- NOTE: includes distinct, 
 INSERT INTO @resultsDatabaseSchema.@tempTableName_original (
   cohort_definition_id,
   cohort_start_date,
@@ -387,7 +348,7 @@ SELECT 3 AS cohort_definition_id,
 FROM ( SELECT DISTINCT condition_era_start_date AS cohort_start_date,			-- distinct to select only 1 record per day (multiple diagnoses on the same day most likely refer to the same occurrence than seperate occurrences)
                        condition_era_end_date AS cohort_end_date,                         -- set cohort start date as condition era start date (used in analysis) and cohort end date as condition era start date (not used in analysis)
                        person_id AS subject_id
-       FROM @cdmDatabaseSchema.@conditionEraTableName
+       FROM @cdmDatabaseSchema.condition_era
        WHERE condition_concept_id IN ( SELECT descendant_concept_id
 							  		   FROM @cdmDatabaseSchema.concept_ancestor
 									   WHERE ancestor_concept_id IN (@event_ids) ) 
@@ -489,7 +450,7 @@ FROM ( SELECT t3.cohort_definition_id AS t3cohort_definition_id,
               t3.subject_id AS t3subject_id
        FROM @resultsDatabaseSchema.@tempTableName_original t3
        WHERE t3.cohort_definition_id = 3
-	  ) t;
+	  ) t;   
 
 
 -- Initiate the table that will hold the final sampled cohorts
@@ -514,4 +475,4 @@ FROM (SELECT cohort_definition_id, cohort_start_date, cohort_end_date, subject_i
       WHERE cohort_definition_id in (22, 32, 42) OR cohort_row_number <= @maximum_cohort_size 
        -- restrict to cohort sample size for descriptive-tables cohorts, as the covariates-collection is expensive.
 	  
-
+ 

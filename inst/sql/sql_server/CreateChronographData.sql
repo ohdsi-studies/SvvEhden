@@ -16,8 +16,8 @@
 IF OBJECT_ID('tempdb..#exposure', 'U') IS NOT NULL
 	DROP TABLE #exposure;
 
-IF OBJECT_ID('tempdb..#all', 'U') IS NOT NULL
-	DROP TABLE #all;	
+IF OBJECT_ID('tempdb..#all_table', 'U') IS NOT NULL
+	DROP TABLE #all_table;	
 	
 IF OBJECT_ID('tempdb..#exposure_outcome', 'U') IS NOT NULL
 	DROP TABLE #exposure_outcome;
@@ -51,7 +51,7 @@ GROUP BY exposure.@exposure_id_field,
 -- Count number of people observed relative to any exposure	
 SELECT period.period_id,
 	COUNT(*) AS all_observed_count
-INTO #all
+INTO #all_table
 FROM @exposure_database_schema.@exposure_table exposure
 CROSS JOIN #period period
 INNER JOIN @cdm_database_schema.observation_period

@@ -28,7 +28,7 @@ print_to_html_module <- function(i, table1_list, chronograph_plot, saddle){
   # i = 1
   # dec_input = dec_df[i,]
   
-  c(drug_name, event_name, drug_id, event_id) %<-% dec_input[1:4] 
+  zeallot::`%<-%`(c(drug_name, event_name, drug_id, event_id), dec_input[1:4])
   
   # Initiate a total count variable
   total_count <- -1
@@ -57,16 +57,19 @@ print_to_html_module <- function(i, table1_list, chronograph_plot, saddle){
     "
                ), fileConn)
   close(fileConn)
-  
+
   # Render the R-file as a markdown-file, to get an html
   short_drug_name = shorten_to_file_path(drug_name)
   short_event_name = shorten_to_file_path(event_name)
+
+  rmarkdown::render("test_plot.R", output_file=paste0(output_path,"DEC", i, " ", short_drug_name, "-",
+                                                      short_event_name, "-" , total_count, ".html"),
+                    quiet = !saddle$overall_verbose)
+
   
-  rmarkdown::render("test_plot.R", output_file=paste0(output_path,"DEC", i, " ", short_drug_name, "-", 
-                                                      short_event_name, "-" , total_count, ".html"), 
-                    quiet = !saddle$overall_verbose)  
-  
-  # toc()
+  # Delete test plot when done, otherwise the package will fail to build. 
+  unlink("test_plot.R")
+  tictoc::toc()
 }
 
 
