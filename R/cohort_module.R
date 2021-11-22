@@ -76,7 +76,6 @@ cohort_module <- function(i,
                            comparator_drug_ids = all_drugs,
                            event_ids = event_id_string_commaseparated,
                            maximum_cohort_size = maximum_cohort_size)
-
   # writeLines(sql)
   suppressMessages(executeSql(conn, sql, progressBar = FALSE))
   
@@ -85,7 +84,6 @@ cohort_module <- function(i,
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)  
   cohort_counts <- querySql(conn, sql) %>% dplyr::arrange(COHORT_DEFINITION_ID)
 
-  
   #debug part: if you want to run it manually
   fileConn<-file("..\\inst\\sql\\last_create_cohort_definition_script.sql")
   write(sql, fileConn)

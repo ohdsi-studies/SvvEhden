@@ -192,7 +192,7 @@ getChronographData <- function(connectionDetails,
   #                                          exposure_ids = exposureIds,
   #                                          outcome_ids = outcomeIds,
   #                                          has_pairs = hasPairs)
-  sql <- readSql("..\\inst\\sql\\sql_server\\CreateChronographData.sql")
+  sql <- SqlRender::readSql("..\\inst\\sql\\sql_server\\CreateChronographData.sql")
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)    
   sql <- SqlRender::render(sql, 
                            cdm_database_schema = cdmDatabaseSchema,
@@ -209,6 +209,10 @@ getChronographData <- function(connectionDetails,
                            exposure_ids = exposureIds,
                            outcome_ids = outcomeIds,
                            has_pairs = hasPairs)
+  #debug part: if you want to run it manually
+  fileConn<-file("..\\inst\\sql\\sql_server\\last_CreateChronographData.sql")
+  write(sql, fileConn)
+  close(fileConn)
   #writeLines(sql)
   
   ParallelLogger::logInfo("Creating counts on server")
@@ -248,7 +252,7 @@ getChronographData <- function(connectionDetails,
   #                                          dbms = connectionDetails$dbms,
   #                                          oracleTempSchema = oracleTempSchema,
   #                                          has_pairs = hasPairs)
-  sql <- readSql("..\\inst\\sql\\sql_server\\CreateChronographData.sql")
+  sql <- SqlRender::readSql("..\\inst\\sql\\sql_server\\DropChronographTables.sql")
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)    
   sql <- SqlRender::render(sql, 
                            has_pairs = hasPairs)

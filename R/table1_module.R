@@ -209,22 +209,19 @@ table1_module <- function(i, cohort_list, saddle){
   #                                         riskWindowEnd = 30,
   #                                         endAnchor = "cohort end")
   
- basic_demographics_table <- data.frame()
-  
-
-table1_output_list <- list("basic_demographics_table" = basic_demographics_table
-                          ,"top_drugs_table" = top_drugs_table 
-                          ,"top_conditions_table" = top_conditions_table
-                          # ,"km_graph" = kaplan_meier_output 
-                          # ,"cox_summary" = raw_cox_output 
-                          # ,"time_to_event" = time_to_event_output
-                          ,"table_1_output" = table_1_output
-                          ,"table_2_output" = table_2_output
-                          ,"table_3_output" = table_2_output
-                          # ,"gender_cohort_plot" = gender_cohort_plot
-                          # ,"age_cohort_plot" = age_cohort_plot
-                          ) 
-  # toc()
+  table1_output_list <- list("basic_demographics_table" = basic_demographics_table
+                            ,"top_drugs_table" = top_drugs_table 
+                            ,"top_conditions_table" = top_conditions_table
+                            # ,"km_graph" = kaplan_meier_output 
+                            # ,"cox_summary" = raw_cox_output 
+                            # ,"time_to_event" = time_to_event_output
+                            ,"table_1_output" = table_1_output
+                            ,"table_2_output" = table_2_output
+                            ,"table_3_output" = table_2_output
+                            ,"gender_cohort_plot" = gender_cohort_plot
+                            # ,"age_cohort_plot" = age_cohort_plot
+                            ) 
+    # toc()
   
   return(table1_output_list)
 }
