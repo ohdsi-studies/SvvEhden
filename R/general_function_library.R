@@ -26,8 +26,8 @@ library_packages <- function (package_vec = NULL){
   
   package_vec <- c("plyr", "dplyr", "magrittr", "data.table", "stringr", "lubridate", "here", "ggplot2", 
                    "DT", "forcats", "gridExtra", "kableExtra", "knitr", "RColorBrewer","ggnewscale", "egg",
-                   "plotly", "xlsx", "reshape2", "zeallot", "DatabaseConnector",
-                   "SqlRender", "tidyr", "tictoc")
+                   "plotly", "xlsx", "reshape2", "zeallot", "DatabaseConnector", "OhdsiSharing",
+                   "SqlRender", "tidyr", "tictoc", "jquerylib")
   
   install_if_missing(package_vec)
   invisible(suppressMessages(lapply(package_vec, library, character.only = T)))

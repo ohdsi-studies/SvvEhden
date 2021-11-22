@@ -38,7 +38,7 @@ print_to_html_module <- function(i, table1_list, chronograph_plot, saddle){
     knitr::kable(dec_input) %>% kableExtra::kable_styling(bootstrap_options=c('responsive','striped'))
     cat(\"Chronograph ##\")
     plot(chronograph_plot)
-    cat(\"Basic demographioc table##\")
+    cat(\"Basic demographic table##\")
     knitr::kable(table1_list[[\"basic_demographics_table\"]]) %>% kableExtra::kable_styling(bootstrap_options=c('responsive','striped'))
     cat(\"Gender distribution ##\")
     table1_list[[\"gender_cohort_plot\"]]
@@ -62,11 +62,10 @@ print_to_html_module <- function(i, table1_list, chronograph_plot, saddle){
   short_drug_name = shorten_to_file_path(drug_name)
   short_event_name = shorten_to_file_path(event_name)
 
-  rmarkdown::render("test_plot.R", output_file=paste0(output_path,"DEC", i, " ", short_drug_name, "-",
-                                                      short_event_name, "-" , total_count, ".html"),
-                    quiet = !saddle$overall_verbose)
+  rmarkdown::render("test_plot.R", output_file=paste0(output_path,"DEC", i, " ", short_drug_name, "-", 
+                                                      short_event_name, "-" , total_count, ".html"), 
+                    quiet = !saddle$overall_verbose)  
 
-  
   # Delete test plot when done, otherwise the package will fail to build. 
   unlink("test_plot.R")
   tictoc::toc()

@@ -58,9 +58,9 @@ table1_module <- function(i, cohort_list, saddle){
   
   covariates_for_cohort_i = list(covariates_for_cohort1, covariates_for_cohort2, covariates_for_cohort3, covariates_for_cohort4)
   
-  #######################
+  ########################
   # Demographics
-  #######################
+  ########################
   if(verbose) { 
     print("Summarizing demographics table") 
   }
@@ -73,6 +73,7 @@ table1_module <- function(i, cohort_list, saddle){
   gender_cohort_plot = interactive_barplot(internal_cohort_list, name_list, c("gender = FEMALE", "gender = MALE"))
   #age_cohort_plot = interactive_barplot(internal_cohort_list, name_list, c("(0,20]", "(20,30]"))#, "(30,40]", "(40,50]", "(50,60]", "(60,70]", "(70,80]", "(80,90]", "(90,110]"))
     
+<<<<<<< HEAD
   # for(i in 1:4) {
   #   covariates_for_cohort = covariates_for_cohort_i[i][[1]]
   #   
@@ -110,6 +111,45 @@ table1_module <- function(i, cohort_list, saddle){
   #     basic_demographics_table = cbind(basic_demographics_table, basic_demographics_table_single)
   #   }
   # }
+=======
+  for(i in 1:4) {
+    covariates_for_cohort = covariates_for_cohort_i[i][[1]]
+    
+    gender_table <- covariates_for_cohort %>% filter(name %in% c("gender = FEMALE", "gender = MALE")) %>% count(name) %>% mutate(Percentage=round(100*n/sum(n)))
+    colnames(gender_table)=c(name_list[i],"n","Percentage")
+    final_gender_table <- suppressMessages(bind_cols(c("Sex", rep("", nrow(gender_table)-1)), gender_table))
+    colnames(final_gender_table)=c(" ", "Category","n","Percentage")
+    final_gender_table$n <- as.character(final_gender_table$n)
+    final_gender_table$Percentage <- as.character(final_gender_table$Percentage)
+    
+    # Age at cohort_entry
+    age_quantiles <- covariates_for_cohort %>% filter(name %in% "age in years") %>% pull(value) %>%  quantile(c(0.5, 0.25, 0.75)) 
+    age_quantiles <- c("Median", age_quantiles[1], paste0( "IQR=(",paste0(round(age_quantiles[2:3]), collapse=", "),")")) 
+    names(age_quantiles) = NULL
+    age_table <- covariates_for_cohort %>% filter(name %in% "age in years") %>% 
+      mutate(age = cut(value, breaks=c(0, seq(20, 90, by=10), 110))) %>% pull(age) %>% table() 
+    age_perc <- round(age_table %>% prop.table()*100)
+    age_groups <- cbind.data.frame(as.data.frame(age_table), as.data.frame(age_perc)[,2])
+    colnames(age_groups)=c("Category", "n", "Percentage")
+    names(age_quantiles) = names(age_groups)
+    age_groups$n <- as.character(age_groups$n) 
+    age_groups$Percentage <- as.character(age_groups$Percentage)
+    final_age_table <- bind_rows(age_groups, age_quantiles) 
+    final_age_table <- suppressMessages(bind_cols(c("Age", rep("", nrow(final_age_table)-1)), final_age_table))
+    colnames(final_age_table)=c(" ", "Category","n","Percentage")
+
+    basic_demographics_table_single <- invisible(bind_rows(final_gender_table, final_age_table))#, final_state_table)
+    basic_demographics_table_single <- rbind.data.frame(c("","Total", length(unique(covariates_for_cohort$subject_id)), "100"),
+                                                        basic_demographics_table_single)
+    colnames(basic_demographics_table_single) = c(" ", name_list[i][[1]],"n","Percentage")
+
+    if(i == 1) {
+      basic_demographics_table = basic_demographics_table_single
+    } else {
+      basic_demographics_table = cbind(basic_demographics_table, basic_demographics_table_single)
+    }
+  }
+>>>>>>> 9c32777c94c409a87b21e8c3fdf8529305c1bfd5
   
   ##########################################
   # Top comedications and conditions
@@ -213,17 +253,17 @@ table1_module <- function(i, cohort_list, saddle){
   
 
 table1_output_list <- list("basic_demographics_table" = basic_demographics_table
-                             # "top_drugs_table" = top_drugs_table, 
-                             # "top_conditions_table" = top_conditions_table
-                             # "km_graph" = kaplan_meier_output, 
-                             # "cox_summary" = raw_cox_output, 
-                             # "time_to_event" = time_to_event_output,
-                             ,"table_1_output" = table_1_output
-                             ,"table_2_output" = table_2_output
-                             ,"table_3_output" = table_2_output
-                             # ,"gender_cohort_plot" = gender_cohort_plot
-                             #"age_cohort_plot" = age_cohort_plot
-                             ) 
+                          ,"top_drugs_table" = top_drugs_table 
+                          ,"top_conditions_table" = top_conditions_table
+                          # ,"km_graph" = kaplan_meier_output 
+                          # ,"cox_summary" = raw_cox_output 
+                          # ,"time_to_event" = time_to_event_output
+                          ,"table_1_output" = table_1_output
+                          ,"table_2_output" = table_2_output
+                          ,"table_3_output" = table_2_output
+                          # ,"gender_cohort_plot" = gender_cohort_plot
+                          # ,"age_cohort_plot" = age_cohort_plot
+                          ) 
   # toc()
   
   return(table1_output_list)

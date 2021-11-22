@@ -65,7 +65,6 @@ cohort_module <- function(i,
   
   #Create the cohorts in a table in the database
   sql <- SqlRender::readSql("..\\inst\\sql\\generic_cohort_definition_script.sql")
-
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)  
   sql <- SqlRender::render(sql, 
                            cdmDatabaseSchema = cdmDatabaseSchema,
@@ -80,7 +79,6 @@ cohort_module <- function(i,
 
   # writeLines(sql)
   suppressMessages(executeSql(conn, sql, progressBar = FALSE))
-  
   
   # Get the patient counts per cohort
   sql <- paste0("SELECT COHORT_DEFINITION_ID, N=COUNT(*) FROM ", cdmDatabaseSchema, ".", tempTableName, " GROUP BY COHORT_DEFINITION_ID;")

@@ -17,25 +17,25 @@ ParallelLogger::addDefaultErrorReportLogger(fileName = file.path(getwd(), "error
 
 ######### UMC DEBUGGING: SET PARAMETERS FOR RUNNING THE SCRIPT #######################
 
-# Make it easy to switch between the two to check if solutions work on both
-which_database <- c("sqlite", "sql server")[2]
-
-if(which_database == "sqlite"){
-connectionDetails <- Eunomia::getEunomiaConnectionDetails()
-DatabaseConnector::connect(connectionDetails, dbms="sqlite")
-cdmDatabaseSchema <- "main" # If sql server, this should be "databasename [.] schema" instead.
-} else if (which_database == "sql server"){
-connectionDetails <- createConnectionDetails(dbms = "sql server", server = "UMCDB06")
-DatabaseConnector::connect(connectionDetails)
-cdmDatabaseSchema = "OmopCdm.synpuf5pct_20180710"
-} else {stop("Non-valid sql dialect, try again")}
-
-outputFolderPath = paste0("C:\\Users\\",
-                          Sys.getenv("USERNAME"), "\\WHO Collaborating Centre for International Drug Monitoring\\EHDEN - SWEDHEN-SPRINT\\output_",
-                          Sys.getenv("USERNAME"),"\\")
-
-cohortDatabaseSchema <- cdmDatabaseSchema
-cohortTable = paste0("cohorts_",Sys.getenv("USERNAME"),"")
+# # Make it easy to switch between the two to check if solutions work on both
+# which_database <- c("sqlite", "sql server")[2]
+# 
+# if(which_database == "sqlite"){
+# connectionDetails <- Eunomia::getEunomiaConnectionDetails()
+# DatabaseConnector::connect(connectionDetails, dbms="sqlite")
+# cdmDatabaseSchema <- "main" # If sql server, this should be "databasename [.] schema" instead.
+# } else if (which_database == "sql server"){
+# connectionDetails <- createConnectionDetails(dbms = "sql server", server = "UMCDB06")
+# DatabaseConnector::connect(connectionDetails)
+# cdmDatabaseSchema = "OmopCdm.synpuf5pct_20180710"
+# } else {stop("Non-valid sql dialect, try again")}
+# 
+# outputFolderPath = paste0("C:\\Users\\",
+#                           Sys.getenv("USERNAME"), "\\WHO Collaborating Centre for International Drug Monitoring\\EHDEN - SWEDHEN-SPRINT\\output_",
+#                           Sys.getenv("USERNAME"),"\\")
+# 
+# cohortDatabaseSchema <- cdmDatabaseSchema
+# cohortTable = paste0("cohorts_",Sys.getenv("USERNAME"),"")
 
 ############## OPTIONS ##############################
 
@@ -68,6 +68,25 @@ options(sqlRenderTempEmulationSchema = sqlRenderTempEmulationSchema)
 #    password = NULL,
 #    port = Sys.getenv("PDW_PORT")
 #  )
+### The cdm schema 
+cdmDatabaseSchema = "OmopCdm.synpuf5pct"    # if dbms = "sql server", please provide "databasename [.] schemaname"
+
+### The name of the database schema and table where the study-specific cohorts will be instantiated:
+cohortDatabaseSchema = cdmDatabaseSchema    # if dbms = "sql server", please provide "databasename [.] schemaname"
+cohortTable <- "cohorts_SVVEHDEN"
+
+### The folder where the study intermediate and result files will be written:
+outputFolderPath <- "C:/SVVEHDEN_ouput"
+
+### Provide details for connecting to the server:
+connectionDetails <-
+  DatabaseConnector::createConnectionDetails(
+    dbms = "pdw",
+    server = Sys.getenv("PDW_SERVER"),
+    user = NULL,
+    password = NULL,
+    port = Sys.getenv("PDW_PORT")
+  )
 
 ### Specify if you want to limit the number of combinations (normally used during debug or if you want to try out the full script without running all combinations)
 maxNumberOfCombinations = 5
@@ -86,6 +105,7 @@ execute(
 
 
 ### Upload the results to the OHDSI SFTP server:
-privateKeyFileName <- ""
-userName <- ""
-#SVVEHDEN::uploadResults(outputFolder, privateKeyFileName, userName) #TODO
+source("SubmitResults.R")
+privateKeyFileName <- "" # type in path and filename of privacy keys (provided in email)
+userName <- ""           # type in user name of study (provided in email)
+uploadResults(outputFolder, privateKeyFileName, userName)

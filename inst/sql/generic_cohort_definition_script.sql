@@ -9,8 +9,8 @@
 -- the table name where the final cohort tables will reside
 -- the schema where the OMOP data is located
 -- a limitation on the cohort size (NUMBER OF EXPECTED NUMBER OF EVENTS?)
-
 /* 
+
 ##################################################################################
 Chronograph analyses:
 IC = log2 ((N_observed + 0.5)/(N_expected + 0.5))

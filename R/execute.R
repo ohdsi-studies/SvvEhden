@@ -78,6 +78,7 @@ execute <- function(connectionDetails,
     
     result = tryCatch({
       tictoc::tic("Total time for this DEC")
+
       
       cohort_list <- cohort_module(i, 
                                    maximum_cohort_size=50,
@@ -101,6 +102,8 @@ execute <- function(connectionDetails,
     })
     tictoc::toc()
   }
+
+  
   # Add all to zip file -------------------------------------------------------------------------------
   ParallelLogger::logInfo("Adding results to zip file")
   zipName <-
@@ -111,6 +114,7 @@ execute <- function(connectionDetails,
   on.exit(setwd(oldWd), add = TRUE)
   DatabaseConnector::createZipFile(zipFile = zipName, files = files)
   ParallelLogger::logInfo("Results are ready for sharing at: ", zipName)
+  
 }
 
 
