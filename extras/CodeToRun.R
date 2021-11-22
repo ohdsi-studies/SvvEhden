@@ -1,4 +1,6 @@
 
+library(SVVEHDEN)
+
 # Make sure the working directory is the root of the SVVEHDEN OHDSI study package
 tryCatch({
   setwd("./R")
@@ -36,13 +38,13 @@ outputFolderPath <- "C:/SVVEHDEN_ouput"
 
 ### Provide details for connecting to the server:
 connectionDetails <-
- DatabaseConnector::createConnectionDetails(
-   dbms = "pdw",
-   server = Sys.getenv("PDW_SERVER"),
-   user = NULL,
-   password = NULL,
-   port = Sys.getenv("PDW_PORT")
- )
+  DatabaseConnector::createConnectionDetails(
+    dbms = "pdw",
+    server = Sys.getenv("PDW_SERVER"),
+    user = NULL,
+    password = NULL,
+    port = Sys.getenv("PDW_PORT")
+  )
 
 ### Specify if you want to limit the number of combinations (normally used during debug or if you want to try out the full script without running all combinations)
 maxNumberOfCombinations = 5

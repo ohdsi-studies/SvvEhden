@@ -8,9 +8,9 @@ TRUNCATE TABLE #outcome;
 
 DROP TABLE #outcome;
 
-TRUNCATE TABLE #all;
+TRUNCATE TABLE #all_table;
 
-DROP TABLE #all;
+DROP TABLE #all_table;
 
 TRUNCATE TABLE #exposure_outcome;
 

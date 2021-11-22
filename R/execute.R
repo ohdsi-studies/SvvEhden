@@ -43,14 +43,22 @@
 execute <- function(connectionDetails,
                     cdmDatabaseSchema,
                     cohortDatabaseSchema = cdmDatabaseSchema,
-                    vocabularyDatabaseSchema = cdmDatabaseSchema,   #Do we use this?
+                    vocabularyDatabaseSchema = cdmDatabaseSchema,   
                     cohortTable = NULL,
-                    tempEmulationSchema = cohortDatabaseSchema,     #Do we use this?
-                    verifyDependencies = FALSE,                     #Do we use this?
+                    tempEmulationSchema = cohortDatabaseSchema,     
+                    verifyDependencies = FALSE,                     
                     outputFolderPath,
                     databaseName = strsplit(cdmDatabaseSchema, split = ".", fixed = TRUE)[[1]][1],
                     maxNumberOfCombinations = 100000,
                     verbose = FALSE) {
+  
+  # # For debugging
+  # connectionDetails = connectionDetails
+  # cdmDatabaseSchema = cdmDatabaseSchema
+  # cohortDatabaseSchema = cohortDatabaseSchema
+  # cohortTable = cohortTable
+  # outputFolderPath = outputFolderPath
+  # verbose = FALSE
   
   ## This is the workhorse-script that outputs html-files for each DEC
   
@@ -68,32 +76,32 @@ execute <- function(connectionDetails,
   for(i in 1:min(maxNumberOfCombinations, nrow(saddle$dec_df))
   ){  # i = 1
     
+    tictoc::tic("Total time for this DEC")
     result = tryCatch({
-      tic("Total time for this DEC")
       
       cohort_list <- cohort_module(i, 
-                                   maximum_cohort_size=1000,
+                                   maximum_cohort_size=50,
                                    force_create_new = TRUE,
                                    only_create_cohorts = FALSE,
                                    saddle)
       
       if(length(cohort_list) == 0){next}
-    
+      
       # Build descriptive tables
       table1_list <- table1_module(i, cohort_list, saddle)
-            
+      
       # Get chronograph
       chronograph_plot <- chronograph_module(i, saddle)
-
+      
       # Print to html
       print_to_html_module(i, table1_list, chronograph_plot, saddle)
-        
+      
     }, error = function(e) {
       error_printer(e, i, saddle$output_path)
     })
-      toc()
+    tictoc::toc()
   }
-
+  
   # Add all to zip file -------------------------------------------------------------------------------
   ParallelLogger::logInfo("Adding results to zip file")
   zipName <-
@@ -104,6 +112,7 @@ execute <- function(connectionDetails,
   on.exit(setwd(oldWd), add = TRUE)
   DatabaseConnector::createZipFile(zipFile = zipName, files = files)
   ParallelLogger::logInfo("Results are ready for sharing at: ", zipName)
+  
 }
 
 

@@ -222,7 +222,7 @@ getChronographData <- function(connectionDetails,
   exposure <- DatabaseConnector::querySql(conn, sql)
   colnames(exposure) <- SqlRender::snakeCaseToCamelCase(colnames(exposure))
   
-  sql <- "SELECT period_id, all_observed_count FROM #all"
+  sql <- "SELECT period_id, all_observed_count FROM #all_table"
   sql <- SqlRender::translate(sql,
                               targetDialect = connectionDetails$dbms,
                               oracleTempSchema = oracleTempSchema)

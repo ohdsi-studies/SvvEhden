@@ -22,49 +22,52 @@ table1_module <- function(i, cohort_list, saddle){
   
   #  Unpack the input
   verbose <- saddle$overall_verbose
-  c(studyPopulation, cohortMethodData, cohort1, cohort2, cohort3, cohort4) %<-% cohort_list
+  zeallot::`%<-%`(c(studyPopulation, cohortMethodData, cohort1, cohort2, cohort3, cohort4), cohort_list)
   
   covariates_for_cohort1 <- as.data.frame(cohort1$covariates)
   covariateRef_for_cohort1 <- as.data.frame(cohort1$covariateRef)
   covariates_for_cohort1 %<>% 
-    rename(subject_id = rowId) %>% 
-    left_join(covariateRef_for_cohort1, by="covariateId") %>% 
-    select(subject_id, name=covariateName, value=covariateValue, concept_id = conceptId)
+    dplyr::rename(subject_id = rowId) %>% 
+    dplyr::left_join(covariateRef_for_cohort1, by="covariateId") %>% 
+    dplyr::select(subject_id, name=covariateName, value=covariateValue, concept_id = conceptId)
   covariates_for_cohort1$cohort = 1
   
   covariates_for_cohort2 <- as.data.frame(cohort2$covariates)
   covariateRef_for_cohort2 <- as.data.frame(cohort2$covariateRef)
   covariates_for_cohort2 %<>% 
-    rename(subject_id = rowId) %>% 
-    left_join(covariateRef_for_cohort2, by="covariateId") %>% 
-    select(subject_id, name=covariateName, value=covariateValue, concept_id = conceptId)
+    dplyr::rename(subject_id = rowId) %>% 
+    dplyr::left_join(covariateRef_for_cohort2, by="covariateId") %>% 
+    dplyr::select(subject_id, name=covariateName, value=covariateValue, concept_id = conceptId)
   covariates_for_cohort2$cohort = 2
   
   covariates_for_cohort3 <- as.data.frame(cohort3$covariates)
   covariateRef_for_cohort3 <- as.data.frame(cohort3$covariateRef)
   covariates_for_cohort3 %<>% 
-    rename(subject_id = rowId) %>% 
-    left_join(covariateRef_for_cohort3, by="covariateId") %>% 
-    select(subject_id, name=covariateName, value=covariateValue, concept_id = conceptId)
+    dplyr::rename(subject_id = rowId) %>% 
+    dplyr::left_join(covariateRef_for_cohort3, by="covariateId") %>% 
+    dplyr::select(subject_id, name=covariateName, value=covariateValue, concept_id = conceptId)
   covariates_for_cohort3$cohort = 3
   
   covariates_for_cohort4 <- as.data.frame(cohort4$covariates)
   covariateRef_for_cohort4 <- as.data.frame(cohort4$covariateRef)
   covariates_for_cohort4 %<>% 
-    rename(subject_id = rowId) %>% 
-    left_join(covariateRef_for_cohort4, by="covariateId") %>% 
-    select(subject_id, name=covariateName, value=covariateValue, concept_id = conceptId)
+    dplyr::rename(subject_id = rowId) %>% 
+    dplyr::left_join(covariateRef_for_cohort4, by="covariateId") %>% 
+    dplyr::select(subject_id, name=covariateName, value=covariateValue, concept_id = conceptId)
   covariates_for_cohort4$cohort = 4
   
   covariates_for_cohort_i = list(covariates_for_cohort1, covariates_for_cohort2, covariates_for_cohort3, covariates_for_cohort4)
   
-  #######################
+  ########################
   # Demographics
-  #######################
+  ########################
   if(verbose) { 
     print("Summarizing demographics table") 
   }
 
+
+  # Note that the outcommented code needs a few dplyr:: if it's out-outcommented again:
+  
   internal_cohort_list = c(cohort1, cohort2, cohort3, cohort4)
   name_list = c("1: DEC cohort", "2: Drug cohort", "3: Event cohort", "4: All drugs cohort")
   gender_cohort_plot = interactive_barplot(internal_cohort_list, name_list, c("gender = FEMALE", "gender = MALE"))
@@ -95,28 +98,13 @@ table1_module <- function(i, cohort_list, saddle){
     final_age_table <- bind_rows(age_groups, age_quantiles) 
     final_age_table <- suppressMessages(bind_cols(c("Age", rep("", nrow(final_age_table)-1)), final_age_table))
     colnames(final_age_table)=c(" ", "Category","n","Percentage")
-    
-    # # Get the "state"-names (proxy for countries, no need to do more here until real data arrives)
-    # fiftytwo_states <- querySql(conn, "SELECT DISTINCT state from OmopCdm.synpuf5pct_20180710.location")
-    # 
-    # state_query <- paste0("SELECT n=COUNT(*), state, cohort_definition_id FROM ", resultsDatabaseSchema, 
-    #                       ".cohorts_for_deci COH LEFT JOIN ", OmopCdm.synpuf5pct_20180710 ,".person PERS ON COH.subject_id = PERS.person_id 
-    #        LEFT JOIN ", cdmDatabaseSchema ,".location LOC ON LOC.location_id = PERS.location_id
-    #        GROUP BY state, cohort_definition_id")
-    # state_counts <- querySql(conn, state_query) %>% filter(COHORT_DEFINITION_ID==cohort_i) %>% rename(n=N)
-    # 
-    # states <- fiftytwo_states %>% left_join(state_counts, by="STATE") %>% arrange(desc(n)) %>% select("Category"=STATE, n=n) 
-    # states %<>% mutate("Percentage"=round(100*n/sum(n)))
-    # final_state_table <- bind_cols(c("State", rep("", nrow(states)-1)), states)
-    # final_state_table$n <- as.character(final_state_table$n)
-    # final_state_table$Percentage <- as.character(final_state_table$Percentage)
-    
+
     basic_demographics_table_single <- invisible(bind_rows(final_gender_table, final_age_table))#, final_state_table)
     basic_demographics_table_single <- rbind.data.frame(c("","Total", length(unique(covariates_for_cohort$subject_id)), "100"),
                                                         basic_demographics_table_single)
     colnames(basic_demographics_table_single) = c(" ", name_list[i][[1]],"n","Percentage")
-    
-    if(i == 1) { 
+
+    if(i == 1) {
       basic_demographics_table = basic_demographics_table_single
     } else {
       basic_demographics_table = cbind(basic_demographics_table, basic_demographics_table_single)
@@ -128,18 +116,18 @@ table1_module <- function(i, cohort_list, saddle){
   ##########################################
   if(verbose) { print("Summarizing comed- and conditions- table") }
   
-  covariates_for_cohort1 %<>% separate(name, c("time","name"), ":")
+  covariates_for_cohort1 %<>% tidyr::separate(name, c("time","name"), ":")
   covariates_for_cohort1$name[is.na(covariates_for_cohort1$name)] <- covariates_for_cohort1$time[is.na(covariates_for_cohort1$name)]
-  covariates_for_cohort1 %<>% separate(time, c("type","time"), "_")
+  covariates_for_cohort1 %<>% tidyr::separate(time, c("type","time"), "_")
   covariates_for_cohort1$time[is.na(covariates_for_cohort1$time)] <- covariates_for_cohort1$type[is.na(covariates_for_cohort1$time)]
    
-   top_drugs_table <- bind_cols( # 180 days
-     covariates_for_cohort1 %>% filter(type %in% "drug" & time == "era group during day -180 through 0 days relative to index") %>%
-       count(name) %>% arrange(desc(n)) %>% slice_head(n=25) %>% mutate(name=tolower(name)) %>% rename(drugs_180_days=name, n_180_days=n) )
+   top_drugs_table <- dplyr::bind_cols( # 180 days
+     covariates_for_cohort1 %>% dplyr::filter(type %in% "drug" & time == "era group during day -180 through 0 days relative to index") %>%
+       dplyr::count(name) %>% dplyr::arrange(desc(n)) %>% dplyr::slice_head(n=25) %>% dplyr::mutate(name=tolower(name)) %>% dplyr::rename(drugs_180_days=name, n_180_days=n) )
    
-   top_conditions_table <- bind_cols( # 180 days
-     covariates_for_cohort1 %>% filter(type %in% "condition" & time == "era group during day -180 through 0 days relative to index") %>%
-       count(name) %>% arrange(desc(n)) %>% slice_head(n=25) %>% mutate(name=tolower(name)) %>% rename(cond_180_days=name, n_180_days=n) )
+   top_conditions_table <- dplyr::bind_cols( # 180 days
+     covariates_for_cohort1 %>% dplyr::filter(type %in% "condition" & time == "era group during day -180 through 0 days relative to index") %>%
+       dplyr::count(name) %>% dplyr::arrange(desc(n)) %>% dplyr::slice_head(n=25) %>% dplyr::mutate(name=tolower(name)) %>% dplyr::rename(cond_180_days=name, n_180_days=n) )
   
   ##########################################
   # Look at outcomes
@@ -148,6 +136,7 @@ table1_module <- function(i, cohort_list, saddle){
   table_1_output = data.frame()
   table_2_output = data.frame()
   table_3_output = data.frame()
+
   
   ## Compare two cohorts drug+event (1) and drug (2)
   if(verbose) { print("cohort 1 vs 2 table") }
@@ -220,18 +209,21 @@ table1_module <- function(i, cohort_list, saddle){
   #                                         riskWindowEnd = 30,
   #                                         endAnchor = "cohort end")
   
-  table1_output_list <- list("basic_demographics_table" = basic_demographics_table,
-                             "top_drugs_table" = top_drugs_table, 
-                             "top_conditions_table" = top_conditions_table
-                             # "km_graph" = kaplan_meier_output, 
-                             # "cox_summary" = raw_cox_output, 
-                             # "time_to_event" = time_to_event_output,
-                             ,"table_1_output" = table_1_output
-                             ,"table_2_output" = table_2_output
-                             ,"table_3_output" = table_2_output
-                             # ,"gender_cohort_plot" = gender_cohort_plot
-                             #"age_cohort_plot" = age_cohort_plot
-                             ) 
+ basic_demographics_table <- data.frame()
+  
+
+table1_output_list <- list("basic_demographics_table" = basic_demographics_table
+                          ,"top_drugs_table" = top_drugs_table 
+                          ,"top_conditions_table" = top_conditions_table
+                          # ,"km_graph" = kaplan_meier_output 
+                          # ,"cox_summary" = raw_cox_output 
+                          # ,"time_to_event" = time_to_event_output
+                          ,"table_1_output" = table_1_output
+                          ,"table_2_output" = table_2_output
+                          ,"table_3_output" = table_2_output
+                          # ,"gender_cohort_plot" = gender_cohort_plot
+                          # ,"age_cohort_plot" = age_cohort_plot
+                          ) 
   # toc()
   
   return(table1_output_list)

@@ -37,7 +37,7 @@ chronograph_module <- function(i, saddle, cohort_list){
                           outcomeId = 32)
   
   if(verbose) { print("Chronograph created") }
-  
   # toc()
+  
   return(plot)
 }

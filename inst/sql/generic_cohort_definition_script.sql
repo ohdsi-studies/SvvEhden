@@ -9,12 +9,12 @@
 -- the table name where the final cohort tables will reside
 -- the schema where the OMOP data is located
 -- a limitation on the cohort size (NUMBER OF EXPECTED NUMBER OF EVENTS?)
-
 /* 
+
 ##################################################################################
 Chronograph analyses:
 IC = log2 ((N_observed + 0.5)/(N_expected + 0.5))
-where N_expected = (Ntarget_drug * N_event) / Ntotal
+where N_expected = (Ntarget_drug * N_event) / Ntotal and Ntotal and Nevent are derived from the comparator drug cohort
 
 N_expected: expected number of subjects with the target drug-event combination (i.e. derived from 22, 32 and 42) 
 N_observed: actual number of subjects with the target drug-event combination (i.e. intersection of 22 and 32)
@@ -125,7 +125,8 @@ WHERE (DATEDIFF(MONTH, y.observation_period_start_date, x.drug_era_start_date) >
 -- Cohort constructed using COHORT 2 (pool of eligible target drug eras) as study base 
 -- Risk time starts at drug_era_start_date (i.e. index date)
 -- Risk time ends at drug_era_start_date+30 days or last date of observation (includes death) whichever occurs first 
--- Note: no need to define censoring based on drug_era_end_date as max time at risk is 30 days
+-- NOTE: no need to define censoring based on drug_era_end_date as max time at risk is 30 days
+-- NOTE: cohort_start_date and cohort_end_date do not meet OHDSI standards?
 INSERT INTO @resultsDatabaseSchema.@tempTableName_original (
   cohort_definition_id,
   cohort_start_date,
@@ -373,7 +374,6 @@ WHERE cohort_definition_id IN (22,40);
 
 /* COHORT 3*. POPULATE TABLE WITH COHORT OF ELIGIBLE CONDITION ERAS (STUDY POOL)*/
 -- Study pool for extracing conditions for merging with target, comparator, total (target and comparator) drug cohorts 
--- NOTE: includes distinct, 
 INSERT INTO @resultsDatabaseSchema.@tempTableName_original (
   cohort_definition_id,
   cohort_start_date,
@@ -489,7 +489,7 @@ FROM ( SELECT t3.cohort_definition_id AS t3cohort_definition_id,
               t3.subject_id AS t3subject_id
        FROM @resultsDatabaseSchema.@tempTableName_original t3
        WHERE t3.cohort_definition_id = 3
-	  ) t;
+	  ) t;   
 
 
 -- Initiate the table that will hold the final sampled cohorts
@@ -514,4 +514,4 @@ FROM (SELECT cohort_definition_id, cohort_start_date, cohort_end_date, subject_i
       WHERE cohort_definition_id in (22, 32, 42) OR cohort_row_number <= @maximum_cohort_size 
        -- restrict to cohort sample size for descriptive-tables cohorts, as the covariates-collection is expensive.
 	  
-
+ 
