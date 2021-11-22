@@ -173,26 +173,42 @@ getChronographData <- function(connectionDetails,
                                    dropTableIfExists = TRUE)
     
   }
-  
-  sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "CreateChronographData.sql",
-                                           packageName = "IcTemporalPatternDiscovery",
-                                           dbms = connectionDetails$dbms,
-                                           oracleTempSchema = oracleTempSchema,
-                                           cdm_database_schema = cdmDatabaseSchema,
-                                           exposure_database_schema = exposureDatabaseSchema,
-                                           exposure_table = exposureTable,
-                                           exposure_id_field = exposureIdField,
-                                           exposure_start_field = exposureStartField,
-                                           exposure_person_id_field = exposurePersonIdField,
-                                           outcome_database_schema = outcomeDatabaseSchema,
-                                           outcome_table = outcomeTable,
-                                           outcome_id_field = outcomeIdField,
-                                           outcome_start_field = outcomeStartField,
-                                           outcome_person_id_field = outcomePersonIdField,
-                                           exposure_ids = exposureIds,
-                                           outcome_ids = outcomeIds,
-                                           has_pairs = hasPairs)
-  
+
+  # sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "CreateChronographData.sql",
+  #                                          packageName = "SVVEHDEN",
+  #                                          dbms = connectionDetails$dbms,
+  #                                          oracleTempSchema = oracleTempSchema,
+  #                                          cdm_database_schema = cdmDatabaseSchema,
+  #                                          exposure_database_schema = exposureDatabaseSchema,
+  #                                          exposure_table = exposureTable,
+  #                                          exposure_id_field = exposureIdField,
+  #                                          exposure_start_field = exposureStartField,
+  #                                          exposure_person_id_field = exposurePersonIdField,
+  #                                          outcome_database_schema = outcomeDatabaseSchema,
+  #                                          outcome_table = outcomeTable,
+  #                                          outcome_id_field = outcomeIdField,
+  #                                          outcome_start_field = outcomeStartField,
+  #                                          outcome_person_id_field = outcomePersonIdField,
+  #                                          exposure_ids = exposureIds,
+  #                                          outcome_ids = outcomeIds,
+  #                                          has_pairs = hasPairs)
+  sql <- readSql("..\\inst\\sql\\sql_server\\CreateChronographData.sql")
+  sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)    
+  sql <- SqlRender::render(sql, 
+                           cdm_database_schema = cdmDatabaseSchema,
+                           exposure_database_schema = exposureDatabaseSchema,
+                           exposure_table = exposureTable,
+                           exposure_id_field = exposureIdField,
+                           exposure_start_field = exposureStartField,
+                           exposure_person_id_field = exposurePersonIdField,
+                           outcome_database_schema = outcomeDatabaseSchema,
+                           outcome_table = outcomeTable,
+                           outcome_id_field = outcomeIdField,
+                           outcome_start_field = outcomeStartField,
+                           outcome_person_id_field = outcomePersonIdField,
+                           exposure_ids = exposureIds,
+                           outcome_ids = outcomeIds,
+                           has_pairs = hasPairs)
   #writeLines(sql)
   
   ParallelLogger::logInfo("Creating counts on server")
@@ -227,11 +243,15 @@ getChronographData <- function(connectionDetails,
   outcome <- DatabaseConnector::querySql(conn, sql)
   colnames(outcome) <- SqlRender::snakeCaseToCamelCase(colnames(outcome))
   
-  sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "DropChronographTables.sql",
-                                           packageName = "IcTemporalPatternDiscovery",
-                                           dbms = connectionDetails$dbms,
-                                           oracleTempSchema = oracleTempSchema,
-                                           has_pairs = hasPairs)
+  # sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "DropChronographTables.sql",
+  #                                          packageName = "SVVEHDEN",
+  #                                          dbms = connectionDetails$dbms,
+  #                                          oracleTempSchema = oracleTempSchema,
+  #                                          has_pairs = hasPairs)
+  sql <- readSql("..\\inst\\sql\\sql_server\\CreateChronographData.sql")
+  sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)    
+  sql <- SqlRender::render(sql, 
+                           has_pairs = hasPairs)
   DatabaseConnector::executeSql(conn, sql, progressBar = FALSE, reportOverallTime = FALSE)
   
   result <- merge(all, exposure)

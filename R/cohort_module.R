@@ -65,7 +65,6 @@ cohort_module <- function(i,
   
   #Create the cohorts in a table in the database
   sql <- readSql("..\\inst\\sql\\generic_cohort_definition_script.sql")
-
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)  
   sql <- SqlRender::render(sql, 
                            cdmDatabaseSchema = cdmDatabaseSchema,

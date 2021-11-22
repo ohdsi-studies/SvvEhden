@@ -12,34 +12,6 @@ ParallelLogger::clearLoggers()
 ParallelLogger::addDefaultErrorReportLogger(fileName = file.path(getwd(), "errorReportR.txt"),
                                             name = "DEFAULT_ERRORREPORT_LOGGER")
 
-
-
-
-######### UMC DEBUGGING: SET PARAMETERS FOR RUNNING THE SCRIPT #######################
-# 
-# # Make it easy to switch between the two to check if solutions work on both
-# which_database <- c("sqlite", "sql server")[2] 
-# 
-# if(which_database == "sqlite"){
-# connectionDetails <- Eunomia::getEunomiaConnectionDetails()
-# DatabaseConnector::connect(connectionDetails, dbms="sqlite")
-# cdmDatabaseSchema <- "main" # If sql server, this should be "databasename [.] schema" instead.
-# } else if (which_database == "sql server"){
-# connectionDetails <- createConnectionDetails(dbms = "sql server", server = "UMCDB06")
-# DatabaseConnector::connect(connectionDetails)
-# cdmDatabaseSchema = "OmopCdm.synpuf5pct_20180710"  
-# } else {stop("Non-valid sql dialect, try again")}
-# 
-# outputFolderPath = paste0("C:\\Users\\",
-#                           Sys.getenv("USERNAME"), "\\WHO Collaborating Centre for International Drug Monitoring\\EHDEN - SWEDHEN-SPRINT\\output_",
-#                           Sys.getenv("USERNAME"),"\\")
-# 
-# cohortDatabaseSchema <- cdmDatabaseSchema
-# cohortTable = paste0("cohorts_",Sys.getenv("USERNAME"),"")
-
-
-
-
 ############## OPTIONS ##############################
 
 ### Optional: specify where the temporary files (used by the Andromeda package) will be created:
@@ -88,6 +60,7 @@ execute(
   verbose = verbose)
 
 ### Upload the results to the OHDSI SFTP server:
-privateKeyFileName <- ""
-userName <- ""
-#SVVEHDEN::uploadResults(outputFolder, privateKeyFileName, userName) #TODO
+source("SubmitResults.R")
+privateKeyFileName <- "" # type in path and filename of privacy keys (provided in email)
+userName <- ""           # type in user name of study (provided in email)
+uploadResults(outputFolder, privateKeyFileName, userName)

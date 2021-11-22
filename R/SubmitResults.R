@@ -29,7 +29,7 @@
 #'                             forward slashes (/). Do not use a folder on a network drive since this
 #'                             greatly impacts performance.
 #' @export
-uploadResults <- function(outputFolder, privateKeyFileName, userName) {
+uploadResults <- function(outputFolder, privateKeyFileName, userName, remoteFolder = "./dec_workshop") {
   fileName <- list.files(outputFolder, "^Results_.*.zip$", full.names = TRUE)
   if (length(fileName) == 0) {
     writeLines("Looking for diagnosticsExport subfolder")
@@ -43,7 +43,7 @@ uploadResults <- function(outputFolder, privateKeyFileName, userName) {
   }
   OhdsiSharing::sftpUploadFile(privateKeyFileName = privateKeyFileName,
                                userName = userName,
-                               remoteFolder = "cohortEvaluation",
-                               fileName = fileName)
+                               remoteFolder = "./dec_workshop",
+                               fileName = fileName[length(fileName)])
   ParallelLogger::logInfo("Finished uploading")
 }
