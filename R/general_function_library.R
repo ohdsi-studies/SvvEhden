@@ -33,7 +33,7 @@ library_packages <- function (package_vec = NULL){
   invisible(suppressMessages(lapply(package_vec, library, character.only = T)))
 }
 
-# library_packages(package_vec)
+library_packages(package_vec)
 
 get_all_drugs <- function(conn, databaseSchema){
   
@@ -608,10 +608,10 @@ saddle_the_workhorse <- function(connectionDetails = NULL,
   
   # Set up the connection for the db to be used
   if(!exists("connectionDetails") || is.null(connectionDetails)) {
-    connectionDetails <- createConnectionDetails(dbms = "sql server",
+    connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "sql server",
                                                  server = "UMCDB06")
   }
-  con <- suppressMessages(connect(connectionDetails))
+  con <- suppressMessages(DatabaseConnector::connect(connectionDetails))
 
   databaseSchema = cdmDatabaseSchema
   if(!exists("cdmDatabaseSchema") || is.null(cdmDatabaseSchema)) {

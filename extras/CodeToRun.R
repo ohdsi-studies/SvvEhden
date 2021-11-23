@@ -1,5 +1,5 @@
 
-library(SVVEHDEN)
+#library(SVVEHDEN)
 
 # Make sure the working directory is the root of the SVVEHDEN OHDSI study package
 tryCatch({
