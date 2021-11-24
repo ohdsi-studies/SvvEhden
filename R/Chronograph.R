@@ -173,25 +173,25 @@ getChronographData <- function(connectionDetails,
                                    dropTableIfExists = TRUE)
     
   }
-  sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "CreateChronographData.sql",
-                                           packageName = "SVVEHDEN",
-                                           dbms = connectionDetails$dbms,
-                                           oracleTempSchema = oracleTempSchema,
-                                           cdm_database_schema = cdmDatabaseSchema,
-                                           exposure_database_schema = exposureDatabaseSchema,
-                                           exposure_table = exposureTable,
-                                           exposure_id_field = exposureIdField,
-                                           exposure_start_field = exposureStartField,
-                                           exposure_person_id_field = exposurePersonIdField,
-                                           outcome_database_schema = outcomeDatabaseSchema,
-                                           outcome_table = outcomeTable,
-                                           outcome_id_field = outcomeIdField,
-                                           outcome_start_field = outcomeStartField,
-                                           outcome_person_id_field = outcomePersonIdField,
-                                           exposure_ids = exposureIds,
-                                           outcome_ids = outcomeIds,
-                                           has_pairs = hasPairs)
-  
+
+  # sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "CreateChronographData.sql",
+  #                                          packageName = "SVVEHDEN",
+  #                                          dbms = connectionDetails$dbms,
+  #                                          oracleTempSchema = oracleTempSchema,
+  #                                          cdm_database_schema = cdmDatabaseSchema,
+  #                                          exposure_database_schema = exposureDatabaseSchema,
+  #                                          exposure_table = exposureTable,
+  #                                          exposure_id_field = exposureIdField,
+  #                                          exposure_start_field = exposureStartField,
+  #                                          exposure_person_id_field = exposurePersonIdField,
+  #                                          outcome_database_schema = outcomeDatabaseSchema,
+  #                                          outcome_table = outcomeTable,
+  #                                          outcome_id_field = outcomeIdField,
+  #                                          outcome_start_field = outcomeStartField,
+  #                                          outcome_person_id_field = outcomePersonIdField,
+  #                                          exposure_ids = exposureIds,
+  #                                          outcome_ids = outcomeIds,
+  #                                          has_pairs = hasPairs)
   sql <- SqlRender::readSql("..\\inst\\sql\\sql_server\\CreateChronographData.sql")
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)    
   sql <- SqlRender::render(sql, 
@@ -209,13 +209,11 @@ getChronographData <- function(connectionDetails,
                            exposure_ids = exposureIds,
                            outcome_ids = outcomeIds,
                            has_pairs = hasPairs)
-
-  # #debug part: if you want to run it manually
+  #debug part: if you want to run it manually
   fileConn<-file("..\\inst\\sql\\sql_server\\last_CreateChronographData.sql")
   write(sql, fileConn)
   close(fileConn)
-
-  # writeLines(sql)
+  #writeLines(sql)
   
   ParallelLogger::logInfo("Creating counts on server")
   DatabaseConnector::executeSql(conn, sql)
@@ -258,7 +256,6 @@ getChronographData <- function(connectionDetails,
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)    
   sql <- SqlRender::render(sql, 
                            has_pairs = hasPairs)
-
   DatabaseConnector::executeSql(conn, sql, progressBar = FALSE, reportOverallTime = FALSE)
   
   result <- merge(all, exposure)

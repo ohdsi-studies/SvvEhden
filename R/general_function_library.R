@@ -33,7 +33,7 @@ library_packages <- function (package_vec = NULL){
   invisible(suppressMessages(lapply(package_vec, library, character.only = T)))
 }
 
-library_packages(package_vec)
+# library_packages(package_vec)
 
 get_all_drugs <- function(conn, databaseSchema){
   
@@ -458,7 +458,7 @@ custom_createCovariateSettings <- function(exclude_these){
     longTermStartDays = -round(180),
     mediumTermStartDays = -180,
     shortTermStartDays = -3*30,
-    endDays = 0,
+    endDays = -1,
     includedCovariateConceptIds = c(),
     addDescendantsToInclude = TRUE,
     includedCovariateIds = c(),
@@ -491,11 +491,11 @@ interactive_barplot <- function(internal_cohort_list, name_list, covariate_list)
     covariates_for_cohort_i <- as.data.frame(internal_cohort_list[i][[1]]$covariates)
     covariateRef_for_cohort_i <- as.data.frame(internal_cohort_list[i][[1]]$covariateRef)
     covariates_for_cohort_i %<>% 
-      rename(subject_id = rowId) %>% 
+      dplyr::rename(subject_id = rowId) %>% 
       left_join(covariateRef_for_cohort_i, by="covariateId") %>% 
       select(subject_id, name=covariateName, value=covariateValue, concept_id = conceptId)
     
-    cohort_i_df <- covariates_for_cohort_i %>% filter(name %in% covariate_list) %>% count(name) %>% mutate(Percentage=round(100*n/sum(n)))
+    cohort_i_df <- covariates_for_cohort_i %>% dplyr::filter(name %in% covariate_list) %>% dplyr::count(name) %>% mutate(Percentage=round(100*n/sum(n)))
     colnames(cohort_i_df)=c("Category","n","Percentage")
     if( length(cohort_i_df$Category) > 0 ) { #ignore if cohort contains 0 rows
       cohort_i_df$Cohort = name_list[i][[1]]
@@ -541,29 +541,30 @@ createEras <- function(saddle){
   
   conn <- suppressMessages(invisible(DatabaseConnector::connect(saddle$connectionDetails)))
   
-  # Check whether the database has a drug and condition-era-table with persistence window 390 days already.
-  sql <- SqlRender::readSql("..\\inst\\sql\\checkIfEraExist.sql")
+  # Check whether the database has a drug-era-table with persistence window 390 days already.
+  sql <- "SELECT TOP 10 * FROM @TARGET_CDMV5_SCHEMA.@DRUG_ERA_TABLE_NAME;"
   sql <- SqlRender::translate(sql, saddle$connectionDetails$dbms)
-  sql <- SqlRender::render(sql, "TARGET_CDMV5_SCHEMA" = saddle$databaseSchema, 
-                                "CONDITION_ERA_TABLE_NAME" = saddle$conditionEraTableName, 
-                                "DRUG_ERA_TABLE_NAME" = saddle$drugEraTableName)
-  result <- querySql(conn, sql)
-  
-  if(result != 1) {
-    #If not, create the eras
+  sql <- SqlRender::render(sql, "TARGET_CDMV5_SCHEMA" = saddle$databaseSchema,
+                                "DRUG_ERA_TABLE_NAME" = saddle$custom_drugEraTableName)
+  result <- tryCatch({DatabaseConnector::querySql(conn, sql)}, error = function(e) {
+    e
+  })
+
+  # If the output contains "error" in the class, then we treat it as there was no drug_era_pw390:
+  if(any(grepl("error", class(result), ignore.case = T))){
+      # Create the eras
     sql <- SqlRender::readSql("..\\inst\\sql\\createEraScript.sql")
     sql <- SqlRender::translate(sql, saddle$connectionDetails$dbms)
     sql <- SqlRender::render(sql, "TARGET_CDMV5_SCHEMA" = saddle$databaseSchema, 
-                                  "CONDITION_ERA_TABLE_NAME" = saddle$conditionEraTableName, 
-                                  "DRUG_ERA_TABLE_NAME" = saddle$drugEraTableName,
+                                  "DRUG_ERA_TABLE_NAME" = saddle$custom_drugEraTableName,
                                   "PERSISTENCE_WINDOW_IN_DAYS" = saddle$persistence_window)
     
-    fileConn<-file("..\\inst\\sql\\last_createEraScript.sql")
+    fileConn <- file("..\\inst\\sql\\last_createEraScript.sql")
     write(sql, fileConn)
     close(fileConn)
     
-    executeSql(conn, sql)
-  }
+    DatabaseConnector::executeSql(conn, sql)
+    }
 }
 
 
@@ -646,7 +647,6 @@ saddle_the_workhorse <- function(connectionDetails = NULL,
                                       })
   
   drugEraTableName = paste0("drug_era_pw", persistence_window)
-  conditionEraTableName = paste0("condition_era_pw", persistence_window) 
   
   # get drugs from db
   all_drugs <- get_all_drugs(con, databaseSchema)
@@ -655,7 +655,7 @@ saddle_the_workhorse <- function(connectionDetails = NULL,
        "databaseSchema" = databaseSchema, "resultsDatabaseSchema"= resultsDatabaseSchema, 
        "resultsTableName"=resultsTableName, "overall_verbose"=overall_verbose,
        "connectionDetails" = connectionDetails, "persistence_window" = persistence_window,
-       "conditionEraTableName" = conditionEraTableName, "drugEraTableName" = drugEraTableName)
+       "custom_drugEraTableName" = drugEraTableName)
 }  
 
 custom_aggregateCovariates <- function(covariateData, verbose=FALSE) 
@@ -675,11 +675,11 @@ custom_aggregateCovariates <- function(covariateData, verbose=FALSE)
   class(result) <- "CovariateData"
   attr(class(result), "package") <- "FeatureExtraction"
   populationSize <- attr(covariateData, "metaData")$populationSize
-  result$covariates <- covariateData$analysisRef %>% filter(rlang::sym("isBinary") == 
-                                                              "Y") %>% inner_join(covariateData$covariateRef, 
-                                                                                  by = "analysisId") %>% inner_join(covariateData$covariates, 
-                                                                                                                    by = "covariateId") %>% group_by(rlang::sym("covariateId")) %>% 
-    summarize(sumValue = sum(rlang::sym("covariateValue"), 
+  result$covariates <- covariateData$analysisRef %>% dplyr::filter(rlang::sym("isBinary") == 
+                                                              "Y") %>% dplyr::inner_join(covariateData$covariateRef, 
+                                                                                  by = "analysisId") %>% dplyr::inner_join(covariateData$covariates, 
+                                                                                                                    by = "covariateId") %>%  dplyr::group_by(rlang::sym("covariateId")) %>% 
+    dplyr::summarize(sumValue = sum(rlang::sym("covariateValue"), 
                              na.rm = TRUE), averageValue = sum(rlang::sym("covariateValue")/populationSize, 
                                                                na.rm = TRUE))
   computeStats <- function(data) {
@@ -893,4 +893,22 @@ from_covariateId_to_conceptId <- function(input_covariateId = 30361210, cohort) 
 }
 
 
+clean_output_tables <- function(table_i=table1_list$table_1_output){
+  
+  # Put the content on a single column, remove empty row with "age group" 
+  table_i <- bind_rows(table_i[-1, 1:4],
+                        table_i[,5:8])
+  
+  table_i <- table_i[! table_i$Characteristic %in% 
+  c("Medication use",
+  "Medical history: General",
+  "Medical history: Cardiovascular disease",									
+  "Medical history: Neoplasms",
+  "Medication use", 
+  "Gender: female", "Gender: male"),]
+  
+  # Drop the ages
+  table_i <- table_i[!grepl(" - ", table_i$Characteristic),]
+  
+  return(table_i)}
 

@@ -74,15 +74,14 @@ execute <- function(connectionDetails,
   
   createEras(saddle)
   
-  for(i in 1:2 #min(maxNumberOfCombinations, nrow(saddle$dec_df))
+  for(i in 1:min(maxNumberOfCombinations, nrow(saddle$dec_df))
   ){  # i = 1
     
+    tictoc::tic("Total time for this DEC")
     result = tryCatch({
-      tictoc::tic("Total time for this DEC")
-
       
       cohort_list <- cohort_module(i, 
-                                   maximum_cohort_size=1000,
+                                   maximum_cohort_size = 100,
                                    force_create_new = TRUE,
                                    only_create_cohorts = FALSE,
                                    saddle)
@@ -103,7 +102,6 @@ execute <- function(connectionDetails,
     })
     tictoc::toc()
   }
-
   
   # Add all to zip file -------------------------------------------------------------------------------
   ParallelLogger::logInfo("Adding results to zip file")

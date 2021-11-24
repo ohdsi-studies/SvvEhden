@@ -33,7 +33,7 @@ cohort_module <- function(i,
                           only_create_cohorts = FALSE,
                           saddle){
 
-  cat("\n Now Running DEC nr", i, ",", saddle$dec_df$drug_and_event_name[i], "\r\n")
+  cat(paste0("\n Now Running DEC nr ", i, ", ", saddle$dec_df$drug_and_event_name[i], "\r\n"))
   
   # Unpack the things needed from the saddle-list
   dec_input <- saddle$dec_df[i,]
@@ -69,8 +69,7 @@ cohort_module <- function(i,
   sql <- SqlRender::render(sql, 
                            cdmDatabaseSchema = cdmDatabaseSchema,
                            resultsDatabaseSchema = resultsDatabaseSchema,
-                           conditionEraTableName = saddle$conditionEraTableName,
-                           drugEraTableName = saddle$drugEraTableName,
+                           drugEraTableName = saddle$custom_drugEraTableName,
                            tempTableName = tempTableName, 
                            exposure_drug_ids = drug_id_string_commaseparated,
                            comparator_drug_ids = all_drugs,
@@ -80,7 +79,7 @@ cohort_module <- function(i,
   suppressMessages(executeSql(conn, sql, progressBar = FALSE))
   
   # Get the patient counts per cohort
-  sql <- paste0("SELECT COHORT_DEFINITION_ID, N=COUNT(*) FROM ", cdmDatabaseSchema, ".", tempTableName, " GROUP BY COHORT_DEFINITION_ID;")
+  sql <- paste0("SELECT COHORT_DEFINITION_ID, COUNT(*) N FROM ", cdmDatabaseSchema, ".", tempTableName, " GROUP BY COHORT_DEFINITION_ID;")
   sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)  
   cohort_counts <- querySql(conn, sql) %>% dplyr::arrange(COHORT_DEFINITION_ID)
 
@@ -104,7 +103,7 @@ cohort_module <- function(i,
   covSettings <- suppressMessages(custom_createCovariateSettings(exclude_these = c(event_id_int_frame, drug_id_int_frame))) #for cohort1-3: exclude event and drug from covariates
   attributes(covSettings)$fun = "custom_getDbDefaultCovariateData"
   
-  covSettings4 <- suppressMessages(custom_createCovariateSettings(exclude_these = c(event_id_int_frame, all_drugs))) #for cohort4: exclude all drug_ids from covariates
+  covSettings4 <- suppressMessages(custom_createCovariateSettings(exclude_these = c(event_id_int_frame))) #for cohort4: exclude all drug_ids from covariates
   attributes(covSettings4)$fun = "custom_getDbDefaultCovariateData"
   
   
