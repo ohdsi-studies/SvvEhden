@@ -74,7 +74,11 @@ print_to_html_module <- function(i, table1_list, chronograph_plot, saddle){
     knitr::kable(dec_input[-5]) %>% kableExtra::kable_styling(bootstrap_options=c('responsive','striped'))
     cat(\"Chronograph ##\")
     plot(chronograph_plot)
+<<<<<<< HEAD
     cat(\"Table of sex and age ##\")
+=======
+    cat(\"Table of sex and age##\")
+>>>>>>> 80c22de3827b8fa8fb5f6c326bad24fbf63b9aba
     knitr::kable(table1_list[[\"basic_demographics_table\"]]) %>% kableExtra::kable_styling(bootstrap_options=c('responsive','striped'))
     cat(\"Gender plot ##\")
     table1_list[[\"gender_cohort_plot\"]]

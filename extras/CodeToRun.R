@@ -46,7 +46,11 @@ connectionDetails <-
   )
 
 ### As a start, just run on the first five DECs, or perhaps just the first.
+<<<<<<< HEAD
 maxNumberOfCombinations = 200
+=======
+maxNumberOfCombinations = 5 #1
+>>>>>>> 80c22de3827b8fa8fb5f6c326bad24fbf63b9aba
 verbose = FALSE
 
 ### Execute
