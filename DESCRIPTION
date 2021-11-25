@@ -19,7 +19,7 @@ Imports:
 	data.table, stringr, lubridate, here, ggplot2, 
                    DT, forcats, gridExtra, kableExtra, knitr, RColorBrewer, ggnewscale, egg,
                    plotly, xlsx, reshape2, zeallot, DatabaseConnector,
-                   SqlRender, tidyr, tictoc, SqlRender,
+                   SqlRender, tidyr, tictoc, SqlRender, jquerylib, 
 	ParallelLogger,
 	ggplot2,
 	gridExtra

@@ -632,13 +632,14 @@ saddle_the_workhorse <- function(connectionDetails = NULL,
   # Read in the DEC-csv
   if(databaseSchema == "OmopCdm.mini") {
     dec_df <- read.csv("..\\inst\\input\\fake_DEC_list_mini.csv", sep=";")[,-1]
-  } else if(connectionDetails$dbms == "sqlite" & which_database == "sqlite"){
+  } else if(connectionDetails$dbms == "sqlite" & exists(which_database) & which_database == "sqlite"){
     dec_df <- read.csv("..\\inst\\input\\eunomia_dec_df.csv")
     dec_df <- dplyr::bind_cols("drug_name" = "fakedrug", "event_name" = "fakeevent", dec_df)
     colnames(dec_df)[3:4] = paste0(colnames(dec_df)[3:4], "_id")
-    } else {
+  } else if(grepl(pattern = "synpuf", x = databaseSchema, fixed=TRUE, ignore.case = T)) {
     dec_df <- read.csv("..\\inst\\input\\fake_DEC_list.csv", sep=";")[,-1] # This one is for our synpuf-data
-    # dec_df <- read.csv("..\\inst\\input\\minisprint_DEC_list_v2.csv", sep=";")[,-1]
+  } else {
+    dec_df <- read.csv("..\\inst\\input\\minisprint_DEC_list_v4.csv", sep=",")[,-1] # this is the "true" combinations list
   }
   
   dec_df$drug_and_event_name <- apply(dec_df[,1:2], 1, 
