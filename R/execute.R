@@ -81,7 +81,7 @@ execute <- function(connectionDetails,
     result = tryCatch({
       
       cohort_list <- cohort_module(i, 
-                                   maximum_cohort_size=1000,
+                                   maximum_cohort_size = 100000,
                                    force_create_new = TRUE,
                                    only_create_cohorts = FALSE,
                                    saddle)
