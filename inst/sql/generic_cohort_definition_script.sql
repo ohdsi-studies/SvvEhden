@@ -472,7 +472,7 @@ INSERT INTO @resultsDatabaseSchema.@tempTableName(
 SELECT cohort_definition_id, cohort_start_date, cohort_end_date, subject_id
 FROM (SELECT cohort_definition_id, cohort_start_date, cohort_end_date, subject_id, ROW_NUMBER() OVER (PARTITION BY cohort_definition_id ORDER BY subject_id) cohort_row_number
       FROM @resultsDatabaseSchema.@tempTableName_original) T1
-      WHERE cohort_definition_id in (22, 32, 42) OR cohort_row_number <= @maximum_cohort_size 
+  --    WHERE cohort_definition_id in (22, 32, 42) OR cohort_row_number <= @maximum_cohort_size 
        -- restrict to cohort sample size for descriptive-tables cohorts, as the covariates-collection is expensive.
 	   
 ---------------------------------------------------------------------------------------------
