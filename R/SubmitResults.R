@@ -29,7 +29,7 @@
 #'                             forward slashes (/). Do not use a folder on a network drive since this
 #'                             greatly impacts performance.
 #' @export
-uploadResults <- function(outputFolder, privateKeyFileName, userName, remoteFolder = "./dec_workshop") {
+uploadResults <- function(outputFolder, privateKeyFileName, userName, remoteFolder = "./dec_workshop_1") {
   fileName <- list.files(outputFolder, "^Results_.*.zip$", full.names = TRUE)
   if (length(fileName) == 0) {
     writeLines("Looking for diagnosticsExport subfolder")
