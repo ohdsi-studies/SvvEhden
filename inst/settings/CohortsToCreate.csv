@@ -1,0 +1,13 @@
+"cohortId","name","cohortName","logicDescription","phenotypeId","atlasId","concept_id","concept_name","concept_code","matching_drug_cohort_id","intersection_drug","intersection_event"
+2,"generic_target_drug_cohort","Perindopril","Perindopril",0,0,1373225,"Perindopril","54552",0,0,0
+1,"generic_target_drug_cohort","Cyclophosphamide","Cyclophosphamide",0,0,1310317,"Cyclophosphamide","3002",0,0,0
+4,"generic_comparator_drug_cohort","All drugs (matched to Perindopril)","All drugs (matched to Perindopril)",0,0,0,"0","0",2,0,0
+3,"generic_comparator_drug_cohort","All drugs (matched to Cyclophosphamide)","All drugs (matched to Cyclophosphamide)",0,0,0,"0","0",1,0,0
+6,"4272240001","Malaise","Malaise",4272240001,0,0,"0","0",0,0,0
+5,"406","Cerebral infarction","Cerebral infarction",406,0,0,"0","0",0,0,0
+9,"generic_intersection_drug_event","Perindopril + Malaise","Perindopril + Malaise",0,0,0,"0","0",0,2,6
+7,"generic_intersection_drug_event","Cyclophosphamide + Cerebral infarction","Cyclophosphamide + Cerebral infarction",0,0,0,"0","0",0,1,5
+8,"generic_intersection_drug_event","Cyclophosphamide + Malaise","Cyclophosphamide + Malaise",0,0,0,"0","0",0,1,6
+12,"generic_intersection_drug_event","All drugs (m.t. Perindopril) + Malaise","All drugs (m.t. Perindopril) + Malaise",0,0,0,"0","0",0,4,6
+10,"generic_intersection_drug_event","All drugs (m.t. Cyclophosphamide) + Cerebral infarction","All drugs (m.t. Cyclophosphamide) + Cerebral infarction",0,0,0,"0","0",0,3,5
+11,"generic_intersection_drug_event","All drugs (m.t. Cyclophosphamide) + Malaise","All drugs (m.t. Cyclophosphamide) + Malaise",0,0,0,"0","0",0,3,6

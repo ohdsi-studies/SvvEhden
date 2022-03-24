@@ -1,0 +1,104 @@
+{
+	"PrimaryCriteria": {
+    "CriteriaList": [
+      {
+        "DrugExposure": {
+          "CodesetId": 0
+        }
+      },
+	  {
+        "ConditionOccurrence": {
+          "CodesetId": 1
+        }
+      }
+    ],
+    "ObservationWindow": {
+      "PriorDays": 365,
+      "PostDays": 0
+    },
+    "PrimaryCriteriaLimit": {
+      "Type": "First"
+    }
+  },
+  "QualifiedLimit": {
+    "Type": "First"
+  },
+  "ExpressionLimit": {
+    "Type": "First"
+  },
+  "InclusionRules": [
+    {
+      "name": "with event diagnosed within ||fixed_TAR|| days of cohort entry (= drug start date)",
+      "description": "event",
+      "expression": {
+        "Type": "ALL",
+        "CriteriaList": [
+          {
+            "Criteria": {
+              "ConditionEra": {
+                "CodesetId": 1
+              }
+            },
+            "StartWindow": {
+              "Start": {
+                "Days": 0,
+                "Coeff": -1
+              },
+              "End": {
+                "Days": ||fixed_TAR||,
+                "Coeff": 1
+              },
+              "UseEventEnd": false
+            },
+            "Occurrence": {
+              "Type": 2,
+              "Count": 1,
+              "CountColumn": "DOMAIN_CONCEPT"
+            }
+          }
+        ],
+        "DemographicCriteriaList": [],
+        "Groups": []
+      }
+    }
+  ],
+  "EndStrategy": {
+    "DateOffset": {
+      "DateField": "StartDate",
+      "Offset": ||fixed_TAR||
+    }
+  },
+  "CensoringCriteria": [
+    {
+      "Death": {}
+    }
+  ],
+  "CollapseSettings": {
+    "CollapseType": "ERA",
+    "EraPad": 0
+  },
+  "CensorWindow": {},
+  "cdmVersionRange": ">=5.0.0",
+  
+  "ConceptSets": [
+    {
+      "id": 0,
+      "name": "target drug",
+      "expression": {
+        "items": [
+          ||intersection_drug||
+        ]
+      }
+    },
+    {
+      "id": 1,
+      "name": "event",
+      "expression": {
+        "items": [
+          ||intersection_event||
+        ]
+      }
+    }
+  ]
+ 
+}

@@ -1,62 +1,86 @@
-SVVEHDEN Study-a-Thon
-==============================
+SVVEHDEN modification of CohortDiagnostics
+==========================================
 
-- Analytics use case(s): **-**
-- Study type: **-**
-- Tags: **-**
-- Study lead: **-**
-- Study lead forums tag: **[[Lead tag]](https://forums.ohdsi.org/u/[Lead tag])**
-- Study start date: **-**
-- Study end date: **-**
-- Protocol: **-**
-- Publications: **-**
-- Results explorer: **-**
-
-Aggregation of data for the SVVEHDEN Study-A-Thon.
-
-Requirements
+Introduction
 ============
+This is an R package based on the CohortDiagnostics package. All essential parts are the same. The CohortDiagnostics ais used for performing various study diagnostics, many of which are not specific to any particular study design.
 
-- A database in [Common Data Model version 5](https://github.com/OHDSI/CommonDataModel) in one of these platforms: SQL Server, Oracle, PostgreSQL, IBM Netezza, Apache Impala, Amazon RedShift, Google BigQuery, or Microsoft APS.
-- R version 4.0.0 or newer
-- On Windows: [RTools](http://cran.r-project.org/bin/windows/Rtools/)
-- [Java](http://java.com)
+How-to-prepare and run
+=======================
+Run the extras/RunCohortDiagnosticsAndViewResult.R script to create all cohorts and input needed for the Shiny app, as well as start the shiny app.
 
-How to run
+On UMC side thefollowing preprocessing steps must first to be done to create the input files needed for the RunCohortDiagnosticsAndViewResult.R:
+	* The combinations list is fetched from the SignalData_EhdenStudyathonMiniSprint_2022Spring database
+	* For all MedDRA PT events, phenotypes must be:
+		- linked as a row in the inst/settings/phenotype-meddra-conversion.csv
+		- corresponding sql and json files with the name of the phenotype id 
+ 		  (used in the csv above) must be placed in the folders inst/sql/sql_server and inst/cohorts.
+	* extras/Preprocessing.R script must be run. This will create the two files inst/settings/DecList.csv 
+	  and inst/settings/CohortsToCreate.csv used by the extras/RunCohortDiagnosticsAndViewResult.R script.
+
+Features
+========
+- Show cohort inclusion rule attrition. 
+- List all source codes used when running a cohort definition on a specific database.
+- Find orphan codes, (source) codes that should be, but are not included in a particular concept set.
+- Compute cohort incidence across calendar years, age, and gender.
+- Break down index events into the specific concepts that triggered them.
+- Compute overlap between two cohorts.
+- Characterize cohorts, and compare these characterizations. Perform cohort comparison and temporal comparisons. 
+- Explore patient profiles of a random sample of subjects in a cohort.
+
+Screenshot
 ==========
-1. Follow [these instructions](https://ohdsi.github.io/Hades/rSetup.html) for setting up your R environment, including RTools and Java. 
+![The Diagnostics Explorer Shiny app](vignettes/shiny.png)
 
-2. Open your study package in RStudio. Use the following code to install all the dependencies:
+Technology
+==========
+The CohortDiagnostics package is an R package.
 
-	```r
-	renv::restore()
-	```
+System Requirements
+===================
+Requires R. Some of the packages used by CohortDiagnostics require Java.
 
-~~3. In RStudio, select 'Build' then 'Install and Restart' to build the package.~~
+Installation
+=============
 
-4. Once installed, you can execute the study by modifying and using the code provided under `extras/CodeToRun.R`.
+1. See the instructions [here](https://ohdsi.github.io/Hades/rSetup.html) for configuring your R environment, including Java.
 
-~~5. Upload the file ```<outputFolderPath>/Results_<DatabaseId>_<Date>.zip``` in the output folder to the study coordinator:~~
+2. In R, use the following commands to download and install CohortDiagnostics:
 
-	```r
-	uploadResults(outputFolder, privateKeyFileName = "<file>", userName = "<name>")
-	```
-	Where ```<file>``` and ```<name>``` are the credentials provided to you personally by the study coordinator.
-		
-~~6. To view the results, use the Shiny app:~~
+  ```r
+  remotes::install_github("OHDSI/CohortDiagnostics")
+```
 
-	```r
-	CohortDiagnostics::launchDiagnosticsExplorer()
-	```
+User Documentation
+==================
+Documentation can be found on the [package website](https://ohdsi.github.io/CohortDiagnostics).
+
+PDF versions of the documentation are also available:
+
+* Package manual: [CohortDiagnostics manual](https://raw.githubusercontent.com/OHDSI/CohortDiagnostics/master/extras/CohortDiagnostics.pdf) 
+* Vignette: [What is Cohort Diagnostics](https://raw.githubusercontent.com/OHDSI/CohortDiagnostics/master/inst/doc/WhatIsCohortDiagnostics.pdf)
+* Vignette: [Running Cohort Diagnostics](https://raw.githubusercontent.com/OHDSI/CohortDiagnostics/master/inst/doc/RunningCohortDiagnostics.pdf)
+* Vignette: [Viewing Results Using Diagnostics Explorer](https://raw.githubusercontent.com/OHDSI/CohortDiagnostics/master/inst/doc/ViewingResultsUsingDiagnosticsExplorer.pdf)
+
+
+Support
+=======
+* Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers">OHDSI Forum</a>
+* We use the <a href="https://github.com/OHDSI/CohortDiagnostics/issues">GitHub issue tracker</a> for all bugs/issues/enhancements
+
+Contributing
+============
+Read [here](https://ohdsi.github.io/Hades/contribute.html) how you can contribute to this package.
 
 License
 =======
-The SVVEHDEN package is licensed under Apache License 2.0
+CohortDiagnostics is licensed under Apache License 2.0
 
 Development
 ===========
-SVVEHDEN was developed in ATLAS and R Studio.
+CohortDiagnostics is being developed in R Studio.
 
 ### Development status
 
-Unknown
+Stable
