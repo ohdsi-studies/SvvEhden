@@ -46,33 +46,6 @@ Installation
 
 1. See the instructions [here](https://ohdsi.github.io/Hades/rSetup.html) for configuring your R environment, including Java.
 
-2. In R, use the following commands to download and install CohortDiagnostics:
-
-  ```r
-  remotes::install_github("OHDSI/CohortDiagnostics")
-```
-
-User Documentation
-==================
-Documentation can be found on the [package website](https://ohdsi.github.io/CohortDiagnostics).
-
-PDF versions of the documentation are also available:
-
-* Package manual: [CohortDiagnostics manual](https://raw.githubusercontent.com/OHDSI/CohortDiagnostics/master/extras/CohortDiagnostics.pdf) 
-* Vignette: [What is Cohort Diagnostics](https://raw.githubusercontent.com/OHDSI/CohortDiagnostics/master/inst/doc/WhatIsCohortDiagnostics.pdf)
-* Vignette: [Running Cohort Diagnostics](https://raw.githubusercontent.com/OHDSI/CohortDiagnostics/master/inst/doc/RunningCohortDiagnostics.pdf)
-* Vignette: [Viewing Results Using Diagnostics Explorer](https://raw.githubusercontent.com/OHDSI/CohortDiagnostics/master/inst/doc/ViewingResultsUsingDiagnosticsExplorer.pdf)
-
-
-Support
-=======
-* Developer questions/comments/feedback: <a href="http://forums.ohdsi.org/c/developers">OHDSI Forum</a>
-* We use the <a href="https://github.com/OHDSI/CohortDiagnostics/issues">GitHub issue tracker</a> for all bugs/issues/enhancements
-
-Contributing
-============
-Read [here](https://ohdsi.github.io/Hades/contribute.html) how you can contribute to this package.
-
 License
 =======
 CohortDiagnostics is licensed under Apache License 2.0
@@ -83,4 +56,8 @@ CohortDiagnostics is being developed in R Studio.
 
 ### Development status
 
+<<<<<<< HEAD
 Stable
+=======
+Unknown
+>>>>>>> 02f4a6591e403409109941ecab676d06097d6ba7
