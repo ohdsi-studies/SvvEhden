@@ -54,10 +54,3 @@ Development
 ===========
 CohortDiagnostics is being developed in R Studio.
 
-### Development status
-
-<<<<<<< HEAD
-Stable
-=======
-Unknown
->>>>>>> 02f4a6591e403409109941ecab676d06097d6ba7
