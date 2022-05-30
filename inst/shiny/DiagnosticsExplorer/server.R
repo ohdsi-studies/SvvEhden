@@ -9,7 +9,8 @@ shiny::shinyServer(function(input, output, session) {
                            dec_list$cohortId_2[dec_list$DEC == chosen],
                            dec_list$cohortId_3[dec_list$DEC == chosen],
                            dec_list$cohortId_4[dec_list$DEC == chosen],
-                           dec_list$cohortId_5[dec_list$DEC == chosen]))
+                           dec_list$cohortId_5[dec_list$DEC == chosen]
+                           ))
   })
 
   # Function to return cohort subset
@@ -28,7 +29,7 @@ shiny::shinyServer(function(input, output, session) {
                                   "C2 comparator drug", 
                                   "C3 event", 
                                   "C4 target drug w event", 
-                                  "C5 comparator drug w event")) %>%                 # reset the short name
+                                  "C5 target drug w event")) %>%                 # reset the short name
       dplyr::mutate(compoundName = paste0(.data$shortName, ": ", .data$cohortName,"(", .data$cohortId, ")"))
     return(data)
   })
@@ -95,6 +96,10 @@ shiny::shinyServer(function(input, output, session) {
   shiny::observe({
     if(verbose) print("shiny::observe 89")
     subset <- cohortSubset()$compoundName
+    #remove cohorts with not trustable json
+    if(input$tabs == 'indexEventBreakdown') {
+      subset = c(subset[1], subset[3])
+    }
     shinyWidgets::updatePickerInput(
       session = session,
       inputId = "cohort",
@@ -106,6 +111,10 @@ shiny::shinyServer(function(input, output, session) {
   shiny::observe({
     if(verbose) print("shiny::observe 99")
     subset <- cohortSubset()$compoundName
+    #remove cohorts with not trustable json
+    if(input$tabs == 'incidenceRate') {
+      subset = c(subset[1], subset[3])
+    }
     shinyWidgets::updatePickerInput(
       session = session,
       inputId = "cohorts",
@@ -339,7 +348,10 @@ shiny::shinyServer(function(input, output, session) {
     row <- selectedCohortDefinitionRow()
     if (is.null(row)) {
       return(NULL)
-    } else {
+    } else if (grepl("C2", row$shortName) | grepl("C4", row$shortName) | grepl("C5", row$shortName)) {
+      return(paste0(row$shortName, " do not have a validated JSON"))
+    }
+    else {
       row$json
     }
   })
@@ -1601,6 +1613,50 @@ shiny::shinyServer(function(input, output, session) {
       selectedIncidenceRateAgeFilter <- input$incidenceRateAgeFilter
       incidenceRateAgeFilter(selectedIncidenceRateAgeFilter)
     }
+  })
+  
+  chronograph <- reactive({
+    if(verbose) print("chronograph")
+    validate(need(length(databaseIds()) > 0, "No data sources chosen"))
+    validate(need(length(cohortsForDec()) > 0, "No DEC chosen"))
+    data <- getChronographResult(
+      dataSource = dataSource,
+      cohortIds = cohortsForDec(),
+      databaseIds = databaseIds()
+    )
+    return(data)
+  })
+  
+  output$chronographPlot1 <- ggiraph::renderggiraph(expr = {
+    if(verbose) print("output$chronographPlot <- ggiraph::renderggiraph")
+    validate(need(length(databaseIds()) > 0, "No data sources chosen"))
+    data <- chronograph()
+    validate(need(nrow(data) > 0, paste0("No data for this combination")))
+    
+    cohort_subset <- cohortSubset()
+    title <- paste0("'", cohort_subset$cohortName[3], "' occuring in relation to start of perscription of '", cohort_subset$cohortName[1], "'")
+    plots <-  plotChronographWrapper(data = data, 
+                                     data$targetCohortId[1], 
+                                     data$comparatorCohortId [1], 
+                                     data$outcomeCohortId[1], 
+                                     title = title)  
+    return(plots$top)
+  })
+  
+  output$chronographPlot2 <- ggiraph::renderggiraph(expr = {
+    if(verbose) print("output$chronographPlot <- ggiraph::renderggiraph")
+    validate(need(length(databaseIds()) > 0, "No data sources chosen"))
+    data <- chronograph()
+    validate(need(nrow(data) > 0, paste0("No data for this combination")))
+    
+    cohort_subset <- cohortSubset()
+    title <- paste0("'", cohort_subset$cohortName[3], "' occuring in relation to start of perscription of '", cohort_subset$cohortName[1], "'")
+    plots <-  plotChronographWrapper(data = data, 
+                                     data$targetCohortId[1], 
+                                     data$comparatorCohortId [1], 
+                                     data$outcomeCohortId[1], 
+                                     title = title)  
+    return(plots$bottom)
   })
   
   incidenceRateGenderFilter <- reactiveVal(NULL)
@@ -4361,6 +4417,10 @@ shiny::shinyServer(function(input, output, session) {
     ))
   }
   
+  shiny::observeEvent(input$chronographInfo, {
+    showInfoBox("Chronograph", "html/chronograph.html")
+  })
+  
   shiny::observeEvent(input$cohortCountsInfo, {
     showInfoBox("Cohort Counts", "html/cohortCounts.html")
   })
@@ -4468,7 +4528,11 @@ shiny::shinyServer(function(input, output, session) {
     return(input$comparatorCohort)
   })
   
-  
+
+  output$chronographSelectedCohorts <-
+    shiny::renderUI({
+      selectedCohorts()
+    })  
   output$cohortCountsSelectedCohorts <-
     shiny::renderUI({
       selectedCohorts()

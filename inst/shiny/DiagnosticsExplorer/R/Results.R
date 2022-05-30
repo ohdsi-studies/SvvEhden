@@ -92,6 +92,22 @@ getTimeDistributionResult <- function(dataSource = .GlobalEnv,
   return(data)
 }
 
+getChronographResult <- function(dataSource = .GlobalEnv,
+                                 cohortIds,
+                                 databaseIds) {
+  if (is(dataSource, "environment")) {
+    data <- chronograph_list %>% 
+      dplyr::filter(.data$targetCohortId %in% !!cohortIds &
+                      .data$comparatorCohortId %in% !!cohortIds &
+                      .data$outcomeCohortId %in% !!cohortIds &
+                      .data$databaseId %in% !!databaseIds)
+  } else {
+    print("Chronograph from database not implemented!")
+    data <- NULL
+  } 
+  return(data)
+}
+
 
 getIncidenceRateResult <- function(dataSource = .GlobalEnv,
                                    cohortIds,

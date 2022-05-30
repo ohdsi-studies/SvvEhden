@@ -107,7 +107,7 @@ runCohortDiagnostics_mod <- function(packageName = NULL,
                                  runBreakdownIndexEvents = TRUE,
                                  runIncidenceRate = TRUE,
                                  runTimeSeries = FALSE,
-                                 runCohortOverlap = TRUE,
+                                 runCohortOverlap = FALSE,
                                  runCohortCharacterization = TRUE,
                                  covariateSettings = FeatureExtraction::createDefaultCovariateSettings(),
                                  runTemporalCohortCharacterization = TRUE,
@@ -510,19 +510,19 @@ runCohortDiagnostics_mod <- function(packageName = NULL,
   }
   
   # Cohort overlap ---------------------------------------------------------------------------------
-  if (runCohortOverlap) {
-    executeCohortComparisonDiagnostics(
-      connection,
-      databaseId,
-      exportFolder,
-      cohortDatabaseSchema,
-      cohortTable,
-      cohortDefinitionSet,
-      minCellCount,
-      recordKeepingFile,
-      incremental
-    )
-  }
+  # if (runCohortOverlap) {
+  #   executeCohortComparisonDiagnostics(
+  #     connection,
+  #     databaseId,
+  #     exportFolder,
+  #     cohortDatabaseSchema,
+  #     cohortTable,
+  #     cohortDefinitionSet,
+  #     minCellCount,
+  #     recordKeepingFile,
+  #     incremental
+  #   )
+  # }
   
   # Cohort characterization ---------------------------------------------------------------
   if (runCohortCharacterization) {
@@ -694,7 +694,7 @@ executeDiagnostics <- function(cohortDefinitionSet,
                                runBreakdownIndexEvents = TRUE,
                                runIncidenceRate = TRUE,
                                runTimeSeries = FALSE,
-                               runCohortOverlap = TRUE,
+                               runCohortOverlap = FALSE,
                                runCohortCharacterization = TRUE,
                                covariateSettings = FeatureExtraction::createDefaultCovariateSettings(),
                                runTemporalCohortCharacterization = TRUE,
@@ -735,7 +735,7 @@ executeDiagnostics <- function(cohortDefinitionSet,
                        runBreakdownIndexEvents = runBreakdownIndexEvents,
                        runIncidenceRate = runIncidenceRate,
                        runTimeSeries = runTimeSeries,
-                       runCohortOverlap = runCohortOverlap,
+                       runCohortOverlap = FALSE,
                        runCohortCharacterization = runCohortCharacterization,
                        covariateSettings = covariateSettings,
                        runTemporalCohortCharacterization = runTemporalCohortCharacterization,
@@ -769,7 +769,7 @@ executeDiagnosticsOutsidePackage <- function(cohortDefinitionSet,
                                              runBreakdownIndexEvents = TRUE,
                                              runIncidenceRate = TRUE,
                                              runTimeSeries = FALSE,
-                                             runCohortOverlap = TRUE,
+                                             runCohortOverlap = FALSE,
                                              runCohortCharacterization = TRUE,
                                              covariateSettings = FeatureExtraction::createDefaultCovariateSettings(),
                                              runTemporalCohortCharacterization = TRUE,
@@ -811,7 +811,7 @@ executeDiagnosticsOutsidePackage <- function(cohortDefinitionSet,
                        runBreakdownIndexEvents = runBreakdownIndexEvents,
                        runIncidenceRate = runIncidenceRate,
                        runTimeSeries = runTimeSeries,
-                       runCohortOverlap = runCohortOverlap,
+                       runCohortOverlap = FALSE,
                        runCohortCharacterization = runCohortCharacterization,
                        covariateSettings = covariateSettings,
                        runTemporalCohortCharacterization = runTemporalCohortCharacterization,

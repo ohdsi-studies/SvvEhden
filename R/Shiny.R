@@ -122,6 +122,7 @@ launchDiagnosticsExplorer <- function(dataFolder = "data",
 launchDiagnosticsExplorerOutsidePackage <- function(dataFolder = "data",
                                       dataFile = "PreMerged.RData",
                                       DecList = "../../../inst/settings/DecList.csv",
+                                      ChronographCsv = "../export/chronograph_data.csv",
                                       connectionDetails = NULL,
                                       resultsDatabaseSchema = NULL,
                                       vocabularyDatabaseSchema = NULL,
@@ -186,13 +187,25 @@ launchDiagnosticsExplorerOutsidePackage <- function(dataFolder = "data",
     extension = "csv",
     add = errorMessage
   )
-  
   checkInputFileEncoding(pathToCsv)
   
   dec_list <- readr::read_csv(pathToCsv,
                              col_types = readr::cols(),
                              guess_max = min(1e7))
   print(dec_list)
+
+  # read in chronograph data 
+  checkmate::assertFileExists(
+    x = ChronographCsv,
+    access = "r",
+    extension = "csv",
+    add = errorMessage
+  )
+  checkInputFileEncoding(ChronographCsv)
+  
+  chronograph_list <- readr::read_csv(ChronographCsv,
+                              col_types = readr::cols(),
+                              guess_max = min(1e7))
   
   if (launch.browser) {
     options(shiny.launch.browser = TRUE)
@@ -207,6 +220,7 @@ launchDiagnosticsExplorerOutsidePackage <- function(dataFolder = "data",
   }
   shinySettings <- list(
     dec_list = dec_list,
+    chronograph_list = chronograph_list,
     connectionDetails = connectionDetails,
     resultsDatabaseSchema = resultsDatabaseSchema,
     vocabularyDatabaseSchemas = vocabularyDatabaseSchemas,
@@ -265,7 +279,7 @@ preMergeDiagnosticsFiles <-
       zipFiles$unzipFolder[i] <- unzipFolder
     }
     
-    specifications <- getResultsDataModelSpecifications()
+    specifications <- getResultsDataModelSpecifications_mod()
     
     # Storing output in an environment for now. If things get too big, we may want to write
     # directly to CSV files for insertion into database:

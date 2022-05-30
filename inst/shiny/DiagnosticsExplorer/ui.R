@@ -97,6 +97,13 @@ sidebarMenu <-
         item = shinydashboard::menuItem(text = "Cohort Counts", tabName = "cohortCounts"),
         infoId = "cohortCountsInfo"
       ),
+    ## CHRONOGRAPH TAB ######################################
+    if (exists("chronograph_list"))
+      addInfo(
+        item = shinydashboard::menuItem(text = "Chronograph", tabName = "chronograph"),
+        infoId = "chronographInfo"
+      ),    
+    ###################################################
     if (exists("incidenceRate"))
       addInfo(
         item = shinydashboard::menuItem(text = "Incidence Rate", tabName = "incidenceRate"),
@@ -122,11 +129,11 @@ sidebarMenu <-
         item = shinydashboard::menuItem(text = "Visit Context", tabName = "visitContext"),
         infoId = "visitContextInfo"
       ),
-    if (exists("cohortOverlap"))
-      addInfo(
-        shinydashboard::menuItem(text = "Cohort Overlap", tabName = "cohortOverlap"),
-        infoId = "cohortOverlapInfo"
-      ),
+    # if (exists("cohortOverlap"))
+    #   addInfo(
+    #     shinydashboard::menuItem(text = "Cohort Overlap", tabName = "cohortOverlap"),
+    #     infoId = "cohortOverlapInfo"
+    #   ),
     if (exists("covariateValue"))
       addInfo(
         shinydashboard::menuItem(text = "Cohort Characterization", tabName = "cohortCharacterization"),
@@ -160,8 +167,8 @@ sidebarMenu <-
       input.tabs != 'includedConcepts' &
       input.tabs != 'orphanConcepts' &
       input.tabs != 'inclusionRuleStats' &
-      input.tabs != 'visitContext' &
-      input.tabs != 'cohortOverlap'",
+      input.tabs != 'visitContext'",
+  #    &input.tabs != 'cohortOverlap'",
       shinyWidgets::pickerInput(
         inputId = "database",
         label = "Database",
@@ -182,17 +189,17 @@ sidebarMenu <-
     shiny::conditionalPanel(
       condition = "input.tabs=='incidenceRate' |
       input.tabs == 'timeDistribution' |
-      input.tabs =='cohortCharacterization' |
+      input.tabs == 'cohortCharacterization' |
       input.tabs == 'cohortCounts' |
       input.tabs == 'indexEventBreakdown' |
       input.tabs == 'includedConcepts' |
       input.tabs == 'orphanConcepts' |
       input.tabs == 'inclusionRuleStats' |
-      input.tabs == 'visitContext' |
-      input.tabs == 'cohortOverlap'",
+      input.tabs == 'visitContext'", 
+      # | input.tabs == 'cohortOverlap'",
       shinyWidgets::pickerInput(
         inputId = "databases",
-        label = "Database",
+        label = "Databases",
         choices = database$databaseId,
         selected = database$databaseId[1],
         multiple = TRUE,
@@ -238,11 +245,12 @@ sidebarMenu <-
         )
       )
     },
-    shiny::conditionalPanel(
+    # input.tabs != 'cohortOverlap'&
+        shiny::conditionalPanel(
       condition = "input.tabs != 'databaseInformation' &
       input.tabs != 'cohortDefinition' &
       input.tabs != 'cohortCounts' &
-      input.tabs != 'cohortOverlap'&
+      input.tabs != 'chronograph' &
       input.tabs != 'incidenceRate' &
       input.tabs != 'timeDistribution'",
       shinyWidgets::pickerInput(
@@ -261,9 +269,9 @@ sidebarMenu <-
         )
       )
     ),
+    # input.tabs == 'cohortOverlap' |
     shiny::conditionalPanel(
       condition = "input.tabs == 'cohortCounts' |
-      input.tabs == 'cohortOverlap' |
       input.tabs == 'incidenceRate' |
       input.tabs == 'timeDistribution'",
       shinyWidgets::pickerInput(
@@ -822,6 +830,25 @@ bodyTabItems <- shinydashboard::tabItems(
     DT::dataTableOutput(outputId = "orphanConceptsTable")
   ),
   shinydashboard::tabItem(
+    tabName = "chronograph",
+    cohortReference("chronographSelectedCohort"), 
+
+          shinydashboard::box(
+            title = "Chronograph",
+            width = NULL,
+            status = "primary",    
+            tags$table(width = "100%",
+              tags$tr(
+                tags$td(
+                  ggiraph::ggiraphOutput("chronographPlot1", width = "80%", height = "60%")
+                  )),
+              tags$tr(
+                tags$td(
+                  ggiraph::ggiraphOutput("chronographPlot2", width = "80%", height = "60%")
+                ))
+            ))
+  ),
+  shinydashboard::tabItem(
     tabName = "inclusionRuleStats",
     cohortReference("inclusionRuleStatSelectedCohort"),
     column(
@@ -951,23 +978,23 @@ bodyTabItems <- shinydashboard::tabItems(
                       ))),
     DT::dataTableOutput(outputId = "visitContextTable")
   ),
-  shinydashboard::tabItem(
-    tabName = "cohortOverlap",
-    cohortReference("cohortOverlapSelectedCohort"),
-    shinydashboard::box(
-      title = "Cohort Overlap (Subjects)",
-      width = NULL,
-      status = "primary",
-      shiny::radioButtons(
-        inputId = "overlapPlotType",
-        label = "",
-        choices = c("Percentages", "Counts"),
-        selected = "Percentages",
-        inline = TRUE
-      ),
-      ggiraph::ggiraphOutput("overlapPlot", width = "100%", height = "100%")
-    )
-  ),
+  # shinydashboard::tabItem(
+  #   tabName = "cohortOverlap",
+  #   cohortReference("cohortOverlapSelectedCohort"),
+  #   shinydashboard::box(
+  #     title = "Cohort Overlap (Subjects)",
+  #     width = NULL,
+  #     status = "primary",
+  #     shiny::radioButtons(
+  #       inputId = "overlapPlotType",
+  #       label = "",
+  #       choices = c("Percentages", "Counts"),
+  #       selected = "Percentages",
+  #       inline = TRUE
+  #     ),
+  #     ggiraph::ggiraphOutput("overlapPlot", width = "100%", height = "100%")
+  #   )
+  # ),
   shinydashboard::tabItem(
     tabName = "cohortCharacterization",
     cohortReference("characterizationSelectedCohort"),

@@ -23,10 +23,9 @@
 	},
 	"InclusionRules": [],
 	"EndStrategy": {
-		"CustomEra": {
-			"DrugCodesetId": 0,
-			"GapDays": 30,
-			"Offset": 90
+		"DateOffset": {
+			"DateField": "StartDate",
+			"Offset": 365
 		}
 	},
 	"CensoringCriteria": [
@@ -49,7 +48,7 @@
 				"items": [
 					{
 						"concept": {
-
+	
 							"CONCEPT_ID": ||concept_id||,
 							"CONCEPT_NAME": "||concept_name||",
 							"STANDARD_CONCEPT": "S",

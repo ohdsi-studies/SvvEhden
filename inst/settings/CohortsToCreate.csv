@@ -5,9 +5,9 @@
 3,"generic_comparator_drug_cohort","All drugs (matched to Cyclophosphamide)","All drugs (matched to Cyclophosphamide)",0,0,0,"0","0",1,0,0
 6,"4272240001","Malaise","Malaise",4272240001,0,0,"0","0",0,0,0
 5,"406","Cerebral infarction","Cerebral infarction",406,0,0,"0","0",0,0,0
-9,"generic_intersection_drug_event","Perindopril + Malaise","Perindopril + Malaise",0,0,0,"0","0",0,2,6
-7,"generic_intersection_drug_event","Cyclophosphamide + Cerebral infarction","Cyclophosphamide + Cerebral infarction",0,0,0,"0","0",0,1,5
-8,"generic_intersection_drug_event","Cyclophosphamide + Malaise","Cyclophosphamide + Malaise",0,0,0,"0","0",0,1,6
-12,"generic_intersection_drug_event","All drugs (m.t. Perindopril) + Malaise","All drugs (m.t. Perindopril) + Malaise",0,0,0,"0","0",0,4,6
-10,"generic_intersection_drug_event","All drugs (m.t. Cyclophosphamide) + Cerebral infarction","All drugs (m.t. Cyclophosphamide) + Cerebral infarction",0,0,0,"0","0",0,3,5
-11,"generic_intersection_drug_event","All drugs (m.t. Cyclophosphamide) + Malaise","All drugs (m.t. Cyclophosphamide) + Malaise",0,0,0,"0","0",0,3,6
+9,"generic_intersection_drug_event","Perindopril + Malaise (anch. drug start)","Perindopril + Malaise (anch. drug start)",0,0,0,"0","0",0,2,6
+7,"generic_intersection_drug_event","Cyclophosphamide + Cerebral infarction (anch. drug start)","Cyclophosphamide + Cerebral infarction (anch. drug start)",0,0,0,"0","0",0,1,5
+8,"generic_intersection_drug_event","Cyclophosphamide + Malaise (anch. drug start)","Cyclophosphamide + Malaise (anch. drug start)",0,0,0,"0","0",0,1,6
+12,"generic_intersection_drug_event2","Perindopril + Malaise (anch. event start)","Perindopril + Malaise (anch. event start)",0,0,0,"0","0",0,2,6
+10,"generic_intersection_drug_event2","Cyclophosphamide + Cerebral infarction (anch. event start)","Cyclophosphamide + Cerebral infarction (anch. event start)",0,0,0,"0","0",0,1,5
+11,"generic_intersection_drug_event2","Cyclophosphamide + Malaise (anch. event start)","Cyclophosphamide + Malaise (anch. event start)",0,0,0,"0","0",0,1,6

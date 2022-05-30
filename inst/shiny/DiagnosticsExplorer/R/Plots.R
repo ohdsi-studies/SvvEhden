@@ -890,3 +890,37 @@ plotCohortOverlap <- function(data,
   )
   return(plot)
 }
+
+### chronograph plot wrapper ##############
+
+plotChronographWrapper <- function(data, 
+                                   targetCohortId, 
+                                   comparatorCohortId, 
+                                   outcomeCohortId, 
+                                   title = "") {
+  
+  plots <- plotChronograph(data, 
+                           targetCohortId, 
+                           comparatorCohortId, 
+                           outcomeCohortId, 
+                           title
+                           )
+  plot1 <- ggiraph::girafe(
+    ggobj = plots$top,
+    options = list(ggiraph::opts_sizing(width = .7),
+                   ggiraph::opts_zoom(max = 5)),
+    width_svg = 12,
+    height_svg = 5
+  )
+  
+  plot2 <- ggiraph::girafe(
+    ggobj = plots$bottom,
+    options = list(ggiraph::opts_sizing(width = .7),
+                   ggiraph::opts_zoom(max = 5)),
+    width_svg = 12,
+    height_svg = 5
+  )
+  
+  return(list("top" = plot1, "bottom" = plot2))
+}
+

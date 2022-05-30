@@ -7,7 +7,14 @@ This is an R package based on the CohortDiagnostics package. All essential parts
 
 How-to-prepare and run
 =======================
-Run the extras/RunCohortDiagnosticsAndViewResult.R script to create all cohorts and input needed for the Shiny app, as well as start the shiny app.
+Run the extras/RunCohortDiagnosticsAndViewResult.R script to create all cohorts and input needed for the Shiny app, as well as start the shiny app. In the extras/RunCohortDiagnosticsAndViewResult.R, please provide the following settings:
+* connectionDetails 
+* cdmDatabaseSchema 
+* tempEmulationSchema
+* cohortDatabaseSchema 
+* cohortTable
+* prepare_cohort_diagnostics (TRUE/FALSE: set to TRUE only when preparing the CohortDiagnostics data, typically the first time)
+* run_cohort_diagnostics_shiny_interface (TRUE/FALSE: set to TRUE when you want to start the CohortDiagnostics shiny app)
 
 On UMC side thefollowing preprocessing steps must first to be done to create the input files needed for the RunCohortDiagnosticsAndViewResult.R:
 	* The combinations list is fetched from the SignalData_EhdenStudyathonMiniSprint_2022Spring database

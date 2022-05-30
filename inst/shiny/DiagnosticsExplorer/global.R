@@ -58,6 +58,7 @@ if (!exists("shinySettings")) {
 } else {
   writeLines("Using settings provided by user")
   dec_list = shinySettings$dec_list
+  chronograph_list = shinySettings$chronograph_list
   verbose = shinySettings$verbose
   databaseMode <- !is.null(shinySettings$connectionDetails)
   if (databaseMode) {

@@ -1,9 +1,9 @@
 {
 	"PrimaryCriteria": {
     "CriteriaList": [
-      {
-        "DrugEra": {
-          "CodesetId": 0
+	  {
+        "ConditionEra": {
+          "CodesetId": 1
         }
       }
     ],
@@ -23,25 +23,26 @@
   },
   "InclusionRules": [
     {
-      "name": "with event diagnosed within ||fixed_TAR|| days of cohort entry (= drug start date)",
+      "name": "with event diagnosed (= cohort entry) within ||fixed_TAR|| days of drug start date",
       "description": "event",
       "expression": {
         "Type": "ALL",
         "CriteriaList": [
           {
             "Criteria": {
-              "ConditionEra": {
-                "CodesetId": 1
+              "DrugEra": {
+                "CodesetId": 0,
+                "First": true
               }
             },
             "StartWindow": {
               "Start": {
-                "Days": 1,
-                "Coeff": 1
+                "Days": ||fixed_TAR||,
+                "Coeff": -1
               },
               "End": {
-                "Days": ||fixed_TAR||,
-                "Coeff": 1
+                "Days": 1,
+                "Coeff": -1
               },
               "UseEventEnd": false
             },
@@ -50,6 +51,38 @@
               "Type": 2,
               "Count": 1,
               "CountColumn": "DOMAIN_CONCEPT"
+            }
+          }
+        ],
+        "DemographicCriteriaList": [],
+        "Groups": []
+      }
+    },
+    {
+      "name": "no prior event in 365 days before index",
+      "expression": {
+        "Type": "ALL",
+        "CriteriaList": [
+          {
+            "Criteria": {
+              "ConditionOccurrence": {
+                "CodesetId": 1
+              }
+            },
+            "StartWindow": {
+              "Start": {
+                "Days": 365,
+                "Coeff": -1
+              },
+              "End": {
+                "Days": 1,
+                "Coeff": -1
+              },
+              "UseEventEnd": false
+            },
+            "Occurrence": {
+              "Type": 0,
+              "Count": 0
             }
           }
         ],

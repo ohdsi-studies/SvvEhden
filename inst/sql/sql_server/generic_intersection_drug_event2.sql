@@ -37,8 +37,8 @@ UNION  select c.concept_id
 
 DROP TABLE IF EXISTS #intersection_cohort
 SELECT t.d_subject_id AS subject_id,
-	   t.d_cohort_start_date AS cohort_start_date,             -- set cohort start date to drug exposure start date (from drug_cohort)
-	   DATEADD(day,1,t.ev_cohort_start_date) AS cohort_end_date               -- set cohort end date to condition start date (from event_cohort)
+	   t.ev_cohort_start_date AS cohort_start_date,             -- set cohort start date to event start date (from event_cohort)
+	   DATEADD(day,1,t.ev_cohort_start_date) AS cohort_end_date                -- set cohort end date to condition start date (from event_cohort)
 INTO #intersection_cohort
 FROM ( SELECT t1.*,
               row_number() over(PARTITION BY t1.ev_subject_id ORDER BY t1.ev_cohort_start_date) AS row
