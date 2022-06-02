@@ -72,6 +72,7 @@ getCohortCounts_mod <- function(connectionDetails = NULL,
   }
 }
 
+#' @export
 checkIfCohortInstantiated <- function(connection,
                                       cohortDatabaseSchema,
                                       cohortTable,
@@ -90,6 +91,7 @@ checkIfCohortInstantiated <- function(connection,
   return(count > 0)
 }
 
+#' @export
 computeCohortCounts_mod <- function(connection,
                                 cohortDatabaseSchema,
                                 cohortTable,

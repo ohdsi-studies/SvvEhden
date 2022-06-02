@@ -745,6 +745,7 @@ executeDiagnostics <- function(cohortDefinitionSet,
                        incrementalFolder = incrementalFolder)
 }
 
+#' @export
 executeDiagnosticsOutsidePackage <- function(cohortDefinitionSet,
                                              exportFolder,
                                              databaseId,

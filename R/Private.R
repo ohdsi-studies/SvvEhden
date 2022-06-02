@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' @export
 createIfNotExist <-
   function(type,
            name,
@@ -42,6 +43,7 @@ createIfNotExist <-
     invisible(errorMessage)
   }
 
+#' @export
 swapColumnContents <-
   function(df,
            column1 = "targetId",
@@ -52,6 +54,7 @@ swapColumnContents <-
     return(df)
   }
 
+#' @export
 enforceMinCellValue <-
   function(data, fieldName, minValues, silent = FALSE) {
     toCensor <-
@@ -89,6 +92,7 @@ enforceMinCellValue <-
 #' @return
 #' Throws an error if the input file does not have the correct encoding.
 #'
+#'#' @export
 checkInputFileEncoding <- function(fileName) {
   encoding <- readr::guess_encoding(file = fileName, n_max = min(1e7))
   

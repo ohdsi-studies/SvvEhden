@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' @export
 extractConceptSetsSqlFromCohortSql <- function(cohortSql) {
   if (length(cohortSql) > 1) {
     stop("Please check if more than one cohort SQL was provided.")
@@ -66,7 +67,7 @@ extractConceptSetsSqlFromCohortSql <- function(cohortSql) {
   return(dplyr::bind_rows(temp))
 }
 
-
+#' @export
 extractConceptSetsJsonFromCohortJson <- function(cohortJson) {
   cohortDefinition <-
     RJSONIO::fromJSON(content = cohortJson, digits = 23)
@@ -91,6 +92,7 @@ extractConceptSetsJsonFromCohortJson <- function(cohortJson) {
   return(dplyr::bind_rows(conceptSetExpression))
 }
 
+#' @export
 combineConceptSetsFromCohorts <- function(cohorts) {
   #cohorts should be a dataframe with at least cohortId, sql and json
   
@@ -178,7 +180,7 @@ combineConceptSetsFromCohorts <- function(cohorts) {
   return(conceptSets)
 }
 
-
+#' @export
 mergeTempTables <-
   function(connection,
            tableName,
@@ -214,6 +216,7 @@ mergeTempTables <-
     }
   }
 
+#' @export
 instantiateUniqueConceptSets <- function(uniqueConceptSets,
                                          connection,
                                          cdmDatabaseSchema,
@@ -273,6 +276,7 @@ instantiateUniqueConceptSets <- function(uniqueConceptSets,
   )
 }
 
+#' @export
 getCodeSetId <- function(criterion) {
   if (is.list(criterion)) {
     criterion$CodesetId
@@ -283,6 +287,7 @@ getCodeSetId <- function(criterion) {
   }
 }
 
+#' @export
 getCodeSetIds <- function(criterionList) {
   codeSetIds <- lapply(criterionList, getCodeSetId)
   codeSetIds <- do.call(c, codeSetIds)
@@ -294,7 +299,7 @@ getCodeSetIds <- function(criterionList) {
   }
 }
 
-
+#' @export
 runConceptSetDiagnostics <- function(connection,
                                      tempEmulationSchema,
                                      cdmDatabaseSchema,

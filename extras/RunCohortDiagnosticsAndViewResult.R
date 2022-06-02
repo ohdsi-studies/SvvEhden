@@ -1,76 +1,63 @@
-
-###########################################################################
-### CUSTOM DEFINED SETTINGS, PLEASE UPDATE THIS TO YOUR SETTING
-###########################################################################
-connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "sql server", 
-                                                                server = "UMCDB06")
-cdmDatabaseSchema = "OmopCdm.synpuf5pct_20180710"
-tempEmulationSchema <- NULL
-cohortDatabaseSchema <- cdmDatabaseSchema
-cohortTable <- paste0("cohorts_",Sys.getenv("USERNAME"),"_CD")
-
-# What part to run? 
+################################################
+# Execution parameters 
+################################################
 # prepare_cohort_diagnostics = TRUE => reads from your database and prepare all aggregated data
 # for CohortDiagnostics, and saves to the export folder.
+prepare_cohort_diagnostics = TRUE
+
+# upload_data_to_server = TRUE => This uploads the data to the OHDSI SFTP-server
+upload_data_to_server = FALSE
+
 # run_cohort_diagnostics_shiny_interface = TRUE => reads in the saved data in the export folder,
 # and starts the shiny CohortDiagnostics app.
 # Typically, the prepare_cohort_diagnostics only need to be set to TRUE the first time you run 
 # this script for a database, and then can be set to  FALSE, if running the script again, if nothing
-# in the setup changes. This first part also takes a lot of time to execute, depending on database size...
-prepare_cohort_diagnostics = TRUE
+# in the setup changes. This first part also takes a lot of time to execute, depending on database size.
 run_cohort_diagnostics_shiny_interface = TRUE
 
 ###########################################################################
-### END OF CUSTOM DEFINED SETTINGS
+### CUSTOM DEFINED SETTINGS, PLEASE UPDATE THIS TO YOUR SETTING
 ###########################################################################
+# Enter server related information specific to your setup. The inputs currently here are intended as helpful examples.
+connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = "sql server", server = "UMCDB06")
 
+# The place where the OmopCdmData lives
+cdmDatabaseSchema = "OmopCdm.synpuf5pct_20180710" 
 
-if (!"CohortGenerator" %in% installed.packages()[, 1]) 
-  remotes::install_github("OHDSI/CohortGenerator", INSTALL_opts = c('--no-multiarch', '--no-lock'), upgrade = "always")
-if (!"FeatureExtraction" %in% installed.packages()[, 1]) 
-  remotes::install_github("OHDSI/FeatureExtraction", INSTALL_opts = c('--no-multiarch', '--no-lock'), upgrade = "always")
-# if (!"CohortDiagnostics" %in% installed.packages()[, 1]) 
-#   remotes::install_github("OHDSI/CohortDiagnostics", INSTALL_opts = c('--no-multiarch', '--no-lock'), upgrade = "always")
+# The place where the cohort table is to be created
+cohortDatabaseSchema <- cdmDatabaseSchema
 
-# This installs the 2.2.3-version of CohortDiagnostics.
-# Download file from here: https://github.com/OHDSI/CohortDiagnostics/releases/tag/v2.2.4
-# install.packages(repos=NULL, pkgs="C:/Users/OskarG/Downloads/CohortDiagnostics-2.2.4.tar.gz", type="source", INSTALL_opts="--no-multiarch")
-library(dplyr)
+# Set the tablename to use when storing created cohorts on your server
+cohortTable <- paste0("cohorts_", Sys.getenv("USERNAME"), "_CD")
 
-# Make sure the working directory is the root of the SVVEHDEN OHDSI study package
+# For Oracle, Spark or Google Big Query users
+tempEmulationSchema <- NULL
+
+# Enter the file path to the data upload server keyword file, provided by email. The example path below needs to be modified.
+privateKeyFileName <- "C:/Users/JaneDoe/Desktop/study-data-site-svvehden"
+
+# This concludes study site specific input, no edits should be required below this line
+##########################################################################################
+
+# Make sure the working directory is the root of the study package
+if(! "rprojroot" %in% rownames(installed.packages())){install.packages("rprojroot")}
 tryCatch({
   setwd("./R")
-  root <- rprojroot::is_r_package
-  root_file <- root$make_fix_file()
-  path_to_project_root <- root_file()
 }, error = function(e) {
   setwd("../R")
 })
 
+root <- rprojroot::is_r_package
+root_file <- root$make_fix_file()
+path_to_project_root <- root_file()
 
-source("../extras/CustomFunctions.R")  # our own custom functions
+# This installs the custom CohortDiagnostics-package.
+remove.packages("CohortDiagnostics")
+tryCatch({
+  install.packages(repos=NULL, pkgs="../CohortDiagnostics_2.2.1.zip", INSTALL_opts="--no-multiarch")
+})
 
-# TODO: the following can be removed if we build this as our own package 
-#       (need to handle CohortGeneratorCohortConstruction.R, as well, this function comes 
-#        originally from CohortGenerator package)
-source("CohortConstruction.R")  # loadCohortsFromCsvOutsidePackage()
-source("CohortGeneratorCohortConstruction.R")  # generateCohortSet()
-source("Chronograph.R")  # Three chronograph-related functions, modified from the IcTemporalPatternDiscovery package
-source("Private.R")             # checkInputFileEncoding()
-source("RunDiagnostics.R")      # executeDiagnostics()
-source("ConceptSets.R")         # executeDiagnostics()
-source("Incremental.R")         # executeDiagnostics()
-source("MetaDataDiagnostics.R") # executeDiagnostics()
-source("ConceptIds.R")          # executeDiagnostics()
-source("CohortLevelDiagnostics.R")  # executeDiagnostics()
-source("TimeDistributions.R")   # executeDiagnostics()
-source("VisitContext.R")        # executeDiagnostics()
-source("IncidenceRates.R")      # executeDiagnostics() 
-source("CohortComparisonDiagnostics.R") # executeDiagnostics()
-source("CohortCharacterizationDiagnostics.R") # executeDiagnostics()
-source("exportCharacterization.R") # executeDiagnostics()
-source("ResultsDataModel.R")    # getResultsDataModelSpecifications()
-source("Shiny.R")               #launchDiagnosticsExplorer()
+library("CohortDiagnostics")
 
 ###########################################################################
 ### Settings
@@ -105,13 +92,13 @@ if(prepare_cohort_diagnostics) {
                                                cohortDatabaseSchema = cohortDatabaseSchema,
                                                cohortTable = cohortTable,
                                                tempEmulationSchema = tempEmulationSchema,
-                                               fixed_TAR = fixed_TAR,
+                                               fixed_TAR = 365,
                                                sqlFolder = sqlFolder,
                                                generateAnyDrugCohortSql = "any_drug_cohort.sql",
                                                jsonFolder = jsonFolder,
                                                # comparatorDrugJson file name must correspond to "name" in CohortsToCreate.csv
                                                comparatorDrugJson = "generic_comparator_drug_cohort.json" 
-                                               )
+  )
   
   ###########################################################################
   ### Loading cohort references
@@ -121,12 +108,12 @@ if(prepare_cohort_diagnostics) {
   # cohortToCreateFile = "settings/CohortsToCreateForTesting.csv")
   
   # Loading cohort references from a Csv
-  cohortDefinitionSet <- loadCohortsFromCsvOutsidePackage(cohortToCreateFile = cohortToCreateFile,
-                                                          sqlFolder = sqlFolder, 
-                                                          jsonFolder = jsonFolder,
-                                                          allDrugConceptIds = all_drug_concepts$CONCEPT_ID,
-                                                          fixed_TAR = fixed_TAR
-                                                          )  
+  cohortDefinitionSet <- CohortDiagnostics:::loadCohortsFromCsvOutsidePackage(cohortToCreateFile = cohortToCreateFile,
+                                                                              sqlFolder = sqlFolder, 
+                                                                              jsonFolder = jsonFolder,
+                                                                              allDrugConceptIds = all_drug_concepts$CONCEPT_ID,
+                                                                              fixed_TAR = 365
+  )  
   
   ###########################################################################
   ### Cohorts must be generated before cohort diagnostics can be run.
@@ -139,7 +126,7 @@ if(prepare_cohort_diagnostics) {
                                   cohortTableNames = cohortTableNames,
                                   cohortDefinitionSet = cohortDefinitionSet,
                                   incremental = FALSE
-                                  )
+  )
   
   ###########################################################################
   ### Executing cohort diagnostics
@@ -159,8 +146,8 @@ if(prepare_cohort_diagnostics) {
                                                                                                                   useMeasurement = TRUE,
                                                                                                                   temporalStartDays = c(-3650*10, -365, -180, -30, 0), 
                                                                                                                   temporalEndDays = c(-366, -181, -31, -1, 0))
-                                   )
-
+  )
+  
   ###########################################################################
   ### Calculate chronograph data
   ###########################################################################  
@@ -168,22 +155,22 @@ if(prepare_cohort_diagnostics) {
   # Aggregated data is saved in "inst/csv" with these settings.
   
   executeChronographWrapper(connectionDetails = connectionDetails,
-                     cdmDatabaseSchema = cdmDatabaseSchema,
-                     oracleTempSchema = NULL,
-                     cohortDatabaseSchema = cdmDatabaseSchema,
-                     cohortTable = cohortTable,
-                     decList = "../inst/settings/DecList.csv", 
-                     storePath = exportFolder_after_slash,
-                     storeFileName = "chronograph_data.csv",
-                     databaseId = cdmDatabaseSchema,
-                     project_root_path = path_to_project_root,
-                     create_pngs_in_extras_folder = TRUE) # If TRUE: Writes graphs to the extras folder for convenience. 
+                            cdmDatabaseSchema = cdmDatabaseSchema,
+                            oracleTempSchema = NULL,
+                            cohortDatabaseSchema = cdmDatabaseSchema,
+                            cohortTable = cohortTable,
+                            decList = "../inst/settings/DecList.csv", 
+                            storePath = exportFolder_after_slash,
+                            storeFileName = "chronograph_data.csv",
+                            databaseId = cdmDatabaseSchema,
+                            project_root_path = path_to_project_root,
+                            create_pngs_in_extras_folder = TRUE) # If TRUE: Writes graphs to the extras folder for convenience. 
   
   
-  # # Cohort Statistics Table Clean up
-  # CohortGenerator::dropCohortStatsTables(connectionDetails = connectionDetails,
-  #                                        cohortDatabaseSchema = cohortDatabaseSchema,
-  #                                        cohortTableNames = cohortTableNames)
+  # Cohort Statistics Table Clean up
+  CohortGenerator::dropCohortStatsTables(connectionDetails = connectionDetails,
+                                         cohortDatabaseSchema = cohortDatabaseSchema,
+                                         cohortTableNames = cohortTableNames)
   
   ###########################################################################
   ### Convert all the csv files that are the precomputed output of Cohort Diagnostics into a .RData file
@@ -192,11 +179,29 @@ if(prepare_cohort_diagnostics) {
   # https://github.com/ohdsi-studies/Covid19SubjectsAesiIncidenceRate/issues/5 
   # We keep it for now, to be able to test run our scripts though. 
   preMergeDiagnosticsFiles(exportFolder)
-
+  
 } 
 
-if(run_cohort_diagnostics_shiny_interface) {
+#################################################################
+### Upload the results to the OHDSI SFTP server:
+#################################################################
+if(upload_data_to_server){
+  
+  
+  # If needed, install OhdsiSharing which handles the upload
+  if(! "OhdsiSharing" %in% rownames(installed.packages())){
+    remotes::install_github("ohdsi/OhdsiSharing", INSTALL_opts = c('--no-multiarch', '--no-lock'), upgrade="never")
+  }
+  
+  # Upload the contents
+  userName <- "study-data-site-svvehden"
+  privateKeyFileName <- "C:/Users/OskarG/OneDrive - WHO Collaborating Centre for International Drug Monitoring/Desktop/study-data-site-svvehden"
+  OhdsiSharing::sftpUploadFile(privateKeyFileName, userName, fileName = theFileName)
+}
 
+
+if(run_cohort_diagnostics_shiny_interface) {
+  
   ###########################################################################
   ### Launch shiny app
   ###########################################################################
@@ -206,26 +211,5 @@ if(run_cohort_diagnostics_shiny_interface) {
                                           ChronographCsv = paste0(exportFolder,"/chronograph_data.csv"),
                                           connectionDetails = NULL,
                                           verbose = FALSE) # put verbose on for continuous printouts of what parts of the shiny server code is being executed
-
+  
 }
-
-
-#################################################################
-### Upload the results to the OHDSI SFTP server:
-#################################################################
-# Run if needed:
-# remotes::install_github("ohdsi/OhdsiSharing", INSTALL_opts = c('--no-multiarch', '--no-lock'), upgrade="never")
-
-# Set path to password key file, see this example:
-# privateKeyFileName <- "C:/Users/OskarG/OneDrive - WHO Collaborating Centre for International Drug Monitoring/Desktop/study-data-site-svvehden"
-
-# Use this userName:
-# userName <- "study-data-site-svvehden"
-
-# Set theFileName to where the output zip file exists, typically in the export folder. See this example:
-# theFileName <- "C:/Users/OskarG/OneDrive - WHO Collaborating Centre for International Drug Monitoring/Rwd/SVVEHDEN/SVVEHDEN CohortDiagnosticsMod study package/export/Results_OmopCdm.synpuf5pct_20180710.zip"
-
-# OhdsiSharing::sftpUploadFile(privateKeyFileName, userName, fileName = theFileName)
-# beepr::beep(2)
-
-

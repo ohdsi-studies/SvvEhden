@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' @export
 getVisitContext <- function(connectionDetails = NULL,
                             connection = NULL,
                             cdmDatabaseSchema,
@@ -91,6 +92,7 @@ getVisitContext <- function(connectionDetails = NULL,
   return(visitContext)
 }
 
+#' @export
 executeVisitContextDiagnostics <- function(connection,
                                            tempEmulationSchema,
                                            cdmDatabaseSchema,

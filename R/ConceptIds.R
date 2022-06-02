@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' @export
 createConceptTable <- function(connection, tempEmulationSchema, cohorts) {
   ParallelLogger::logTrace("Creating concept ID table for tracking concepts used in diagnostics")
   packageName <- utils::packageName()
@@ -63,6 +64,7 @@ createConceptTable <- function(connection, tempEmulationSchema, cohorts) {
   }
 }
 
+#' @export
 exportConceptInformation <- function(connection = NULL,
                                      cdmDatabaseSchema,
                                      tempEmulationSchema,

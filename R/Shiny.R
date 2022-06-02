@@ -119,6 +119,7 @@ launchDiagnosticsExplorer <- function(dataFolder = "data",
   shiny::runApp(appDir = appDir)
 }
 
+#' @export
 launchDiagnosticsExplorerOutsidePackage <- function(dataFolder = "data",
                                       dataFile = "PreMerged.RData",
                                       DecList = "../../../inst/settings/DecList.csv",
@@ -396,6 +397,7 @@ launchCohortExplorer <- function(connectionDetails,
   shiny::runApp(appDir)
 }
 
+#' @export
 # Borrowed from devtools:
 # https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L44
 is_installed <- function(pkg, version = 0) {
@@ -408,6 +410,7 @@ is_installed <- function(pkg, version = 0) {
   ! is.na(installed_version) && installed_version >= version
 }
 
+#' @export
 # Borrowed and adapted from devtools:
 # https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L74
 ensure_installed <- function(pkg) {

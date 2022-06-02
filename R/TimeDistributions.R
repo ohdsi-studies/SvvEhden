@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' @export
 getTimeDistributions <- function(connectionDetails = NULL,
                                  connection = NULL,
                                  cdmDatabaseSchema,
@@ -72,6 +73,7 @@ getTimeDistributions <- function(connectionDetails = NULL,
   return(result)
 }
 
+#' @export
 executeTimeDistributionDiagnostics <- function(connection,
                                                tempEmulationSchema,
                                                cdmDatabaseSchema,
@@ -130,6 +132,7 @@ executeTimeDistributionDiagnostics <- function(connection,
     }
 }
 
+#' @export
 executeTimeSeriesDiagnostics <- function(connection,
                                          cohortDatabaseSchema,
                                          tempEmulationSchema,

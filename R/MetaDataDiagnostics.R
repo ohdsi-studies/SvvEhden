@@ -99,6 +99,7 @@
   return(orphanConcepts)
 }
 
+#' @export
 createConceptCountsTable <- function(connectionDetails = NULL,
                                      connection = NULL,
                                      cdmDatabaseSchema,
@@ -127,6 +128,7 @@ createConceptCountsTable <- function(connectionDetails = NULL,
   DatabaseConnector::executeSql(connection, sql)
 }
 
+#' @export
 saveDatabaseMetaData <- function(databaseId,
                                  databaseName,
                                  databaseDescription,
@@ -153,6 +155,7 @@ saveDatabaseMetaData <- function(databaseId,
   ))
 }
 
+#' @export
 getCdmVocabularyVersion <- function(connection, cdmDatabaseSchema) {
   vocabularyVersionCdm <- NULL
   tryCatch({
@@ -190,7 +193,7 @@ getCdmVocabularyVersion <- function(connection, cdmDatabaseSchema) {
   return(vocabularyVersionCdm)
 }
 
-
+#' @export
 getVocabularyVersion <- function(connection, vocabularyDatabaseSchema) {
   DatabaseConnector::renderTranslateQuerySql(
     connection = connection,

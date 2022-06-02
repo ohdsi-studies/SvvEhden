@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+#' @export
 getIncidenceRate <- function(connectionDetails = NULL,
                              connection = NULL,
                              cohortDatabaseSchema,
@@ -175,6 +175,7 @@ getIncidenceRate <- function(connectionDetails = NULL,
   return(result)
 }
 
+#' @export
 recode <- function(ratesSummary) {
   ratesSummary$ageGroup <-
     paste(10 * ratesSummary$ageGroup, 10 * ratesSummary$ageGroup + 9, sep = "-")
@@ -184,6 +185,7 @@ recode <- function(ratesSummary) {
   return(tidyr::tibble(ratesSummary))
 }
 
+#' @export
 aggregateIr <- function(ratesSummary, aggregateList) {
   if (nrow(ratesSummary) > 0) {
     return(aggregate(
@@ -199,6 +201,7 @@ aggregateIr <- function(ratesSummary, aggregateList) {
   }
 }
 
+#' @export
 computeIncidenceRates <- function(connection,
                                   tempEmulationSchema,
                                   cdmDatabaseSchema,

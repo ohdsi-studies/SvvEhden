@@ -14,6 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+#' Load Cohort Definitions From A Study Package
+#' @description
+#' Checks cohort references 
+#' Checks cohort references 
+#' @export
 checkCohortReference <- function(cohortReference, errorMessage = NULL) {
   if (is.null(errorMessage) | !class(errorMessage) == 'AssertColection') {
     errorMessage <- checkmate::makeAssertCollection()
@@ -155,6 +161,8 @@ loadCohortsFromPackage <- function(packageName,
   return(selectColumnAccordingToResultsModel(cohorts))
 }
 
+
+#' @export 
 loadCohortsFromCsvOutsidePackage <- function(cohortToCreateFile = "settings/cohortsToCreate.csv",
                                              sqlFolder = "./sql_server/",
                                              jsonFolder = "./cohorts/",
@@ -310,7 +318,7 @@ loadCohortsFromCsvOutsidePackage <- function(cohortToCreateFile = "settings/coho
   return(selectColumnAccordingToResultsModel(cohorts))
 }
 
-
+#' @export 
 getCohortsJsonAndSqlFromWebApi <- function(baseUrl = baseUrl,
                                            cohortSetReference = cohortSetReference,
                                            cohortIds = NULL,
@@ -374,6 +382,7 @@ getCohortsJsonAndSqlFromWebApi <- function(baseUrl = baseUrl,
   return(selectColumnAccordingToResultsModel(cohortSetReference))
 }
 
+#' @export 
 selectColumnAccordingToResultsModel <- function(data) {
   columsToInclude <- c()
   if ("phenotypeId" %in% colnames(data)) {
@@ -398,6 +407,7 @@ selectColumnAccordingToResultsModel <- function(data) {
   return(data[, columsToInclude])
 }
 
+#' @export 
 getCohortsJsonAndSql <- function(packageName = NULL,
                                  cohortToCreateFile = "settings/CohortsToCreate.csv",
                                  baseUrl = NULL,
@@ -445,6 +455,7 @@ getCohortsJsonAndSql <- function(packageName = NULL,
   return(cohorts)
 }
 
+#' @export 
 createCohortTable <- function(connectionDetails = NULL,
                               connection = NULL,
                               cohortDatabaseSchema,
@@ -476,6 +487,7 @@ createCohortTable <- function(connectionDetails = NULL,
   ))
 }
 
+#' @export 
 getInclusionStatisticsFromFiles <- function(cohortIds = NULL,
                                             folder,
                                             cohortInclusionFile = file.path(folder,
@@ -534,6 +546,7 @@ getInclusionStatisticsFromFiles <- function(cohortIds = NULL,
   return(result)
 }
 
+#' @export 
 processInclusionStats <- function(inclusion,
                                   inclusionResults,
                                   simplify,
@@ -592,6 +605,10 @@ processInclusionStats <- function(inclusion,
   return(result)
 }
 
+#' Get Inclusion Stats
+#' @description
+#' Collects statistics on inclusion.
+#' @export 
 getInclusionStats <- function(connection,
                               exportFolder,
                               databaseId,
@@ -922,6 +939,7 @@ instantiateCohortSet <- function(connectionDetails = NULL,
   ))
 }
 
+#' @export 
 createTempInclusionStatsTables <-
   function(connection, tempEmulationSchema, cohorts) {
     ParallelLogger::logInfo("Creating temporary inclusion statistics tables")
@@ -999,6 +1017,7 @@ createTempInclusionStatsTables <-
     }
   }
 
+#' @export 
 saveAndDropTempInclusionStatsTables <- function(connection,
                                                 tempEmulationSchema,
                                                 inclusionStatisticsFolder,

@@ -34,6 +34,7 @@ getResultsDataModelSpecifications_mod <- function() {
   return(resultsDataModelSpecifications)
 }
 
+#' @export
 fixTableMetadataForBackwardCompatibility <- function(table, tableName) {
   if (tableName %in% c("cohort", "phenotype_description")) {
     if (!'metadata' %in% colnames(table)) {
@@ -63,6 +64,7 @@ fixTableMetadataForBackwardCompatibility <- function(table, tableName) {
   return(table)
 }
 
+#' @export
 checkFixColumnNames <-
   function(table,
            tableName,
@@ -103,6 +105,7 @@ checkFixColumnNames <-
     return(table)
   }
 
+#' @export
 checkAndFixDataTypes <-
   function(table,
            tableName,
@@ -177,6 +180,7 @@ checkAndFixDataTypes <-
     return(table)
   }
 
+#' @export
 checkAndFixDuplicateRows <-
   function(table,
            tableName,
@@ -203,6 +207,7 @@ checkAndFixDuplicateRows <-
     }
   }
 
+#' @export
 appendNewRows <-
   function(data,
            newData,
@@ -269,11 +274,13 @@ createResultsDataModel <- function(connection = NULL,
   DatabaseConnector::executeSql(connection, sql)
 }
 
+#' @export
 naToEmpty <- function(x) {
   x[is.na(x)] <- ""
   return(x)
 }
 
+#' @export
 naToZero <- function(x) {
   x[is.na(x)] <- 0
   return(x)
@@ -496,6 +503,7 @@ uploadResults <- function(connectionDetails = NULL,
   writeLines(paste("Uploading data took", signif(delta, 3), attr(delta, "units")))
 }
 
+#' @export
 deleteFromServer <-
   function(connection, schema, tableName, keyValues) {
     createSqlStatement <- function(i) {
@@ -527,6 +535,7 @@ deleteFromServer <-
     }
   }
 
+#' @export
 deleteAllRecordsForDatabaseId <- function(connection,
                                           schema,
                                           tableName,

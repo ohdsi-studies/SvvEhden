@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' @export
 computeChecksum <- function(column) {
   return(sapply(
     as.character(column),
@@ -23,6 +24,7 @@ computeChecksum <- function(column) {
   ))
 }
 
+#' @export
 isTaskRequired <-
   function(...,
            checksum,
@@ -58,6 +60,7 @@ isTaskRequired <-
     }
   }
 
+#' @export
 getRequiredTasks <- function(..., checksum, recordKeepingFile) {
   tasks <- list(...)
   if (file.exists(recordKeepingFile) && length(tasks[[1]]) > 0) {
@@ -82,6 +85,7 @@ getRequiredTasks <- function(..., checksum, recordKeepingFile) {
   return(tasks)
 }
 
+#' @export
 getKeyIndex <- function(key, recordKeeping) {
   if (nrow(recordKeeping) == 0 ||
       length(key[[1]]) == 0 ||
@@ -95,6 +99,7 @@ getKeyIndex <- function(key, recordKeeping) {
   }
 }
 
+#' @export
 recordTasksDone <-
   function(...,
            checksum,
@@ -141,6 +146,7 @@ recordTasksDone <-
     readr::write_csv(recordKeeping, recordKeepingFile)
   }
 
+#' @export
 writeToCsv <- function(data, fileName, incremental = FALSE, ...) {
   colnames(data) <- SqlRender::camelCaseToSnakeCase(colnames(data))
   if (incremental) {
@@ -168,6 +174,7 @@ writeToCsv <- function(data, fileName, incremental = FALSE, ...) {
   }
 }
 
+#' @export
 writeCovariateDataAndromedaToCsv <-
   function(data, fileName, incremental = FALSE) {
     if (incremental && file.exists(fileName)) {
@@ -221,6 +228,7 @@ writeCovariateDataAndromedaToCsv <-
     }
   }
 
+#' @export
 saveIncremental <- function(data, fileName, ...) {
   if (!length(list(...)) == 0) {
     if (length(list(...)[[1]]) == 0) {
@@ -253,6 +261,7 @@ saveIncremental <- function(data, fileName, ...) {
   readr::write_csv(data, fileName)
 }
 
+#' @export
 subsetToRequiredCohorts <-
   function(cohorts,
            task,
@@ -271,6 +280,7 @@ subsetToRequiredCohorts <-
     }
   }
 
+#' @export
 subsetToRequiredCombis <-
   function(combis,
            task,

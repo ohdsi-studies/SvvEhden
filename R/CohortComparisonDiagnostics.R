@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' @export
 computeCohortOverlap <- function(connectionDetails = NULL,
                                  connection = NULL,
                                  cohortDatabaseSchema,
@@ -93,6 +94,7 @@ computeCohortOverlap <- function(connectionDetails = NULL,
   return(overlap)
 }
 
+#' @export
 executeCohortComparisonDiagnostics <- function(connection,
                                                databaseId,
                                                exportFolder,

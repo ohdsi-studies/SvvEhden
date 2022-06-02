@@ -1,40 +1,53 @@
-SVVEHDEN modification of CohortDiagnostics
+Pharmacovigilance Use Case, Work package 1
 ==========================================
 
 Introduction
 ============
-This is an R package based on the CohortDiagnostics package. All essential parts are the same. The CohortDiagnostics ais used for performing various study diagnostics, many of which are not specific to any particular study design.
+This R study package is a modified version of CohortDiagnostics, designed for use in the pharmacovigilance use case in Work package 1 EHDEN. 
+
+Overall, CohortDiagnostics is used for performing various study diagnostics. The modifications include adding a tab with a temporal display for event occurrence, the so called "Chronograph", and some study specific cohort and outcome (phenotype) definitions.
+
+Overview
+=======================
+CohortDiagnostics relies on packages commonly used in OHDSI network studies, such as DatabaseConnector, FeatureExtraction and CohortGenerator. Overall, CohortDiagnostics produces an output file with aggregate statistics, which can be displayed in a shiny interface. The output file is to be shared to the study organizer using the OHDSI SFTP-server. 
+
+Prerequisites
+=======================
+For setting up R and Java, we refer to these [instructions](https://ohdsi.github.io/Hades/rSetup.html).
+
+For setting up the DatabaseConnector package, we refer to these [instructions](http://ohdsi.github.io/DatabaseConnector/articles/Connecting.html#obtaining-drivers).
+
+Windows and SQL Server users might also be interested in setting up Windows authentication as described [here](http://ohdsi.github.io/DatabaseConnector/reference/connect.html#windows-authentication-for-sql-server-1).
+
+This concludes the prerequisites.
 
 How-to-prepare and run
 =======================
-Run the extras/RunCohortDiagnosticsAndViewResult.R script to create all cohorts and input needed for the Shiny app, as well as start the shiny app. In the extras/RunCohortDiagnosticsAndViewResult.R, please provide the following settings:
+The study package is executed by running the script 'runCohortDiagnosticsAndViewResult.R' placed in the extras-folder. This script handles installation of the study specific CohortDiagnostics, creates cohorts, gather summary data needed for display in a shiny app, starts the shiny app and uploads data. This is controlled by the following three parameters. 
+
+* prepare_cohort_diagnostics (TRUE/FALSE: set to TRUE when preparing data to be displayed in CohortDiagnostics, typically the first time)
+* upload_data_to_server = FALSE (set to TRUE when you want to upload data to the OHDSI SFTP server. Default is set to FALSE to encourage  examination of the aggregated data in the ShinyApp before uploading.)
+* run_cohort_diagnostics_shiny_interface (TRUE/FALSE: default is set to TRUE to start the CohortDiagnostics shiny app)
+
+Further details around these are available in comments in the script 'runCohortDiagnosticsAndViewResult.R' where these values are set. 
+
+To set up the connection to the study site server, at least some of the following five parameters require modification. Please see the comments in the script 'runCohortDiagnosticsAndViewResult.R' for more details on how these parameters are to be specified.
+
 * connectionDetails 
 * cdmDatabaseSchema 
 * tempEmulationSchema
 * cohortDatabaseSchema 
 * cohortTable
-* prepare_cohort_diagnostics (TRUE/FALSE: set to TRUE only when preparing the CohortDiagnostics data, typically the first time)
-* run_cohort_diagnostics_shiny_interface (TRUE/FALSE: set to TRUE when you want to start the CohortDiagnostics shiny app)
 
-On UMC side thefollowing preprocessing steps must first to be done to create the input files needed for the RunCohortDiagnosticsAndViewResult.R:
-	* The combinations list is fetched from the SignalData_EhdenStudyathonMiniSprint_2022Spring database
-	* For all MedDRA PT events, phenotypes must be:
-		- linked as a row in the inst/settings/phenotype-meddra-conversion.csv
-		- corresponding sql and json files with the name of the phenotype id 
- 		  (used in the csv above) must be placed in the folders inst/sql/sql_server and inst/cohorts.
-	* extras/Preprocessing.R script must be run. This will create the two files inst/settings/DecList.csv 
-	  and inst/settings/CohortsToCreate.csv used by the extras/RunCohortDiagnosticsAndViewResult.R script.
+Please note that any prior installation of CohortDiagnostics is removed by executing the study script, and CohortDiagnostics will need to be restored manually to the previous version by the user once the study is executed. If the latest version is wanted, this can be achieved for instance by running:
+
+remove.packages("CohortDiagnostics")
+remotes::install_github("OHDSI/CohortDiagnostics")
 
 Features
 ========
-- Show cohort inclusion rule attrition. 
-- List all source codes used when running a cohort definition on a specific database.
-- Find orphan codes, (source) codes that should be, but are not included in a particular concept set.
-- Compute cohort incidence across calendar years, age, and gender.
-- Break down index events into the specific concepts that triggered them.
-- Compute overlap between two cohorts.
-- Characterize cohorts, and compare these characterizations. Perform cohort comparison and temporal comparisons. 
-- Explore patient profiles of a random sample of subjects in a cohort.
+- Includes a Chronograph tab in the shiny interface, displaying temporal patterns of event occurrence. 
+- See CohortDiagnostics 2.2.1 for further details.
 
 Screenshot
 ==========
@@ -47,11 +60,6 @@ The CohortDiagnostics package is an R package.
 System Requirements
 ===================
 Requires R. Some of the packages used by CohortDiagnostics require Java.
-
-Installation
-=============
-
-1. See the instructions [here](https://ohdsi.github.io/Hades/rSetup.html) for configuring your R environment, including Java.
 
 License
 =======

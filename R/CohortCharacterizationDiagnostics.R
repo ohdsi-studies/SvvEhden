@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#' @export
 getCohortCharacteristics <- function(connectionDetails = NULL,
                                      connection = NULL,
                                      cdmDatabaseSchema,
@@ -174,6 +175,7 @@ getCohortCharacteristics <- function(connectionDetails = NULL,
   return(results)
 }
 
+#' @export
 executeCohortCharacterization <- function(connection,
                                           databaseId,
                                           exportFolder,
