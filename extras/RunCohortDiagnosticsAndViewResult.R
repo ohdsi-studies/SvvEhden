@@ -46,26 +46,28 @@ tryCatch({
 }, error = function(e) {
   setwd("../R")
 })
-
 root <- rprojroot::is_r_package
 root_file <- root$make_fix_file()
 path_to_project_root <- root_file()
 
 # This installs the custom CohortDiagnostics-package.
+detach("package:CohortDiagnostics", unload = TRUE)
 remove.packages("CohortDiagnostics")
+pkgbuild::build(dest_path=path_to_project_root, binary=TRUE, args="--no-multiarch")
 tryCatch({
-  install.packages(repos=NULL, pkgs="../CohortDiagnostics_2.2.1.zip", INSTALL_opts="--no-multiarch")
+  install.packages(repos=NULL, pkgs="../CohortDiagnostics_2.2.1.zip", INSTALL_opts="--no-multiarch", dependencies=TRUE)
 })
-
 library("CohortDiagnostics")
+
 
 ###########################################################################
 ### Settings
 ###########################################################################
-cohortToCreateFile = "../inst/settings/CohortsToCreate.csv"
+cohortToCreateFile = file.path(path_to_project_root, "inst", "settings", "CohortsToCreate.csv")
+decListFile = file.path(path_to_project_root, "inst", "settings", "DecList.csv")
 sqlFolder = "../inst/sql/sql_server/"
 jsonFolder = "../inst/cohorts/"
-fixed_TAR = 365 # time at risk in days
+fixed_TARs = get_tar_options(cohortToCreateFile = cohortToCreateFile)
 exportFolder <- "../export"
 exportFolder_after_slash <- gsub("\\.\\.\\/", "",exportFolder)
 
@@ -92,7 +94,7 @@ if(prepare_cohort_diagnostics) {
                                                cohortDatabaseSchema = cohortDatabaseSchema,
                                                cohortTable = cohortTable,
                                                tempEmulationSchema = tempEmulationSchema,
-                                               fixed_TAR = 365,
+                                               fixed_TARs = fixed_TARs,
                                                sqlFolder = sqlFolder,
                                                generateAnyDrugCohortSql = "any_drug_cohort.sql",
                                                jsonFolder = jsonFolder,
@@ -106,13 +108,12 @@ if(prepare_cohort_diagnostics) {
   # # Loading cohort references from a package
   # cohortDefinitionSet <- loadCohortsFromPackage(packageName = "CohortDiagnostics",
   # cohortToCreateFile = "settings/CohortsToCreateForTesting.csv")
-  
   # Loading cohort references from a Csv
-  cohortDefinitionSet <- CohortDiagnostics:::loadCohortsFromCsvOutsidePackage(cohortToCreateFile = cohortToCreateFile,
-                                                                              sqlFolder = sqlFolder, 
-                                                                              jsonFolder = jsonFolder,
-                                                                              allDrugConceptIds = all_drug_concepts$CONCEPT_ID,
-                                                                              fixed_TAR = 365
+  
+  cohortDefinitionSet <- loadCohortsFromCsvOutsidePackage(cohortToCreateFile = cohortToCreateFile,
+                                                          sqlFolder = sqlFolder, 
+                                                          jsonFolder = jsonFolder,
+                                                          allDrugConceptIds = all_drug_concepts$CONCEPT_ID
   )  
   
   ###########################################################################
@@ -148,6 +149,7 @@ if(prepare_cohort_diagnostics) {
                                                                                                                   temporalEndDays = c(-366, -181, -31, -1, 0))
   )
   
+  
   ###########################################################################
   ### Calculate chronograph data
   ###########################################################################  
@@ -159,7 +161,7 @@ if(prepare_cohort_diagnostics) {
                             oracleTempSchema = NULL,
                             cohortDatabaseSchema = cdmDatabaseSchema,
                             cohortTable = cohortTable,
-                            decList = "../inst/settings/DecList.csv", 
+                            decList = decListFile, 
                             storePath = exportFolder_after_slash,
                             storeFileName = "chronograph_data.csv",
                             databaseId = cdmDatabaseSchema,
@@ -182,6 +184,7 @@ if(prepare_cohort_diagnostics) {
   
 } 
 
+
 #################################################################
 ### Upload the results to the OHDSI SFTP server:
 #################################################################
@@ -200,15 +203,14 @@ if(upload_data_to_server){
 }
 
 
+###########################################################################
+### Launch shiny app
+###########################################################################
 if(run_cohort_diagnostics_shiny_interface) {
-  
-  ###########################################################################
-  ### Launch shiny app
-  ###########################################################################
-  launchDiagnosticsExplorerOutsidePackage(dataFolder = paste0("../../",exportFolder), 
-                                          dataFile = "Premerged.RData",
-                                          DecList = "../inst/settings/DecList.csv",
-                                          ChronographCsv = paste0(exportFolder,"/chronograph_data.csv"),
+  launchDiagnosticsExplorerOutsidePackage(dataFolder = file.path(path_to_project_root, exportFolder_after_slash), 
+                                          DecList = decListFile,
+                                          ChronographCsv = file.path(path_to_project_root, exportFolder_after_slash, "chronograph_data.csv"),
+                                          TarOptions = fixed_TARs,
                                           connectionDetails = NULL,
                                           verbose = FALSE) # put verbose on for continuous printouts of what parts of the shiny server code is being executed
   

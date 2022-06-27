@@ -1,5 +1,5 @@
 -- Creates a base to all comparator drug cohorts to be used in SVVEHDEN-sprint, according to updated study protocol.
--- This base cohort will have cohort_id = 999999 
+-- This base cohort will have cohort_id = '999999' + '@fixed_TAR' 
 -- Note: cohort exit based on fixed time interval (@fixed_TAR) with death as censoring event
 --       input for descriptive and chronograph analyses
 -- Note: based on template OHDSI.SQL generated from ATLAS 
@@ -183,9 +183,9 @@ group by person_id, end_date
 ;
 
 
-DELETE FROM @target_database_schema.@target_cohort_table where cohort_definition_id = 999999;
+DELETE FROM @target_database_schema.@target_cohort_table where cohort_definition_id = 999999@fixed_TAR;
 INSERT INTO @target_database_schema.@target_cohort_table (cohort_definition_id, subject_id, cohort_start_date, cohort_end_date)
-select 999999 as cohort_definition_id, person_id, start_date, end_date 
+select 999999@fixed_TAR as cohort_definition_id, person_id, start_date, end_date 
 FROM #final_cohort CO
 ;
 

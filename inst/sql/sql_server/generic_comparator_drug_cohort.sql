@@ -81,7 +81,7 @@ select
 from @target_database_schema.@target_cohort_table t
 join @cdm_database_schema.PERSON p
 ON t.subject_id = p.person_id
-where cohort_definition_id = 999999;
+where cohort_definition_id = 999999@fixed_TAR;
 
 /* Identify comparator drug cohort by matching the any drug cohort on sex, age at and calendar year of cohort entry to the target drug cohort (10:1 ratio) */
 DROP TABLE if exists #comp_drug_cohort

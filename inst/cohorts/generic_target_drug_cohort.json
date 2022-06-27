@@ -25,7 +25,7 @@
 	"EndStrategy": {
 		"DateOffset": {
 			"DateField": "StartDate",
-			"Offset": 365
+			"Offset": ||fixed_TAR||
 		}
 	},
 	"CensoringCriteria": [

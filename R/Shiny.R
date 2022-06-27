@@ -124,6 +124,7 @@ launchDiagnosticsExplorerOutsidePackage <- function(dataFolder = "data",
                                       dataFile = "PreMerged.RData",
                                       DecList = "../../../inst/settings/DecList.csv",
                                       ChronographCsv = "../export/chronograph_data.csv",
+                                      TarOptions = c(30,30,30),
                                       connectionDetails = NULL,
                                       resultsDatabaseSchema = NULL,
                                       vocabularyDatabaseSchema = NULL,
@@ -133,6 +134,8 @@ launchDiagnosticsExplorerOutsidePackage <- function(dataFolder = "data",
                                       port = 80,
                                       launch.browser = FALSE,
                                       verbose = FALSE) {
+  errorMessage = checkmate::makeAssertCollection()
+  
   if (!is.null(connectionDetails) &&
       connectionDetails$dbms != "postgresql") {
     stop("Shiny application can only run against a Postgres database")
@@ -188,12 +191,12 @@ launchDiagnosticsExplorerOutsidePackage <- function(dataFolder = "data",
     extension = "csv",
     add = errorMessage
   )
-  checkInputFileEncoding(pathToCsv)
+  CohortDiagnostics:::checkInputFileEncoding(pathToCsv)
   
   dec_list <- readr::read_csv(pathToCsv,
                              col_types = readr::cols(),
                              guess_max = min(1e7))
-  print(dec_list)
+  # print(dec_list)
 
   # read in chronograph data 
   checkmate::assertFileExists(
@@ -202,7 +205,7 @@ launchDiagnosticsExplorerOutsidePackage <- function(dataFolder = "data",
     extension = "csv",
     add = errorMessage
   )
-  checkInputFileEncoding(ChronographCsv)
+  CohortDiagnostics:::checkInputFileEncoding(ChronographCsv)
   
   chronograph_list <- readr::read_csv(ChronographCsv,
                               col_types = readr::cols(),
@@ -222,6 +225,7 @@ launchDiagnosticsExplorerOutsidePackage <- function(dataFolder = "data",
   shinySettings <- list(
     dec_list = dec_list,
     chronograph_list = chronograph_list,
+    tar_options = TarOptions,
     connectionDetails = connectionDetails,
     resultsDatabaseSchema = resultsDatabaseSchema,
     vocabularyDatabaseSchemas = vocabularyDatabaseSchemas,

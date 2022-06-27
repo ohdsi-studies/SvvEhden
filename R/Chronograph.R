@@ -80,8 +80,8 @@ executeChronographWrapper <- function(connectionDetails,
     
     # i = 1
     cat(i, "\n")
-    DEC_i_cohort_ids <- DEC_df[i, c("cohortId_1", "cohortId_2", "cohortId_3")] %>%  as.numeric() # target, comparator, outcome in that order
     
+    DEC_i_cohort_ids <- DEC_df[i, c("cohortId_1c", "cohortId_2c", "cohortId_3")] %>%  as.numeric() # target, comparator, outcome in that order
     chronograph_list[[i]] <- executeChronograph(connectionDetails,
                                                 cdmDatabaseSchema = cdmDatabaseSchema,
                                                 cohortTable = cohortTable,
@@ -473,6 +473,7 @@ plotChronograph <- function(data=result_df,
       ggplot2::ggsave(fileName, plot, width = 7, height = 5, dpi = 400)
     }
     
-    return(bottomPanel + ggplot2::ggtitle(title))
+    return(list("top" = topPanel + ggplot2::ggtitle(title), "bottom" = bottomPanel))
+    #return(bottomPanel + ggplot2::ggtitle(title))
   }
 }

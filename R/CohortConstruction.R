@@ -167,7 +167,6 @@ loadCohortsFromCsvOutsidePackage <- function(cohortToCreateFile = "settings/coho
                                              sqlFolder = "./sql_server/",
                                              jsonFolder = "./cohorts/",
                                              allDrugConceptIds = NULL,
-                                             fixed_TAR = 365,
                                              cohortIds = NULL, 
                                              errorMessage = NULL) {
   ParallelLogger::logDebug("Executing on cohorts specified in csv file - ", cohortToCreateFile)
@@ -206,9 +205,11 @@ loadCohortsFromCsvOutsidePackage <- function(cohortToCreateFile = "settings/coho
                       items_only = FALSE, 
                       concept_id, 
                       concept_name, 
-                      concept_code, 
+                      concept_code,  
+                      fixed_TAR,
                       intersection_drug_cohort_id, 
-                      intersection_event_cohort_id) {
+                      intersection_event_cohort_id
+                     ) {
     pathToJson <- paste0(jsonFolder, name, ".json")
     checkmate::assertFile(
       x = pathToJson,
@@ -254,12 +255,12 @@ loadCohortsFromCsvOutsidePackage <- function(cohortToCreateFile = "settings/coho
   
   # first get all json items (this is nessessary for the intersection cohorts to work)
   # the part within the json we get is this: "items": [   this part   ]
-  cohorts$json_items <- mapply(getJson, items_only = TRUE, cohorts$name, cohorts$concept_id, cohorts$concept_name, cohorts$concept_code)
+  cohorts$json_items <- mapply(getJson, items_only = TRUE, cohorts$name, cohorts$concept_id, cohorts$concept_name, cohorts$concept_code, cohorts$fixed_TAR)
   # then we can get all full json, for all cohorts:
-  cohorts$json      <- mapply(getJson, items_only = FALSE, cohorts$name, cohorts$concept_id, cohorts$concept_name, cohorts$concept_code, 
+  cohorts$json      <- mapply(getJson, items_only = FALSE, cohorts$name, cohorts$concept_id, cohorts$concept_name, cohorts$concept_code, cohorts$fixed_TAR, 
                               cohorts$intersection_drug, cohorts$intersection_event)
   
-  getSql <- function(name, concept_id, intersection_drug_cohort_id, intersection_event_cohort_id) { 
+  getSql <- function(name, concept_id, intersection_drug_cohort_id, intersection_event_cohort_id, fixed_TAR) { 
     pathToSql <- paste0(sqlFolder, name, ".sql")
     checkmate::assertFile(
       x = pathToSql,
@@ -310,7 +311,7 @@ loadCohortsFromCsvOutsidePackage <- function(cohortToCreateFile = "settings/coho
     return(sql)
   }
   
-  cohorts$sql <- mapply(getSql, cohorts$name, cohorts$concept_id, cohorts$intersection_drug, cohorts$intersection_event)
+  cohorts$sql <- mapply(getSql, cohorts$name, cohorts$concept_id, cohorts$intersection_drug, cohorts$intersection_event, cohorts$fixed_TAR)
   
   if (displayErrors) {
     checkmate::reportAssertions(collection = errorMessage)

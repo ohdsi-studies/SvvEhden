@@ -59,7 +59,7 @@ header <-
 sidebarMenu <-
   shinydashboard::sidebarMenu(
     id = "tabs",
-    ## DEC LIST ######################################
+    ## DEC LIST #####################################
     shiny::conditionalPanel(
       condition = "1==1",
       shinyWidgets::pickerInput(
@@ -79,7 +79,27 @@ sidebarMenu <-
         )
       )
     ),
-    ###################################################
+    ## TAR OPTION ######################################
+    shiny::conditionalPanel(
+      condition = "1==1",
+      shinyWidgets::pickerInput(
+        inputId = "chosenTAR",
+        label = "Time At Risk Option",
+        choices = tar_options,
+        multiple = FALSE,
+        choicesOpt = list(style = rep_len("color: black;", 999)),
+        #selected = defaultselected
+        options = shinyWidgets::pickerOptions(
+          actionsBox = TRUE,
+          #liveSearch = TRUE,
+          size = 10,
+          #liveSearchStyle = "contains",
+          #liveSearchPlaceholder = "Type here to search",
+          virtualScroll = 50
+        )
+      )
+    ),
+    ##################################################
     if (exists("cohort"))
       shinydashboard::menuItem(text = "Cohort Definition", tabName = "cohortDefinition"),
     if (exists("includedSourceConcept"))

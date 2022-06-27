@@ -5,12 +5,32 @@ shiny::shinyServer(function(input, output, session) {
   cohortsForDec <- shiny::reactive({
     if(verbose) print("cohortsForDec")
     chosen = input$chosenDEC
-    return(chosenList <- c(dec_list$cohortId_1[dec_list$DEC == chosen],
-                           dec_list$cohortId_2[dec_list$DEC == chosen],
-                           dec_list$cohortId_3[dec_list$DEC == chosen],
-                           dec_list$cohortId_4[dec_list$DEC == chosen],
-                           dec_list$cohortId_5[dec_list$DEC == chosen]
-                           ))
+    TAR = input$chosenTAR
+    
+    if(TAR == tar_options[1]) {
+      return(chosenList <- c(dec_list$cohortId_1a[dec_list$DEC == chosen],
+                             dec_list$cohortId_2a[dec_list$DEC == chosen],
+                             dec_list$cohortId_3[dec_list$DEC == chosen],
+                             dec_list$cohortId_4a[dec_list$DEC == chosen],
+                             dec_list$cohortId_5a[dec_list$DEC == chosen]
+                             ))
+    }
+    if(TAR == tar_options[2]) {
+      return(chosenList <- c(dec_list$cohortId_1b[dec_list$DEC == chosen],
+                             dec_list$cohortId_2b[dec_list$DEC == chosen],
+                             dec_list$cohortId_3[dec_list$DEC == chosen],
+                             dec_list$cohortId_4b[dec_list$DEC == chosen],
+                             dec_list$cohortId_5b[dec_list$DEC == chosen]
+      ))
+    }
+    if(TAR == tar_options[3]) {
+      return(chosenList <- c(dec_list$cohortId_1c[dec_list$DEC == chosen],
+                             dec_list$cohortId_2c[dec_list$DEC == chosen],
+                             dec_list$cohortId_3[dec_list$DEC == chosen],
+                             dec_list$cohortId_4c[dec_list$DEC == chosen],
+                             dec_list$cohortId_5c[dec_list$DEC == chosen]
+      ))
+    }
   })
 
   # Function to return cohort subset
@@ -1631,7 +1651,7 @@ shiny::shinyServer(function(input, output, session) {
     if(verbose) print("output$chronographPlot <- ggiraph::renderggiraph")
     validate(need(length(databaseIds()) > 0, "No data sources chosen"))
     data <- chronograph()
-    validate(need(nrow(data) > 0, paste0("No data for this combination")))
+    validate(need(nrow(data) > 0, paste0("No data for this combination (chronograph is only calculated for TAR = 365)")))
     
     cohort_subset <- cohortSubset()
     title <- paste0("'", cohort_subset$cohortName[3], "' occuring in relation to start of perscription of '", cohort_subset$cohortName[1], "'")

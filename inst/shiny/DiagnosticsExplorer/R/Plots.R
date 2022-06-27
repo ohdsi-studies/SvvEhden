@@ -898,13 +898,13 @@ plotChronographWrapper <- function(data,
                                    comparatorCohortId, 
                                    outcomeCohortId, 
                                    title = "") {
-  
   plots <- plotChronograph(data, 
                            targetCohortId, 
                            comparatorCohortId, 
                            outcomeCohortId, 
                            title
                            )
+
   plot1 <- ggiraph::girafe(
     ggobj = plots$top,
     options = list(ggiraph::opts_sizing(width = .7),
@@ -912,7 +912,6 @@ plotChronographWrapper <- function(data,
     width_svg = 12,
     height_svg = 5
   )
-  
   plot2 <- ggiraph::girafe(
     ggobj = plots$bottom,
     options = list(ggiraph::opts_sizing(width = .7),
