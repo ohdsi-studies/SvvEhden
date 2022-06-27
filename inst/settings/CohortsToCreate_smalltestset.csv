@@ -1,0 +1,33 @@
+"cohortId","name","cohortName","logicDescription","phenotypeId","atlasId","concept_id","concept_name","concept_code","matching_drug_cohort_id","intersection_drug","intersection_event","fixed_TAR"
+2,"generic_target_drug_cohort","Perindopril (TAR=30)","Perindopril (TAR=30)",0,0,1373225,"Perindopril","54552",0,0,0,30
+1,"generic_target_drug_cohort","Cyclophosphamide (TAR=30)","Cyclophosphamide (TAR=30)",0,0,1310317,"Cyclophosphamide","3002",0,0,0,30
+4,"generic_target_drug_cohort","Perindopril (TAR=90)","Perindopril (TAR=90)",0,0,1373225,"Perindopril","54552",0,0,0,90
+3,"generic_target_drug_cohort","Cyclophosphamide (TAR=90)","Cyclophosphamide (TAR=90)",0,0,1310317,"Cyclophosphamide","3002",0,0,0,90
+6,"generic_target_drug_cohort","Perindopril (TAR=365)","Perindopril (TAR=365)",0,0,1373225,"Perindopril","54552",0,0,0,365
+5,"generic_target_drug_cohort","Cyclophosphamide (TAR=365)","Cyclophosphamide (TAR=365)",0,0,1310317,"Cyclophosphamide","3002",0,0,0,365
+8,"generic_comparator_drug_cohort","All drugs (matched to Perindopril) (TAR=30)","All drugs (matched to Perindopril) (TAR=30)",0,0,0,"0","0",2,0,0,30
+7,"generic_comparator_drug_cohort","All drugs (matched to Cyclophosphamide) (TAR=30)","All drugs (matched to Cyclophosphamide) (TAR=30)",0,0,0,"0","0",1,0,0,30
+10,"generic_comparator_drug_cohort","All drugs (matched to Perindopril) (TAR=90)","All drugs (matched to Perindopril) (TAR=90)",0,0,0,"0","0",4,0,0,90
+9,"generic_comparator_drug_cohort","All drugs (matched to Cyclophosphamide) (TAR=90)","All drugs (matched to Cyclophosphamide) (TAR=90)",0,0,0,"0","0",3,0,0,90
+12,"generic_comparator_drug_cohort","All drugs (matched to Perindopril) (TAR=365)","All drugs (matched to Perindopril) (TAR=365)",0,0,0,"0","0",6,0,0,365
+11,"generic_comparator_drug_cohort","All drugs (matched to Cyclophosphamide) (TAR=365)","All drugs (matched to Cyclophosphamide) (TAR=365)",0,0,0,"0","0",5,0,0,365
+14,"4272240001","Malaise","Malaise",4272240001,0,0,"0","0",0,0,0,0
+13,"406","Cerebral infarction","Cerebral infarction",406,0,0,"0","0",0,0,0,0
+17,"generic_intersection_drug_event","Perindopril + Malaise (anch. drug start) (TAR=30)","Perindopril + Malaise (anch. drug start) (TAR=30)",0,0,0,"0","0",0,2,14,30
+15,"generic_intersection_drug_event","Cyclophosphamide + Cerebral infarction (anch. drug start) (TAR=30)","Cyclophosphamide + Cerebral infarction (anch. drug start) (TAR=30)",0,0,0,"0","0",0,1,13,30
+16,"generic_intersection_drug_event","Cyclophosphamide + Malaise (anch. drug start) (TAR=30)","Cyclophosphamide + Malaise (anch. drug start) (TAR=30)",0,0,0,"0","0",0,1,14,30
+20,"generic_intersection_drug_event","Perindopril + Malaise (anch. drug start) (TAR=90)","Perindopril + Malaise (anch. drug start) (TAR=90)",0,0,0,"0","0",0,4,14,90
+18,"generic_intersection_drug_event","Cyclophosphamide + Cerebral infarction (anch. drug start) (TAR=90)","Cyclophosphamide + Cerebral infarction (anch. drug start) (TAR=90)",0,0,0,"0","0",0,3,13,90
+19,"generic_intersection_drug_event","Cyclophosphamide + Malaise (anch. drug start) (TAR=90)","Cyclophosphamide + Malaise (anch. drug start) (TAR=90)",0,0,0,"0","0",0,3,14,90
+23,"generic_intersection_drug_event","Perindopril + Malaise (anch. drug start) (TAR=365)","Perindopril + Malaise (anch. drug start) (TAR=365)",0,0,0,"0","0",0,6,14,365
+21,"generic_intersection_drug_event","Cyclophosphamide + Cerebral infarction (anch. drug start) (TAR=365)","Cyclophosphamide + Cerebral infarction (anch. drug start) (TAR=365)",0,0,0,"0","0",0,5,13,365
+22,"generic_intersection_drug_event","Cyclophosphamide + Malaise (anch. drug start) (TAR=365)","Cyclophosphamide + Malaise (anch. drug start) (TAR=365)",0,0,0,"0","0",0,5,14,365
+26,"generic_intersection_drug_event2","Perindopril + Malaise (anch. event start) (TAR=30)","Perindopril + Malaise (anch. event start) (TAR=30)",0,0,0,"0","0",0,2,14,30
+24,"generic_intersection_drug_event2","Cyclophosphamide + Cerebral infarction (anch. event start) (TAR=30)","Cyclophosphamide + Cerebral infarction (anch. event start) (TAR=30)",0,0,0,"0","0",0,1,13,30
+25,"generic_intersection_drug_event2","Cyclophosphamide + Malaise (anch. event start) (TAR=30)","Cyclophosphamide + Malaise (anch. event start) (TAR=30)",0,0,0,"0","0",0,1,14,30
+29,"generic_intersection_drug_event2","Perindopril + Malaise (anch. event start) (TAR=90)","Perindopril + Malaise (anch. event start) (TAR=90)",0,0,0,"0","0",0,4,14,90
+27,"generic_intersection_drug_event2","Cyclophosphamide + Cerebral infarction (anch. event start) (TAR=90)","Cyclophosphamide + Cerebral infarction (anch. event start) (TAR=90)",0,0,0,"0","0",0,3,13,90
+28,"generic_intersection_drug_event2","Cyclophosphamide + Malaise (anch. event start) (TAR=90)","Cyclophosphamide + Malaise (anch. event start) (TAR=90)",0,0,0,"0","0",0,3,14,90
+32,"generic_intersection_drug_event2","Perindopril + Malaise (anch. event start) (TAR=365)","Perindopril + Malaise (anch. event start) (TAR=365)",0,0,0,"0","0",0,6,14,365
+30,"generic_intersection_drug_event2","Cyclophosphamide + Cerebral infarction (anch. event start) (TAR=365)","Cyclophosphamide + Cerebral infarction (anch. event start) (TAR=365)",0,0,0,"0","0",0,5,13,365
+31,"generic_intersection_drug_event2","Cyclophosphamide + Malaise (anch. event start) (TAR=365)","Cyclophosphamide + Malaise (anch. event start) (TAR=365)",0,0,0,"0","0",0,5,14,365
