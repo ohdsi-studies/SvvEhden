@@ -63,8 +63,9 @@ library("CohortDiagnostics")
 ###########################################################################
 ### Settings
 ###########################################################################
-cohortToCreateFile = file.path(path_to_project_root, "inst", "settings", "CohortsToCreate.csv")
-decListFile = file.path(path_to_project_root, "inst", "settings", "DecList.csv")
+testset = "mediumtestset" # choose one of:  "smalltestset", "mediumtestset", "full"
+cohortToCreateFile = file.path(path_to_project_root, "inst", "settings", paste0("CohortsToCreate_", testset, ".csv"))
+decListFile = file.path(path_to_project_root, "inst", "settings", paste0("DecList_", testset, ".csv"))
 sqlFolder = "../inst/sql/sql_server/"
 jsonFolder = "../inst/cohorts/"
 fixed_TARs = get_tar_options(cohortToCreateFile = cohortToCreateFile)
