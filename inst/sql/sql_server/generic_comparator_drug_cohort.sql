@@ -32,7 +32,7 @@ UNION  select c.concept_id
 ----------------------------------------------------------------------
 
 /* Add sex, age at and calendar year of cohort entry to target drug cohort */
-drop table if exists #target_drug_cohort
+drop table if exists #target_drug_cohort;
 create table #target_drug_cohort (
     drug bigint,
 	person_id bigint,
@@ -41,7 +41,7 @@ create table #target_drug_cohort (
 	gender_concept_id int,
 	age_cohort_entry int,
 	cohort_start_yr int
-)
+);
 
 insert into #target_drug_cohort
 select 
@@ -56,9 +56,10 @@ from @target_database_schema.@target_cohort_table t
 join @cdm_database_schema.PERSON p
 ON t.subject_id = p.person_id
 where cohort_definition_id = @matching_drug_cohort_id; -- @matching_drug_cohort_id = cohort id of the drug to compare against
+;
 
 /* Add sex, age at and calendar year of cohort entry to any drug cohort */
-drop table if exists #any_drug_cohort
+drop table if exists #any_drug_cohort;
 create table #any_drug_cohort (
     drug bigint,
 	person_id bigint,
@@ -67,7 +68,7 @@ create table #any_drug_cohort (
 	gender_concept_id int,
 	age_cohort_entry int,
 	cohort_start_yr int
-)
+);
 
 insert into #any_drug_cohort
 select 
@@ -84,13 +85,14 @@ ON t.subject_id = p.person_id
 where cohort_definition_id = 999999@fixed_TAR;
 
 /* Identify comparator drug cohort by matching the any drug cohort on sex, age at and calendar year of cohort entry to the target drug cohort (10:1 ratio) */
-DROP TABLE if exists #comp_drug_cohort
+DROP TABLE if exists #comp_drug_cohort;
 create table #comp_drug_cohort (
 	person_id bigint,
 	cohort_start_date date,
 	cohort_end_date date,
 )
-;WITH cteDrug AS
+;
+WITH cteDrug AS
   (SELECT person_id,
           age_cohort_entry,
           gender_concept_id,
@@ -117,7 +119,7 @@ INNER JOIN cteAssignPersonNumber p ON p.gender_concept_id = c.gender_concept_id
 AND p.age_cohort_entry = c.age_cohort_entry
 AND p.cohort_start_yr = c.cohort_start_yr
 AND p.AssignedPersonNumber BETWEEN 10*(CaseRN - 1)+ 1 AND 10*CaseRN
-ORDER BY p.person_id
+ORDER BY p.person_id;
 
 
 DELETE FROM @target_database_schema.@target_cohort_table where cohort_definition_id = @target_cohort_id;
