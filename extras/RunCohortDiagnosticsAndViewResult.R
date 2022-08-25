@@ -53,8 +53,8 @@ path_to_project_root <- root_file()
 # This installs the custom CohortDiagnostics-package.
 if ("CohortDiagnostics" %in% (.packages())) {detach("package:CohortDiagnostics", unload = TRUE)}
 if ("CohortDiagnostics" %in% installed.packages()[,1]) {remove.packages("CohortDiagnostics")}
-pkgbuild::build(dest_path=path_to_project_root, binary=TRUE, args="--no-multiarch", type="win.binary")
-install.packages(repos=NULL, pkgs="../CohortDiagnostics_2.2.1.zip", INSTALL_opts="--no-multiarch", dependencies=TRUE)
+pkgbuild::build(dest_path=path_to_project_root, binary=TRUE, args="--no-multiarch")
+install.packages(repos=NULL, pkgs="../CohortDiagnostics_2.2.1.zip", INSTALL_opts="--no-multiarch", dependencies=TRUE, type="win.binary")
 library("CohortDiagnostics")
 
 
