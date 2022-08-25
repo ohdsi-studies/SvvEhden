@@ -51,12 +51,10 @@ root_file <- root$make_fix_file()
 path_to_project_root <- root_file()
 
 # This installs the custom CohortDiagnostics-package.
-detach("package:CohortDiagnostics", unload = TRUE)
-remove.packages("CohortDiagnostics")
-#pkgbuild::build(dest_path=path_to_project_root, binary=TRUE, args="--no-multiarch")
-tryCatch({
-  install.packages(repos=NULL, pkgs="../CohortDiagnostics_2.2.1.zip", INSTALL_opts="--no-multiarch", dependencies=TRUE)
-})
+if ("CohortDiagnostics" %in% (.packages())) {detach("package:CohortDiagnostics", unload = TRUE)}
+if ("CohortDiagnostics" %in% installed.packages()[,1]) {remove.packages("CohortDiagnostics")}
+pkgbuild::build(dest_path=path_to_project_root, binary=TRUE, args="--no-multiarch", type="win.binary")
+install.packages(repos=NULL, pkgs="../CohortDiagnostics_2.2.1.zip", INSTALL_opts="--no-multiarch", dependencies=TRUE)
 library("CohortDiagnostics")
 
 
