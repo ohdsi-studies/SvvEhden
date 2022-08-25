@@ -51,7 +51,7 @@ select
 	t.cohort_end_date as cohort_end_date,
 	p.gender_concept_id as gender_concept_id,
 	datediff(year,(datefromparts(p.year_of_birth, p.month_of_birth, p.day_of_birth)),t.cohort_start_date) as age_cohort_entry,
-	datepart(year from t.cohort_start_date) as cohort_start_yr
+	year(t.cohort_start_date) as cohort_start_yr
 from @target_database_schema.@target_cohort_table t
 join @cdm_database_schema.PERSON p
 ON t.subject_id = p.person_id
@@ -78,7 +78,7 @@ select
 	t.cohort_end_date as cohort_end_date,
 	p.gender_concept_id as gender_concept_id,
 	datediff(year,(datefromparts(p.year_of_birth, p.month_of_birth, p.day_of_birth)),t.cohort_start_date) as age_cohort_entry,
-	datepart(year from t.cohort_start_date) as cohort_start_yr
+	year(t.cohort_start_date) as cohort_start_yr
 from @target_database_schema.@target_cohort_table t
 join @cdm_database_schema.PERSON p
 ON t.subject_id = p.person_id
