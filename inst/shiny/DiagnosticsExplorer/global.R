@@ -16,21 +16,23 @@ defaultDatabase <- Sys.getenv("shinydbDatabase")
 defaultPort <- 5432
 defaultUser <- Sys.getenv("shinydbUser")
 defaultPassword <- Sys.getenv("shinydbPw")
-defaultResultsSchema <- 'thrombosisthrombocytopenia'
-defaultVocabularySchema <- defaultResultsSchema
+# defaultResultsSchema <- 'thrombosisthrombocytopenia'
+# defaultVocabularySchema <- defaultResultsSchema
 alternateVocabularySchema <- c('vocabulary')
 
-defaultDatabaseMode <- FALSE # Use file system if FALSE
+defaultDatabaseMode <- ifelse(use_postgreSQL_as_backend, TRUE, FALSE) # Use file system if FALSE
 
 appVersionNum <- "Version: 2.2.1"
 appInformationText <- paste("Powered by OHDSI Cohort Diagnostics application", paste0(appVersionNum, "."), "This app is working in")
 if (defaultDatabaseMode) {
-  appInformationText <- paste0(appInformationText, " database")
+  appInformationText <- paste0(appInformationText, " database mode")
 } else {
-  appInformationText <- paste0(appInformationText, " local file")
+  appInformationText <- paste0(appInformationText, " local file mode")
 }
+
+
 appInformationText <- paste0(appInformationText, 
-                             " mode. Application was last initated on ", 
+                             ". Application was last initated on ", 
                              lubridate::now(tzone = "EST"),
                              " EST. Cohort Diagnostics website is at https://ohdsi.github.io/CohortDiagnostics/")
 
@@ -75,7 +77,7 @@ if (!exists("shinySettings")) {
           password = connectionDetails$password(),
           connectionString = connectionDetails$connectionString()
         )
-    } else {
+     } else {
       # For backwards compatibility with older versions of DatabaseConnector:
       connectionPool <-
         pool::dbPool(
@@ -124,8 +126,10 @@ if (databaseMode) {
   #     tolower(DatabaseConnector::dbListTables(connectionPool, schema = vocabularyDatabaseSchemas[[i]]))
   # vocabularyTablesOnServer[[i]] <- intersect(x = )
   # }
+
   loadResultsTable("database", required = TRUE)
   loadResultsTable("cohort", required = TRUE)
+  
   loadResultsTable("temporal_time_ref")
   loadResultsTable("concept_sets")
   loadResultsTable("cohort_count", required = TRUE)

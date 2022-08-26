@@ -198,6 +198,7 @@ launchDiagnosticsExplorerOutsidePackage <- function(dataFolder = "data",
                              guess_max = min(1e7))
   # print(dec_list)
 
+  chronograph_list = list()
   # read in chronograph data 
   checkmate::assertFileExists(
     x = ChronographCsv,

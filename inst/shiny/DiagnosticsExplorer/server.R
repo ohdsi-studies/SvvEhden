@@ -40,16 +40,20 @@ shiny::shinyServer(function(input, output, session) {
       print(cohort)
   
     }
+    
+    # cohortsForDec is used to filter out the cohorts for the selected DEC and TAR
     cohort_list = cohortsForDec()
     
     data <- cohort %>%
       filter(.data$cohortId %in% (cohort_list)) %>%                    # only the ones from the chosen DEC!
       dplyr::arrange(factor(.data$cohortId, levels = cohort_list)) %>% # order by the DEC list cohort order
-      dplyr::mutate(shortName = c("C1 target drug", 
-                                  "C2 comparator drug", 
-                                  "C3 event", 
-                                  "C4 target drug w event", 
-                                  "C5 target drug w event")) %>%                 # reset the short name
+      dplyr::distinct(.keep_all=T) %>% 
+      dplyr::mutate(shortName = c("C1 target drug",
+                                  "C2 comparator drug",
+                                  "C3 event",
+                                  "C4 target drug w event",
+                                  "C5 target drug w event"
+                                  )) %>%                 # reset the short name
       dplyr::mutate(compoundName = paste0(.data$shortName, ": ", .data$cohortName,"(", .data$cohortId, ")"))
     return(data)
   })
@@ -95,7 +99,7 @@ shiny::shinyServer(function(input, output, session) {
         (isFALSE(input$timeIdChoices_open) ||
          !is.null(input$tabs))) {
       selectedTimeIds <- temporalCovariateChoices %>%
-        dplyr::filter(choices %in% input$timeIdChoices) %>%
+        dplyr::filter(choices %in% input$timeIdChoices) %>% 
         dplyr::pull(timeId)
       timeIds(selectedTimeIds)
     }
@@ -1648,8 +1652,10 @@ shiny::shinyServer(function(input, output, session) {
   })
   
   output$chronographPlot1 <- ggiraph::renderggiraph(expr = {
-    if(verbose) print("output$chronographPlot <- ggiraph::renderggiraph")
+    if(verbose){ print("output$chronographPlot <- ggiraph::renderggiraph")}
     validate(need(length(databaseIds()) > 0, "No data sources chosen"))
+    
+    # Read and validate in data to Chronograph plot
     data <- chronograph()
     validate(need(nrow(data) > 0, paste0("No data for this combination (chronograph is only calculated for TAR = 365)")))
     

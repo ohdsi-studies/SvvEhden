@@ -1,0 +1,14 @@
+"cohortId","name","cohortName","logicDescription","phenotypeId","atlasId","concept_id","concept_name","concept_code","matching_drug_cohort_id","intersection_drug","intersection_event","fixed_TAR"
+4,"generic_target_drug_cohort","Melphalan (TAR=30)","Melphalan (TAR=30)",0,0,1301267,"Melphalan","6718",0,0,0,30
+9,"generic_target_drug_cohort","Melphalan (TAR=90)","Melphalan (TAR=90)",0,0,1301267,"Melphalan","6718",0,0,0,90
+14,"generic_target_drug_cohort","Melphalan (TAR=365)","Melphalan (TAR=365)",0,0,1301267,"Melphalan","6718",0,0,0,365
+19,"generic_comparator_drug_cohort","All drugs (matched to Melphalan) (TAR=30)","All drugs (matched to Melphalan) (TAR=30)",0,0,0,"0","0",4,0,0,30
+24,"generic_comparator_drug_cohort","All drugs (matched to Melphalan) (TAR=90)","All drugs (matched to Melphalan) (TAR=90)",0,0,0,"0","0",9,0,0,90
+29,"generic_comparator_drug_cohort","All drugs (matched to Melphalan) (TAR=365)","All drugs (matched to Melphalan) (TAR=365)",0,0,0,"0","0",14,0,0,365
+40,"411","Pulmonary Embolism","Pulmonary Embolism",411,0,0,"0","0",0,0,0,0
+51,"generic_intersection_drug_event","Melphalan + Pulmonary Embolism (anch. drug start) (TAR=30)","Melphalan + Pulmonary Embolism (anch. drug start) (TAR=30)",0,0,0,"0","0",0,4,40,30
+67,"generic_intersection_drug_event","Melphalan + Pulmonary Embolism (anch. drug start) (TAR=90)","Melphalan + Pulmonary Embolism (anch. drug start) (TAR=90)",0,0,0,"0","0",0,9,40,90
+83,"generic_intersection_drug_event","Melphalan + Pulmonary Embolism (anch. drug start) (TAR=365)","Melphalan + Pulmonary Embolism (anch. drug start) (TAR=365)",0,0,0,"0","0",0,14,40,365
+99,"generic_intersection_drug_event2","Melphalan + Pulmonary Embolism (anch. event start) (TAR=30)","Melphalan + Pulmonary Embolism (anch. event start) (TAR=30)",0,0,0,"0","0",0,4,40,30
+115,"generic_intersection_drug_event2","Melphalan + Pulmonary Embolism (anch. event start) (TAR=90)","Melphalan + Pulmonary Embolism (anch. event start) (TAR=90)",0,0,0,"0","0",0,9,40,90
+131,"generic_intersection_drug_event2","Melphalan + Pulmonary Embolism (anch. event start) (TAR=365)","Melphalan + Pulmonary Embolism (anch. event start) (TAR=365)",0,0,0,"0","0",0,14,40,365

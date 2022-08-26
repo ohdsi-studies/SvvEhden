@@ -101,7 +101,7 @@ sidebarMenu <-
     ),
     ##################################################
     if (exists("cohort"))
-      shinydashboard::menuItem(text = "Cohort Definition", tabName = "cohortDefinition"),
+      shinydashboard::menuItem(text = "Cohort Definition", tabName = "CohortDefinition"),
     if (exists("includedSourceConcept"))
       addInfo(
         item = shinydashboard::menuItem(text = "Concepts in Data Source", tabName = "includedConcepts"),
@@ -177,24 +177,24 @@ sidebarMenu <-
     shinydashboard::menuItem(text = "Data Source Information", tabName = "databaseInformation"),
     # Conditional dropdown boxes in the side bar ------------------------------------------------------
     shiny::conditionalPanel(
+      # These tabs should have possibility to select databaseId
       condition = "input.tabs!='incidenceRate' &
       input.tabs != 'timeDistribution' &
       input.tabs != 'cohortCharacterization' &
       input.tabs != 'cohortCounts' &
       input.tabs != 'indexEventBreakdown' &
       input.tabs != 'databaseInformation' &
-      input.tabs != 'cohortDefinition' &
+      input.tabs != 'CohortDefinition' &
       input.tabs != 'includedConcepts' &
       input.tabs != 'orphanConcepts' &
       input.tabs != 'inclusionRuleStats' &
       input.tabs != 'visitContext'",
-  #    &input.tabs != 'cohortOverlap'",
       shinyWidgets::pickerInput(
         inputId = "database",
         label = "Database",
         choices = database$databaseId,
         selected = database$databaseId[1],
-        multiple = FALSE,
+        multiple = TRUE,
         choicesOpt = list(style = rep_len("color: black;", 999)),
         options = shinyWidgets::pickerOptions(
           actionsBox = TRUE,
@@ -215,8 +215,8 @@ sidebarMenu <-
       input.tabs == 'includedConcepts' |
       input.tabs == 'orphanConcepts' |
       input.tabs == 'inclusionRuleStats' |
-      input.tabs == 'visitContext'", 
-      # | input.tabs == 'cohortOverlap'",
+      input.tabs == 'visitContext'| 
+      input.tabs == 'CohortDefinition'",
       shinyWidgets::pickerInput(
         inputId = "databases",
         label = "Databases",
@@ -265,10 +265,11 @@ sidebarMenu <-
         )
       )
     },
+    # These tabs should have drop-down to select Cohort
     # input.tabs != 'cohortOverlap'&
         shiny::conditionalPanel(
       condition = "input.tabs != 'databaseInformation' &
-      input.tabs != 'cohortDefinition' &
+      input.tabs != 'CohortDefinition' &
       input.tabs != 'cohortCounts' &
       input.tabs != 'chronograph' &
       input.tabs != 'incidenceRate' &
@@ -371,7 +372,7 @@ bodyTabItems <- shinydashboard::tabItems(
                           if (exists("aboutText"))
                             HTML(aboutText)),
   shinydashboard::tabItem(
-    tabName = "cohortDefinition",
+    tabName = "CohortDefinition",
     shinydashboard::box(
       width = NULL,
       status = "primary",
@@ -410,12 +411,12 @@ bodyTabItems <- shinydashboard::tabItems(
               tags$table(width = "100%",
                          tags$tr(tags$td(
                            align = "right",
-                           # shiny::downloadButton(
-                           #   "saveConceptSetButton",
-                           #   label = "",
-                           #   icon = shiny::icon("download"),
-                           #   style = "margin-top: 5px; margin-bottom: 5px;"
-                           # )
+                           shiny::downloadButton(
+                             "saveConceptSetButton",
+                             label = "",
+                             icon = shiny::icon("download"),
+                             style = "margin-top: 5px; margin-bottom: 5px;"
+                           )
                          ))),
               DT::dataTableOutput(outputId = "conceptsetExpressionTable"),
               shiny::conditionalPanel(condition = "output.conceptSetExpressionRowSelected == true",

@@ -1,0 +1,14 @@
+"cohortId","name","cohortName","logicDescription","phenotypeId","atlasId","concept_id","concept_name","concept_code","matching_drug_cohort_id","intersection_drug","intersection_event","fixed_TAR"
+5,"generic_target_drug_cohort","Prednisolone (TAR=30)","Prednisolone (TAR=30)",0,0,1550557,"prednisolone","8638",0,0,0,30
+10,"generic_target_drug_cohort","Prednisolone (TAR=90)","Prednisolone (TAR=90)",0,0,1550557,"prednisolone","8638",0,0,0,90
+15,"generic_target_drug_cohort","Prednisolone (TAR=365)","Prednisolone (TAR=365)",0,0,1550557,"prednisolone","8638",0,0,0,365
+20,"generic_comparator_drug_cohort","All drugs (matched to Prednisolone) (TAR=30)","All drugs (matched to Prednisolone) (TAR=30)",0,0,0,"0","0",5,0,0,30
+25,"generic_comparator_drug_cohort","All drugs (matched to Prednisolone) (TAR=90)","All drugs (matched to Prednisolone) (TAR=90)",0,0,0,"0","0",10,0,0,90
+30,"generic_comparator_drug_cohort","All drugs (matched to Prednisolone) (TAR=365)","All drugs (matched to Prednisolone) (TAR=365)",0,0,0,"0","0",15,0,0,365
+37,"343","Guillain Barre Syndrome","Guillain Barre Syndrome",343,0,0,"0","0",0,0,0,0
+56,"generic_intersection_drug_event","Prednisolone + Guillain Barre Syndrome (anch. drug start) (TAR=30)","Prednisolone + Guillain Barre Syndrome (anch. drug start) (TAR=30)",0,0,0,"0","0",0,5,37,30
+72,"generic_intersection_drug_event","Prednisolone + Guillain Barre Syndrome (anch. drug start) (TAR=90)","Prednisolone + Guillain Barre Syndrome (anch. drug start) (TAR=90)",0,0,0,"0","0",0,10,37,90
+88,"generic_intersection_drug_event","Prednisolone + Guillain Barre Syndrome (anch. drug start) (TAR=365)","Prednisolone + Guillain Barre Syndrome (anch. drug start) (TAR=365)",0,0,0,"0","0",0,15,37,365
+104,"generic_intersection_drug_event2","Prednisolone + Guillain Barre Syndrome (anch. event start) (TAR=30)","Prednisolone + Guillain Barre Syndrome (anch. event start) (TAR=30)",0,0,0,"0","0",0,5,37,30
+120,"generic_intersection_drug_event2","Prednisolone + Guillain Barre Syndrome (anch. event start) (TAR=90)","Prednisolone + Guillain Barre Syndrome (anch. event start) (TAR=90)",0,0,0,"0","0",0,10,37,90
+136,"generic_intersection_drug_event2","Prednisolone + Guillain Barre Syndrome (anch. event start) (TAR=365)","Prednisolone + Guillain Barre Syndrome (anch. event start) (TAR=365)",0,0,0,"0","0",0,15,37,365

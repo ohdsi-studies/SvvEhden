@@ -52,6 +52,7 @@ executeChronographWrapper <- function(connectionDetails,
                                       cohortDatabaseSchema = cdmDatabaseSchema,
                                       cohortTable = paste0("cohorts_",Sys.getenv("USERNAME"),"_CD"),
                                       decList = "../inst/settings/DecList.csv", 
+                                      decs_to_process = 1:5,
                                       storePath = "export",
                                       storeFileName = "chronograph_data.csv",
                                       databaseId = cdmDatabaseSchema,
@@ -75,8 +76,8 @@ executeChronographWrapper <- function(connectionDetails,
   
   chronograph_list <- list()
   chronograph_list[1:nrow(DEC_df)] = NA 
-  
-  for(i in 1:nrow(DEC_df)){
+
+  for(i in decs_to_process){#1:nrow(DEC_df)){
     
     # i = 1
     cat(i, "\n")
@@ -106,6 +107,7 @@ executeChronographWrapper <- function(connectionDetails,
   chronograph_data_all_decs$databaseId = databaseId
   
   # Join all chronograph DEC-data and print it
+  dir.create(file.path(project_root_path, storePath), showWarnings = FALSE)
   data.table::fwrite(chronograph_data_all_decs, file=paste0(project_root_path, "/", path_w_filename))
 }
 

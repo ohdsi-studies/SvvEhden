@@ -23,11 +23,19 @@ This concludes the prerequisites.
 
 How-to-prepare and run
 =======================
-The study package is executed by running the script 'runCohortDiagnosticsAndViewResult.R' placed in the extras-folder. This script handles installation of the study specific CohortDiagnostics, creates cohorts, gather summary data needed for display in a shiny app, starts the shiny app and uploads data. This is controlled by the following three parameters. 
+To setup the custom version of CohortDiagnostics used in this study, initiate a new project in Rstudio. Select "Version Control"
+and provide the link to the study package github [link](https://github.com/ohdsi-studies/SvvEhden) to initiate the project. 
 
-* prepare_cohort_diagnostics (TRUE/FALSE: set to TRUE when preparing data to be displayed in CohortDiagnostics, typically the first time)
-* upload_data_to_server = FALSE (set to TRUE when you want to upload data to the OHDSI SFTP server. Default is set to FALSE to encourage  examination of the aggregated data in the ShinyApp before uploading.)
-* run_cohort_diagnostics_shiny_interface (TRUE/FALSE: default is set to TRUE to start the CohortDiagnostics shiny app)
+Once the project is initiated, the code is executed by running the script 'runCohortDiagnosticsAndViewResult.R' placed in the extras-folder. This script handles installation of the study specific CohortDiagnostics, creates cohorts, gather summary data needed for display in a shiny app, starts the shiny app and uploads data. 
+
+For completeness, note that the name of the study package is CohortDiagnostics, not Svvehden, and that the description of the package is "CohortDiagnostics 2.2.1 modified by UMC", to be able to distinguish it from other version of CohortDiagnostics. Also, if issues during execution require us to update scripts, we will push new versions using git. To update older versions of the study package, you may either pull the latest version, e.g. using the Git-tab in Rstudio, upper right pane, or  remove the old Rstudio project folder and initiate a new one, which will use the latest version of the scripts.
+      
+The runCohortDiagnosticsAndViewResult-script is controlled by the following three parameters. 
+
+* prepare_cohort_diagnostics_data (TRUE/FALSE: set to TRUE when preparing data to be displayed in CohortDiagnostics, typically the first time. Once this has fully executed once, you don't need to do this step again.)
+* upload_data_to_server (TRUE/FALSE: set to TRUE when you want to upload data to the OHDSI SFTP server. Default is set to FALSE to encourage  examination of the aggregated data in the ShinyApp before uploading. Once this has fully executed one, you don't need to do this step again.)
+* make_cohort_diagnostics_data_avaliable_to_shiny_interface (TRUE/FALSE: set to true the first time before you want to start the CohortDiagnostics app. Once this has fully executed once, you don't need to do this step again.)
+* run_cohort_diagnostics_shiny_interface (TRUE/FALSE: set to TRUE to start the CohortDiagnostics shiny app)
 
 Further details around these are available in comments in the script 'runCohortDiagnosticsAndViewResult.R' where these values are set. 
 

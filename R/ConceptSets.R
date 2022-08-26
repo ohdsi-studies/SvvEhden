@@ -146,7 +146,7 @@ combineConceptSetsFromCohorts <- function(cohorts) {
         
         stop(
           "Mismatch in concept set IDs between SQL and JSON for cohort ",
-          cohort$cohortFullName
+          cohort$cohortName
         )
       }
       if (length(sql) > 0 && length(json) > 0) {

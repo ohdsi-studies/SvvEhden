@@ -121,7 +121,8 @@ runCohortDiagnostics_mod <- function(packageName = NULL,
                                  ),
                                  minCellCount = 5,
                                  incremental = FALSE,
-                                 incrementalFolder = file.path(exportFolder, "incremental")) {
+                                 incrementalFolder = file.path(exportFolder, "incremental"),
+                                 zip_file_name_prefix = "") {
 
   exportFolder <- normalizePath(exportFolder, mustWork = FALSE)
   incrementalFolder <- normalizePath(incrementalFolder, mustWork = FALSE)
@@ -595,7 +596,7 @@ runCohortDiagnostics_mod <- function(packageName = NULL,
   )
   
   # Add all to zip file -------------------------------------------------------------------------------
-  writeResultsZip(exportFolder, databaseId, vocabularyVersion, vocabularyVersionCdm)
+  writeResultsZip_mod(exportFolder, databaseId, vocabularyVersion, vocabularyVersionCdm, zip_file_name_prefix)
   delta <- Sys.time() - start
   ParallelLogger::logInfo("Computing all diagnostics took ",
                           signif(delta, 3),
@@ -604,9 +605,9 @@ runCohortDiagnostics_mod <- function(packageName = NULL,
 }
 
 
-writeResultsZip <- function(exportFolder, databaseId, vocabularyVersion, vocabularyVersionCdm) {
+writeResultsZip_mod <- function(exportFolder, databaseId, vocabularyVersion, vocabularyVersionCdm, zip_file_name_prefix) {
   ParallelLogger::logInfo("Adding results to zip file")
-  zipName <- file.path(exportFolder, paste0("Results_", databaseId, ".zip"))
+  zipName <- file.path(exportFolder, paste0("Results_", zip_file_name_prefix, "_", databaseId, ".zip"))
   files <- list.files(exportFolder, pattern = ".*\\.csv$")
   wd <- getwd()
   on.exit(setwd(wd), add = TRUE)
@@ -784,7 +785,8 @@ executeDiagnosticsOutsidePackage <- function(cohortDefinitionSet,
                                              ),
                                              minCellCount = 5,
                                              incremental = FALSE,
-                                             incrementalFolder = file.path(exportFolder, "incremental")) {
+                                             incrementalFolder = file.path(exportFolder, "incremental"),
+                                             zip_file_name_prefix = "") {
   
   checkCohortReference(cohortReference = cohortDefinitionSet)
   
@@ -819,5 +821,6 @@ executeDiagnosticsOutsidePackage <- function(cohortDefinitionSet,
                        temporalCovariateSettings = temporalCovariateSettings,
                        minCellCount = minCellCount,
                        incremental = incremental,
-                       incrementalFolder = incrementalFolder)
+                       incrementalFolder = incrementalFolder,
+                       zip_file_name_prefix = zip_file_name_prefix)
 }

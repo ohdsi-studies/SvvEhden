@@ -1,0 +1,14 @@
+"cohortId","name","cohortName","logicDescription","phenotypeId","atlasId","concept_id","concept_name","concept_code","matching_drug_cohort_id","intersection_drug","intersection_event","fixed_TAR"
+3,"generic_target_drug_cohort","Dexamethasone (TAR=30)","Dexamethasone (TAR=30)",0,0,1518254,"Dexamethasone","3264",0,0,0,30
+8,"generic_target_drug_cohort","Dexamethasone (TAR=90)","Dexamethasone (TAR=90)",0,0,1518254,"Dexamethasone","3264",0,0,0,90
+13,"generic_target_drug_cohort","Dexamethasone (TAR=365)","Dexamethasone (TAR=365)",0,0,1518254,"Dexamethasone","3264",0,0,0,365
+18,"generic_comparator_drug_cohort","All drugs (matched to Dexamethasone) (TAR=30)","All drugs (matched to Dexamethasone) (TAR=30)",0,0,0,"0","0",3,0,0,30
+23,"generic_comparator_drug_cohort","All drugs (matched to Dexamethasone) (TAR=90)","All drugs (matched to Dexamethasone) (TAR=90)",0,0,0,"0","0",8,0,0,90
+28,"generic_comparator_drug_cohort","All drugs (matched to Dexamethasone) (TAR=365)","All drugs (matched to Dexamethasone) (TAR=365)",0,0,0,"0","0",13,0,0,365
+36,"346","Encephalomyelitis","Encephalomyelitis",346,0,0,"0","0",0,0,0,0
+47,"generic_intersection_drug_event","Dexamethasone + Encephalomyelitis (anch. drug start) (TAR=30)","Dexamethasone + Encephalomyelitis (anch. drug start) (TAR=30)",0,0,0,"0","0",0,3,36,30
+63,"generic_intersection_drug_event","Dexamethasone + Encephalomyelitis (anch. drug start) (TAR=90)","Dexamethasone + Encephalomyelitis (anch. drug start) (TAR=90)",0,0,0,"0","0",0,8,36,90
+79,"generic_intersection_drug_event","Dexamethasone + Encephalomyelitis (anch. drug start) (TAR=365)","Dexamethasone + Encephalomyelitis (anch. drug start) (TAR=365)",0,0,0,"0","0",0,13,36,365
+95,"generic_intersection_drug_event2","Dexamethasone + Encephalomyelitis (anch. event start) (TAR=30)","Dexamethasone + Encephalomyelitis (anch. event start) (TAR=30)",0,0,0,"0","0",0,3,36,30
+111,"generic_intersection_drug_event2","Dexamethasone + Encephalomyelitis (anch. event start) (TAR=90)","Dexamethasone + Encephalomyelitis (anch. event start) (TAR=90)",0,0,0,"0","0",0,8,36,90
+127,"generic_intersection_drug_event2","Dexamethasone + Encephalomyelitis (anch. event start) (TAR=365)","Dexamethasone + Encephalomyelitis (anch. event start) (TAR=365)",0,0,0,"0","0",0,13,36,365

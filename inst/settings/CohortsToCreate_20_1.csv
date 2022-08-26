@@ -1,0 +1,14 @@
+"cohortId","name","cohortName","logicDescription","phenotypeId","atlasId","concept_id","concept_name","concept_code","matching_drug_cohort_id","intersection_drug","intersection_event","fixed_TAR"
+1,"generic_target_drug_cohort","Amitriptyline (TAR=30)","Amitriptyline (TAR=30)",0,0,710062,"Amitriptyline","704",0,0,0,30
+6,"generic_target_drug_cohort","Amitriptyline (TAR=90)","Amitriptyline (TAR=90)",0,0,710062,"Amitriptyline","704",0,0,0,90
+11,"generic_target_drug_cohort","Amitriptyline (TAR=365)","Amitriptyline (TAR=365)",0,0,710062,"Amitriptyline","704",0,0,0,365
+16,"generic_comparator_drug_cohort","All drugs (matched to Amitriptyline) (TAR=30)","All drugs (matched to Amitriptyline) (TAR=30)",0,0,0,"0","0",1,0,0,30
+21,"generic_comparator_drug_cohort","All drugs (matched to Amitriptyline) (TAR=90)","All drugs (matched to Amitriptyline) (TAR=90)",0,0,0,"0","0",6,0,0,90
+26,"generic_comparator_drug_cohort","All drugs (matched to Amitriptyline) (TAR=365)","All drugs (matched to Amitriptyline) (TAR=365)",0,0,0,"0","0",11,0,0,365
+36,"346","Encephalomyelitis","Encephalomyelitis",346,0,0,"0","0",0,0,0,0
+41,"generic_intersection_drug_event","Amitriptyline + Encephalomyelitis (anch. drug start) (TAR=30)","Amitriptyline + Encephalomyelitis (anch. drug start) (TAR=30)",0,0,0,"0","0",0,1,36,30
+57,"generic_intersection_drug_event","Amitriptyline + Encephalomyelitis (anch. drug start) (TAR=90)","Amitriptyline + Encephalomyelitis (anch. drug start) (TAR=90)",0,0,0,"0","0",0,6,36,90
+73,"generic_intersection_drug_event","Amitriptyline + Encephalomyelitis (anch. drug start) (TAR=365)","Amitriptyline + Encephalomyelitis (anch. drug start) (TAR=365)",0,0,0,"0","0",0,11,36,365
+89,"generic_intersection_drug_event2","Amitriptyline + Encephalomyelitis (anch. event start) (TAR=30)","Amitriptyline + Encephalomyelitis (anch. event start) (TAR=30)",0,0,0,"0","0",0,1,36,30
+105,"generic_intersection_drug_event2","Amitriptyline + Encephalomyelitis (anch. event start) (TAR=90)","Amitriptyline + Encephalomyelitis (anch. event start) (TAR=90)",0,0,0,"0","0",0,6,36,90
+121,"generic_intersection_drug_event2","Amitriptyline + Encephalomyelitis (anch. event start) (TAR=365)","Amitriptyline + Encephalomyelitis (anch. event start) (TAR=365)",0,0,0,"0","0",0,11,36,365
