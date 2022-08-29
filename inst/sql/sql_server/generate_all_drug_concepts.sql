@@ -16,4 +16,4 @@ union
   INNER JOIN @cdm_database_schema.concept C ON C.concept_id = CA.ancestor_concept_id
   where C.concept_id != 0 and
         C.vocabulary_id = 'RxNorm' and C.concept_class_id = 'Ingredient' and C.standard_concept  ='S' and C.invalid_reason is null
-)U
+) U
