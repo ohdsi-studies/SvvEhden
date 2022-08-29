@@ -10,7 +10,7 @@ prepare_cohort_diagnostics_data = TRUE
 make_cohort_diagnostics_data_avaliable_to_shiny_interface = FALSE
 
 # upload_data_to_server = TRUE => This uploads the aggregated data to the OHDSI SFTP-server
-upload_data_to_server = FALSE
+upload_data_to_server = TRUE
 
 # run_cohort_diagnostics_shiny_interface = TRUE => reads in the saved data in the export folder,
 # and starts the shiny CohortDiagnostics app.
